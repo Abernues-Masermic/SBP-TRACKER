@@ -1,0 +1,13 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:cntrl="clr-namespace:NumericUpDownLib;assembly=NumericUpDownLib">
+
+    <Style x:Key="DecimalUpDownStyle" TargetType="{x:Type cntrl:DecimalUpDown}">
+        <Setter Property="FontFamily" Value="Helvetica LT Std"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Background" Value="White"/>
+
+    </Style>
+</ResourceDictionary>

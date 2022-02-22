@@ -1,0 +1,133 @@
+﻿<Window x:Class="SBP_TRACKER.SettingModbusWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:cntrlLib="clr-namespace:NumericUpDownLib;assembly=NumericUpDownLib"
+        xmlns:cntrlUser="clr-namespace:SBP_TRACKER_Controls"
+        mc:Ignorable="d"
+        Title="SETTING MODBUS" 
+        Height="590" Width="820"
+        WindowStartupLocation="Manual"
+        WindowStyle="None"  
+        AllowsTransparency="True"  
+        Background="Transparent"      
+        Loaded="Window_Loaded">
+
+    <Border  Style="{StaticResource Border_background_separator}">
+        <Border  Style="{StaticResource Border_background}">
+            <Grid>
+                <StackPanel Orientation="Vertical">
+                    
+                    <DockPanel DockPanel.Dock="Top" Margin="5" >
+                        <Border DockPanel.Dock="Left"  Background="Black" CornerRadius="5" BorderBrush="White" BorderThickness="1"  VerticalAlignment="Top" HorizontalAlignment="Stretch"  MouseLeftButtonDown="Control_MouseDown">
+                            <Label x:Name="Label_setting"  Content="SETTING MODBUS" Style="{StaticResource Label_title}"  />
+                        </Border>
+
+                        <StackPanel DockPanel.Dock="Right"  Orientation="Horizontal" HorizontalAlignment="Right"  MouseLeftButtonDown="Control_MouseDown">
+
+                            <Button x:Name="Button_exit" Style="{StaticResource Button_rounded}" Height="30" Width="30"  HorizontalAlignment="Right" Click="Button_exit_Click">
+                                <Image Source="/Images/exit.png"   Height="22" Width="22"/>
+                            </Button>
+                        </StackPanel>
+                    </DockPanel>
+
+                    <Border  x:Name="Border_tcp_slave" DockPanel.Dock="Top" Style="{StaticResource Border_shadow}" Margin="5">
+
+                        <DockPanel>
+                            <DockPanel>
+                                <Border x:Name="Border_slave_list" Style="{StaticResource Border_group}" DockPanel.Dock="Top"  BorderThickness="3,3,2,2"  Margin="5"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Width="280" SnapsToDevicePixels="True">
+                                    <WrapPanel Orientation="Vertical" Margin="5">
+                                        <ListView x:Name="Listview_tcp_slave" DockPanel.Dock="Bottom" Style="{StaticResource Listview_style}" HorizontalAlignment="Left" VerticalAlignment="Top" Height="160" Margin="0,5,0,0" AllowDrop="True"                             
+                                            PreviewMouseDoubleClick="Listview_tcp_slave_PreviewMouseDoubleClick"
+                                            SelectionChanged="Listview_tcp_slave_SelectionChanged">
+
+                                            <ListView.View>
+                                                <GridView >
+                                                    <GridViewColumn Width="250"  Header="TCP SLAVE"  HeaderContainerStyle="{StaticResource Gridview_header_style}" />
+                                                </GridView>
+                                            </ListView.View>
+
+                                        </ListView>
+
+                                        <Button x:Name="Button_new_tcp_slave" Style="{StaticResource Button_rounded}" Content="NEW" Margin="0,5,0,5" Height="25"  Click="Button_new_tcp_slave_Click"/>
+                                        <Button x:Name="Button_remove_tcp_slave" Style="{StaticResource Button_rounded}" Content="REMOVE" Margin="0,5,0,5" Height="25" Click="Button_remove_tcp_slave_Click"/>
+
+                                    </WrapPanel>
+                                </Border>
+
+                                <Border x:Name="Border_edit" Style="{StaticResource Border_group}"   DockPanel.Dock="Bottom" BorderThickness="3,3,2,2"  Margin="5"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Width="280" SnapsToDevicePixels="True">
+                                    <WrapPanel x:Name="Wrap_edit_tcp_slave" Orientation="Vertical" Margin="5">
+
+                                        <Border Style="{StaticResource Border_shadow}"  HorizontalAlignment="Center" Margin="5">
+                                            <Label  Style="{StaticResource Label_subtitle}" Content="EDIT" VerticalContentAlignment="Center"   HorizontalContentAlignment="Center" Width="240" Padding="1"/>
+                                        </Border>
+                                        <WrapPanel Orientation="Horizontal" Margin="2">
+                                            <Label Content="NAME"  Style="{StaticResource Label_setting}" Width="100"/>
+                                            <TextBox x:Name="Textbox_tcp_slave_name" Style="{StaticResource Textbox_setting}"  Width="150"/>
+                                        </WrapPanel>
+
+                                        <WrapPanel  Orientation="Horizontal" Margin="5">
+                                            <Label Content="UNIT ID"  Style="{StaticResource Label_setting}" Width="100"/>
+                                            <cntrlLib:DecimalUpDown x:Name="DecimalUpDown_UnitId" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="13" MinValue="1" MaxValue="255"  Value="247" IsReadOnly="False" Width="150" />
+                                        </WrapPanel>
+
+                                        <WrapPanel Orientation="Horizontal" Margin="2">
+                                            <Label Content="IP PRIMARY"  Style="{StaticResource Label_setting}" Width="100"/>
+                                            <cntrlUser:IPMaskedUserControl x:Name="Textbox_tcp_slave_ip_primary" HorizontalAlignment="Center"  Height="25" Width="150"/>
+                                        </WrapPanel>
+
+                                        <WrapPanel  Orientation="Horizontal" Margin="5">
+                                            <Label Content="PORT"  Style="{StaticResource Label_setting}" Width="100"/>
+                                            <cntrlLib:DecimalUpDown x:Name="DecimalUpDown_port" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="13" MinValue="100" MaxValue="65535"  Value="502" IsReadOnly="False"  />
+                                        </WrapPanel>
+
+                                        <Button x:Name="Button_update_tcp_slave" Style="{StaticResource Button_rounded}" Content="UPDATE" Margin="0,5,0,5" Height="25" Click="Button_update_tcp_slave_Click"/>
+                                        <Button x:Name="Button_cancel_tcp_slave" Style="{StaticResource Button_rounded}" Content="CANCEL" Margin="0,5,0,5" Height="25" Click="Button_cancel_tcp_slave_Click"/>
+
+                                    </WrapPanel>
+                                </Border>
+                                
+                            </DockPanel>
+
+                            <WrapPanel DockPanel.Dock="Right">
+
+                                <Border x:Name="Border_mapped" Style="{StaticResource Border_group}"   BorderThickness="3,3,2,2"  Margin="5"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"   SnapsToDevicePixels="True">
+                                    <WrapPanel Orientation="Vertical">
+                                        
+                                        <Border Style="{StaticResource Border_shadow}"  HorizontalAlignment="Center" Margin="5">
+                                            <Label  Style="{StaticResource Label_subtitle}" Content="VAR MAP" VerticalContentAlignment="Center"   HorizontalContentAlignment="Center" Width="230" Padding="1"/>
+                                        </Border>
+
+                                        <ListView x:Name="Listview_var_map" Style="{StaticResource Listview_style}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Margin="5" Height="390"  ScrollViewer.HorizontalScrollBarVisibility="Visible" 
+                                                  PreviewMouseDoubleClick="Listview_var_map_DoubleClick"
+                                                  SelectionChanged="Listview_var_map_SelectionChanged">
+
+                                            <ListView.View>
+                                                <GridView  >
+                                                    <GridViewColumn x:Name="Gridview_slave" Width="120"  Header="SLAVE" DisplayMemberBinding="{Binding Slave}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
+                                                    <GridViewColumn x:Name="Gridview_name" Width="120"  Header="NAME" DisplayMemberBinding="{Binding Name}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
+                                                    <GridViewColumn x:Name="Gridview_dir" Width="Auto"  Header="MODBUS DIR" DisplayMemberBinding="{Binding Dir}" HeaderContainerStyle="{StaticResource Gridview_header_style}"  />
+                                                    <GridViewColumn x:Name="Gridview_type" Width="Auto"  Header="VAR TYPE" DisplayMemberBinding="{Binding SType}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
+                                                </GridView>
+                                            </ListView.View>
+
+                                        </ListView>
+
+                                        <Button x:Name="Button_new_var_map" Style="{StaticResource Button_rounded}" Content="NEW" Margin="5" Height="25"  Click="Button_new_var_map_Click"/>
+                                        <Button x:Name="Button_remove_var_map" Style="{StaticResource Button_rounded}" Content="REMOVE" Margin="5" Height="25" Click="Button_remove_var_map_Click"/>
+
+
+                                    </WrapPanel>
+                                </Border>
+                            </WrapPanel>
+
+                        </DockPanel>
+
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Border>
+
+</Window>

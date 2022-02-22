@@ -1,0 +1,72 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows10.0.22000.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>SBP_icon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Images\anenomether.png" />
+    <None Remove="Images\dyn.png" />
+    <None Remove="Images\excel.png" />
+    <None Remove="Images\exit.png" />
+    <None Remove="Images\IconoRecord.png" />
+    <None Remove="Images\IconoRecordD.png" />
+    <None Remove="Images\modbus.png" />
+    <None Remove="Images\report.png" />
+    <None Remove="Images\Save.png" />
+    <None Remove="Images\settings.png" />
+    <None Remove="Images\sick.png" />
+    <None Remove="Images\wait.png" />
+    <None Remove="Images\weather1.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="SBP_icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\anenomether.png" />
+    <Resource Include="Images\dyn.png" />
+    <Resource Include="Images\IconoRecord.png" />
+    <Resource Include="Images\IconoRecordD.png" />
+    <Resource Include="Images\modbus.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\settings.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ams.Profile" Version="1.0.0" />
+    <PackageReference Include="CsvHelper" Version="27.2.1" />
+    <PackageReference Include="Dirkster.NumericUpDownLib" Version="3.0.0" />
+    <PackageReference Include="EasyModbusTCP" Version="5.6.0" />
+    <PackageReference Include="System.IO.Ports" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\excel.png" />
+    <Resource Include="Images\exit.png" />
+    <Resource Include="Images\report.png" />
+    <Resource Include="Images\Save.png" />
+    <Resource Include="Images\sick.png" />
+    <Resource Include="Images\wait.png" />
+    <Resource Include="Images\weather1.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Windows\SettingModbusWindow.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Windows\SettingAppWindow.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
+</Project>

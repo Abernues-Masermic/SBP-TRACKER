@@ -1,0 +1,23 @@
+﻿<Application x:Class="SBP_TRACKER.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:SBP_TRACKER"
+             StartupUri="Windows/MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="ResourceDictionary/Border.xaml"/>
+                <ResourceDictionary Source="ResourceDictionary/Brushes.xaml"/>
+                <ResourceDictionary Source="ResourceDictionary/Button.xaml"/>
+                <ResourceDictionary Source="ResourceDictionary/Checkbox.xaml"/>
+                <ResourceDictionary Source="ResourceDictionary/Combobox.xaml"/>
+                <ResourceDictionary Source="ResourceDictionary/DecimalUpDown.xaml"/>
+                <ResourceDictionary Source="ResourceDictionary/Gridview.xaml"/>
+                <ResourceDictionary Source="ResourceDictionary/Label.xaml"/>
+                <ResourceDictionary Source="ResourceDictionary/Listview.xaml"/>
+                <ResourceDictionary Source="ResourceDictionary/Radiobutton.xaml"/>
+                <ResourceDictionary Source="ResourceDictionary/Textbox.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
