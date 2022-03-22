@@ -64,11 +64,11 @@ namespace SBP_TRACKER
 
         public static TypeCode String_to_type_code(string s_code)
         {
-            TypeCode type_code = TypeCode.Empty ;
+            TypeCode type_code = TypeCode.Empty;
 
             switch (s_code)
             {
-                case "signed 16" :
+                case "signed 16":
 
                     type_code = TypeCode.Int16;
                     break;
@@ -118,12 +118,13 @@ namespace SBP_TRACKER
 
             //Nº de caracteres impar--> Añadir un 0
             String hex_value = builder.ToString().ToUpper();
-            if (hex_value.Length % 2 != 0) 
-                hex_value = "0" + hex_value; 
+            if (hex_value.Length % 2 != 0)
+                hex_value = "0" + hex_value;
 
             return hex_value;
         }
 
         #endregion
+
     }
 }

@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+
 
 namespace SBP_TRACKER
 {
@@ -23,16 +20,24 @@ namespace SBP_TRACKER
 
         public byte UnitId { get; set; }
 
+        public int Dir_ini { get; set; }
+
+        public int Read_bytes { get; set; }
+
 
         public bool Check_start_conn { get; set; }
 
 
 
-        public Manage_thread(string slave_name, string ip_address, int port, byte unitId) { 
+        public Manage_thread(string slave_name, string ip_address, int port, byte unitId, int dir_ini, int read_bytes) { 
             Slave_name = slave_name;
             IP_address = ip_address;
             Port = port;
             UnitId = unitId;
+            Dir_ini = dir_ini;
+            Read_bytes = read_bytes;
+
+            ManageTCP = new Manage_tcp();
         }
 
 
@@ -44,15 +49,27 @@ namespace SBP_TRACKER
         }
 
         private void Start_tcp_com_thread() {
-            ManageTCP = new Manage_tcp();
-            ManageTCP.Connect(Slave_name, IP_address, Port, UnitId);
+            if (ManageTCP.Connect(Slave_name, IP_address, Port, UnitId, Dir_ini))
+                Manage_logs.SaveLogValue("START SLAVE -> " + Slave_name + " / " + IP_address + " / " + Port + " / " + UnitId + " / " + Dir_ini + " / " + Read_bytes);   
         }
 
         public void Stop_tcp_com_thread()
         {
             ManageTCP.Disconnect();
+            Manage_logs.SaveLogValue("STOP SLAVE -> " + Slave_name);
         }
 
- 
+
+        public Tuple<bool, int[]> Read_holding_registers_int32()
+        {
+            return ManageTCP.Read_holding_registers_int32(Dir_ini, Read_bytes);
+        }
+
+
+        public bool Write_multiple_registers(int start_address, int[] values)
+        {
+            return ManageTCP.Write_multiple_registers(start_address, values);
+        }
+
     }
 }

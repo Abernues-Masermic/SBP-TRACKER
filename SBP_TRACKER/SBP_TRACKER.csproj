@@ -9,17 +9,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Images\add.png" />
     <None Remove="Images\anenomether.png" />
+    <None Remove="Images\delete.png" />
     <None Remove="Images\dyn.png" />
     <None Remove="Images\excel.png" />
     <None Remove="Images\exit.png" />
     <None Remove="Images\IconoRecord.png" />
     <None Remove="Images\IconoRecordD.png" />
+    <None Remove="Images\mail.png" />
     <None Remove="Images\modbus.png" />
     <None Remove="Images\report.png" />
     <None Remove="Images\Save.png" />
     <None Remove="Images\settings.png" />
     <None Remove="Images\sick.png" />
+    <None Remove="Images\sick2.png" />
+    <None Remove="Images\temp.png" />
+    <None Remove="Images\tracker.png" />
+    <None Remove="Images\visualizar.png" />
     <None Remove="Images\wait.png" />
     <None Remove="Images\weather1.png" />
   </ItemGroup>
@@ -29,10 +36,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Images\add.png" />
     <Resource Include="Images\anenomether.png" />
+    <Resource Include="Images\delete.png" />
     <Resource Include="Images\dyn.png" />
     <Resource Include="Images\IconoRecord.png" />
     <Resource Include="Images\IconoRecordD.png" />
+    <Resource Include="Images\mail.png" />
     <Resource Include="Images\modbus.png" />
   </ItemGroup>
 
@@ -45,6 +55,7 @@
     <PackageReference Include="CsvHelper" Version="27.2.1" />
     <PackageReference Include="Dirkster.NumericUpDownLib" Version="3.0.0" />
     <PackageReference Include="EasyModbusTCP" Version="5.6.0" />
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.2.0" />
     <PackageReference Include="System.IO.Ports" Version="6.0.0" />
   </ItemGroup>
 
@@ -54,16 +65,48 @@
     <Resource Include="Images\report.png" />
     <Resource Include="Images\Save.png" />
     <Resource Include="Images\sick.png" />
+    <Resource Include="Images\sick2.png" />
+    <Resource Include="Images\temp.png" />
+    <Resource Include="Images\tracker.png" />
+    <Resource Include="Images\visualizar.png" />
     <Resource Include="Images\wait.png" />
     <Resource Include="Images\weather1.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Windows\DefineMaskWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Windows\CodifiedStatusWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Windows\BitStatusWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Windows\DefineMaskWindow.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Windows\SettingMailWindow.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Windows\SettingModbusWindow.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Windows\SettingAppWindow.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Windows\CodifiedStatusWindow.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Windows\BitStatusWindow.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using EasyModbus;
 
 namespace SBP_TRACKER
@@ -15,7 +13,7 @@ namespace SBP_TRACKER
 
         public string Slave_name {get; set;}
 
-        public bool Connect(string slave_name,string ip_address, int port, byte slave_address)
+        public bool Connect(string slave_name,string ip_address, int port, byte slave_address, int dir_ini)
         {
             bool start_ok = false;
 
@@ -34,7 +32,7 @@ namespace SBP_TRACKER
 
                 m_modbus_client.Connect();
 
-                m_modbus_client.ReadHoldingRegisters(Globals.GetTheInstance().Modbus_start_address, 0);
+                m_modbus_client.ReadHoldingRegisters(dir_ini, 0);
 
                 start_ok = true;       
             }
@@ -66,7 +64,6 @@ namespace SBP_TRACKER
         }
 
 
-
         public bool Is_connected()
         {
             bool is_connected = m_modbus_client != null ? m_modbus_client.Connected : false;
@@ -81,9 +78,9 @@ namespace SBP_TRACKER
 
         #region Read holding registers i32
 
-        public Tuple<bool, int[]> Read_holding_registers_int32(int start_address, int number_off_registers)
+        public Tuple<bool, int[]> Read_holding_registers_int32(int start_address, int num_bytes)
         {
-            bool  read_ok = false;
+            bool  read_ok = true;
             int[] received_data = Array.Empty<int>();
 
             TCP_ACTION action = TCP_ACTION.READ;
@@ -91,13 +88,14 @@ namespace SBP_TRACKER
             try
             {
                 if (Is_connected())
-                {
-                    received_data = m_modbus_client.ReadHoldingRegisters(start_address, Constants.MAX_MODBUS_REG);
-                    read_ok = true;
-                }
+                    received_data = m_modbus_client.ReadHoldingRegisters(start_address, num_bytes);
+              
+                else
+                    read_ok = false;
             }
             catch
             {
+                read_ok = false;
                 action = TCP_ACTION.ERROR_READ;
             }
 
@@ -110,14 +108,14 @@ namespace SBP_TRACKER
 
         #region Read holding registers float
 
-        public Tuple<bool, float> Read_holding_registers_float(int start_address, int number_off_registers)
+        public Tuple<bool, float> Read_holding_registers_float(int start_address, int num_bytes)
         {
             bool read_ok = false;
             float f_received_data = 0;
 
             try
             {
-                int[] i_received_data = m_modbus_client.ReadHoldingRegisters(start_address, number_off_registers);
+                int[] i_received_data = m_modbus_client.ReadHoldingRegisters(start_address, num_bytes);
                 f_received_data = ModbusClient.ConvertRegistersToFloat(i_received_data);
                 read_ok = true;
 

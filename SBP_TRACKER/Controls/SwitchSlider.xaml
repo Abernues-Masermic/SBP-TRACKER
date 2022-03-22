@@ -19,10 +19,8 @@
 
 
                 <Grid HorizontalAlignment="Left" Height="55" Margin="0" Width="140">
-
                     <Rectangle x:Name="Back" Fill="#FF1669A9" HorizontalAlignment="Left" Height="51" VerticalAlignment="Top" Width="136" Margin="2,2,0,0" RadiusY="15" RadiusX="15" MouseLeftButtonDown="Back_MouseLeftButtonDown"/>
                     <Rectangle x:Name="Dot" Fill="White" RadiusY="15" RadiusX="15" HorizontalAlignment="Center" Height="43" VerticalAlignment="Center" Width="50" MouseLeftButtonDown="Dot_MouseLeftButtonDown"/>
-
                 </Grid>
 
                 <Label x:Name="LabelRight" Content="{Binding LabelContentRight,  RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" HorizontalContentAlignment="Left"  Width="250" Height="50" FontSize="35" VerticalContentAlignment="Center" Padding="0" Margin="10,0,0,0" FontFamily="Cambria" FontWeight="Bold">

@@ -1,0 +1,78 @@
+﻿<Window x:Class="SBP_TRACKER.CodifiedStatusWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:cntrlLib="clr-namespace:NumericUpDownLib;assembly=NumericUpDownLib"
+    mc:Ignorable="d"
+    Title="MainWindow" 
+    Height="320" Width="370"
+    WindowStyle="None"  
+    WindowStartupLocation="CenterScreen"
+    AllowsTransparency="True"  
+    Background="Transparent"      
+    Loaded="Window_Loaded">
+
+    <Border  Style="{StaticResource Border_background_separator}"  BorderThickness="2,2,3,3">
+        <Border  Style="{StaticResource Border_background}" Background="#fff0f0f0">
+
+            <WrapPanel >
+                <WrapPanel Orientation="Horizontal">
+                    <Border Style="{StaticResource Border_shadow}"  HorizontalAlignment="Center" Margin="5">
+                        <Label  Style="{StaticResource Label_subtitle}" Content="CODIFIED STATUS" VerticalContentAlignment="Center"   HorizontalContentAlignment="Center" Width="290" Padding="1"/>
+                    </Border>
+                    <Button x:Name="Button_exit" Style="{StaticResource Button_rounded}"  Height="32" Width="32" Margin="5" HorizontalAlignment="Right" Click="Button_exit_Click">
+                        <Image   Height="22" Width="22" Source="/Images/exit.png"/>
+                    </Button>
+                </WrapPanel>
+
+                <WrapPanel Orientation="Horizontal" Margin="5" Width="360">
+                    <Label Content="NAME"  Style="{StaticResource Label_setting}" Width="110"/>
+                    <TextBox x:Name="Textbox_var_name" Style="{StaticResource Textbox_setting}"  Width="230"/>
+                </WrapPanel>
+
+
+                <WrapPanel  Orientation="Horizontal" Margin="5"  Width="360">
+                    <Label Content="@ MODBUS"  Style="{StaticResource Label_setting}" Width="110"/>
+                    <cntrlLib:DecimalUpDown x:Name="DecimalUpDown_dir_modbus" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="8" MinValue="0" MaxValue="1000000"  Value="0" IsReadOnly="False" Width="230" />
+                </WrapPanel>
+
+                <WrapPanel  Orientation="Horizontal" Margin="5"  Width="360">
+                    <Label Content="TYPE VAR"  Style="{StaticResource Label_setting}" Width="110"/>
+                    <ComboBox x:Name="Combobox_var_type"   Width="230" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top"   Style="{StaticResource Combobox_style}" >
+                        <ComboBoxItem Content="signed 16"></ComboBoxItem>
+                        <ComboBoxItem Content="signed 32"></ComboBoxItem>
+                        <ComboBoxItem Content="unsigned 16"></ComboBoxItem>
+                        <ComboBoxItem Content="unsigned 32"></ComboBoxItem>
+                        <ComboBoxItem Content="float"></ComboBoxItem>
+                    </ComboBox>
+                    
+                </WrapPanel>
+
+                <WrapPanel Orientation="Horizontal" Margin="5" Width="360">
+                    <Label Content="UNIT"  Style="{StaticResource Label_setting}" Width="110"/>
+                    <TextBox x:Name="Textbox_unit" Style="{StaticResource Textbox_setting}"  Width="230"/>
+                </WrapPanel>
+
+                <WrapPanel Orientation="Horizontal" Margin="5" Width="360">
+                    <Label Content="STATUS MASK"  Style="{StaticResource Label_setting}" Width="110"/>
+                    <CheckBox x:Name="Checkbox_status_mask" Style="{StaticResource Checkbox_setting}"  Width="70"/>
+
+                    <Button x:Name="Button_define_mask" Style="{StaticResource Button_rounded}" Width="160" Height="30" 
+                            Content="DEFINE MASK"
+                            IsEnabled="{Binding ElementName=Checkbox_status_mask, Path=IsChecked, TargetNullValue=false}" 
+                            Click="Button_define_mask_Click"/>
+                </WrapPanel>
+
+                <WrapPanel Orientation="Horizontal" Margin="5" Width="360">
+                    <Label Content="SCS RECORD"  Style="{StaticResource Label_setting}" Width="110"/>
+                    <CheckBox x:Name="Checkbox_scs_record" Style="{StaticResource Checkbox_setting}"  Width="230"/>
+                </WrapPanel>
+
+                <Button x:Name="Button_save_state" Style="{StaticResource Button_rounded}" Content="SAVE" Margin="10" Height="25"  Width="330" Click="Button_save_state_Click" />
+
+            </WrapPanel>
+
+        </Border>
+    </Border>
+</Window>

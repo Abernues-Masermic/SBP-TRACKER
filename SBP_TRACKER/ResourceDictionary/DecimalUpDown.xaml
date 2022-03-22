@@ -8,6 +8,7 @@
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="Background" Value="White"/>
-
     </Style>
+
+
 </ResourceDictionary>

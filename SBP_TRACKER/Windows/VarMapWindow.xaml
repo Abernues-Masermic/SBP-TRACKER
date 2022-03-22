@@ -4,55 +4,83 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:cntrlLib="clr-namespace:NumericUpDownLib;assembly=NumericUpDownLib"
-    xmlns:cntrlUser="clr-namespace:SBP_TRACKER_Controls"
     mc:Ignorable="d"
     Title="MainWindow" 
-    Height="200" Width="280"
+    Height="390" Width="400"
     WindowStartupLocation="CenterScreen"
     WindowStyle="None"  
     AllowsTransparency="True"  
     Background="Transparent"      
     Loaded="Window_Loaded">
 
-    <Border  Style="{StaticResource Border_background_separator}">
+    <Border  Style="{StaticResource Border_background_separator}" BorderThickness="2,2,3,3">
         <Border  Style="{StaticResource Border_background}" Background="#fff0f0f0">
 
             <WrapPanel >
                 <WrapPanel Orientation="Horizontal">
                     <Border Style="{StaticResource Border_shadow}"  HorizontalAlignment="Center" Margin="5">
-                        <Label  Style="{StaticResource Label_subtitle}" Content="VAR. MAP" VerticalContentAlignment="Center"   HorizontalContentAlignment="Center" Width="200" Padding="1"/>
+                        <Label  Style="{StaticResource Label_subtitle}" Content="VAR. MAP" VerticalContentAlignment="Center"   HorizontalContentAlignment="Center" Width="310" Padding="1"/>
                     </Border>
                     <Button x:Name="Button_exit" Style="{StaticResource Button_rounded}"  Height="32" Width="32" Margin="5" HorizontalAlignment="Right" Click="Button_exit_Click">
                         <Image   Height="22" Width="22" Source="/Images/exit.png"/>
                     </Button>
                 </WrapPanel>
 
-                <WrapPanel Orientation="Horizontal" Margin="5" Width="250">
-                    <Label Content="NAME"  Style="{StaticResource Label_setting}" Width="100"/>
-                    <TextBox x:Name="Textbox_var_name" Style="{StaticResource Textbox_setting}"  Width="150"/>
+                <WrapPanel Orientation="Horizontal" Margin="5" Width="360">
+                    <Label Content="NAME"  Style="{StaticResource Label_setting}" Width="120"/>
+                    <TextBox x:Name="Textbox_var_name" Style="{StaticResource Textbox_setting}"  Width="240"/>
                 </WrapPanel>
 
-                <WrapPanel  Orientation="Horizontal" Margin="5"  Width="250">
-                    <Label Content="@ VAR"  Style="{StaticResource Label_setting}" Width="100"/>
-                    <cntrlLib:DecimalUpDown x:Name="DecimalUpDown_dir_var" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="13" MinValue="0" MaxValue="1000000"  Value="0" IsReadOnly="False" Width="150" />
+                <WrapPanel Orientation="Horizontal" Margin="5" Width="360">
+                    <Label Content="DESCRIPTION"  Style="{StaticResource Label_setting}" Width="120"/>
+                    <TextBox x:Name="Textbox_var_desc" Style="{StaticResource Textbox_setting}"  Width="240"/>
                 </WrapPanel>
 
-                <WrapPanel  Orientation="Horizontal" Margin="5"  Width="250">
-                    <Label Content="TYPE VAR"  Style="{StaticResource Label_setting}" Width="100"/>
-                    <ComboBox x:Name="Combobox_var_type"   Width="150" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top"   Style="{StaticResource Combobox_style}" >
+                <WrapPanel  Orientation="Horizontal" Margin="5"  Width="360">
+                    <Label Content="@ VAR"  Style="{StaticResource Label_setting}" Width="120"/>
+                    <cntrlLib:DecimalUpDown x:Name="DecimalUpDown_dir_var" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="8" MinValue="0" MaxValue="1000000"  Value="0" IsReadOnly="False" Width="230" />
+                </WrapPanel>
+
+                <WrapPanel  Orientation="Horizontal" Margin="5"  Width="380">
+                    <Label Content="READ RANGE"  Style="{StaticResource Label_setting}" Width="120"/>
+                    <cntrlLib:DecimalUpDown x:Name="DecimalUpDown_read_range_min" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="9" MinValue="0" MaxValue="1000000"  Value="0" IsReadOnly="False" Width="110" />
+                    <Label Content=" - "  Style="{StaticResource Label_setting}" Width="20"/>
+                    <cntrlLib:DecimalUpDown x:Name="DecimalUpDown_read_range_max" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="9" MinValue="0" MaxValue="1000000"  Value="0" IsReadOnly="False" Width="110" />
+                </WrapPanel>
+
+                <WrapPanel  Orientation="Horizontal" Margin="5"  Width="380">
+                    <Label Content="SCALED RANGE"  Style="{StaticResource Label_setting}" Width="120"/>
+                    <cntrlLib:DecimalUpDown x:Name="DecimalUpDown_scaled_range_min" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="9" MinValue="-1000000" MaxValue="1000000"  Value="0.0" StepSize="0.1" IsReadOnly="False" Width="110" />
+                    <Label Content=" - "  Style="{StaticResource Label_setting}" Width="20"/>
+                    <cntrlLib:DecimalUpDown x:Name="DecimalUpDown_scaled_range_max" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="9" MinValue="-1000000" MaxValue="1000000"  Value="0.0" StepSize="0.1"  IsReadOnly="False" Width="110" />
+                </WrapPanel>
+
+                <WrapPanel  Orientation="Horizontal" Margin="5"  Width="360">
+                    <Label Content="TYPE VAR"  Style="{StaticResource Label_setting}" Width="120"/>
+                    <ComboBox x:Name="Combobox_var_type"   Width="240" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top"   Style="{StaticResource Combobox_style}" >
                         <ComboBoxItem Content="signed 16"></ComboBoxItem>
                         <ComboBoxItem Content="signed 32"></ComboBoxItem>
                         <ComboBoxItem Content="unsigned 16"></ComboBoxItem>
                         <ComboBoxItem Content="unsigned 32"></ComboBoxItem>
                         <ComboBoxItem Content="float"></ComboBoxItem>
-                        <ComboBoxItem Content="byte"></ComboBoxItem>
-                        <ComboBoxItem Content="datetime"></ComboBoxItem>
-                        <ComboBoxItem Content="string"></ComboBoxItem>
                     </ComboBox>
                     
                 </WrapPanel>
 
-                <Button x:Name="Button_save_var_map" Style="{StaticResource Button_rounded}" Content="SAVE" Margin="10" Height="25"  Width="245" Click="Button_save_var_map_Click" />
+
+                <WrapPanel Orientation="Horizontal" Margin="5" Width="360">
+                    <Label Content="UNIT"  Style="{StaticResource Label_setting}" Width="120"/>
+                    <TextBox x:Name="Textbox_unit" Style="{StaticResource Textbox_setting}"  Width="240"/>
+                </WrapPanel>
+
+
+                <WrapPanel  Orientation="Horizontal" Margin="5"  Width="360">
+                    <Label Content="EMET WATCHDOG"  Style="{StaticResource Label_setting}" Width="120"/>
+                    <ComboBox x:Name="Combobox_emet_watchdog" Style="{StaticResource Combobox_style}"  Width="240" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top"    />
+
+                </WrapPanel>
+
+                <Button x:Name="Button_save_var_entry" Style="{StaticResource Button_rounded}" Content="SAVE" Margin="10" Height="25"  Width="360" Click="Button_save_var_entry_Click" />
 
             </WrapPanel>
 

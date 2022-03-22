@@ -1,0 +1,46 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+
+    <Style x:Key="Groupbox_style" TargetType="GroupBox">
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontFamily" Value="Arial"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Template" Value="{DynamicResource Groupbox_template}" />
+    </Style>
+
+    <ControlTemplate x:Key="Groupbox_template" TargetType="GroupBox">
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+           
+            <!--Header area-->
+            <Border 
+                Grid.Row="0" 
+                Background="#FF013C7B"
+                BorderBrush="#FF013C7B"
+                BorderThickness="1" 
+                CornerRadius="4,4,2,2" >
+                <ContentPresenter   Margin="4"   ContentSource="Header"    RecognizesAccessKey="True" />
+            </Border>
+
+            <!-- Main client area -->
+            <Border 
+                Grid.Row="1" 
+                Background="Transparent"
+                Opacity="0.9"
+                BorderBrush="#FF013C7B"
+                BorderThickness="1,0,1,3" 
+                CornerRadius="0,0,2,2" >
+                <ContentPresenter  Margin="4" />
+            </Border>
+        </Grid>
+    </ControlTemplate>
+
+
+
+</ResourceDictionary>

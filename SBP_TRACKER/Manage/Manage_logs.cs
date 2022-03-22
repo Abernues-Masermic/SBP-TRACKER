@@ -11,17 +11,12 @@ namespace SBP_TRACKER
     {
         private static readonly Object SyncObj = new Object();
 
-        public static void SaveLogValue(string valor, string com)
+        public static void SaveLogValue(string valor)
         {
             try
             {
-
                 String path = AppDomain.CurrentDomain.BaseDirectory;
-
-                if (com == String.Empty)
-                    path += @"\" + Constants.Log_dir + @"\LogProgram.txt";
-                else
-                    path += @"\" + Constants.Log_dir + @"\LogProgram" + "_" + com + ".txt";
+                path += @"\" + Constants.Log_dir + @"\LogProgram.txt";
 
                 lock (SyncObj)
                 {

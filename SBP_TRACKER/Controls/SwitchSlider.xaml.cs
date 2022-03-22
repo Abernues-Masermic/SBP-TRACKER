@@ -52,6 +52,17 @@ namespace SBP_TRACKER.Controls
 
         public bool ToggledState { get => Toggled; set => Toggled = value; }
 
+
+        public void IniState()
+        {
+            LabelLeft.Visibility = Visibility.Visible;
+            LabelRight.Visibility = Visibility.Hidden;
+            Back.Fill = Mode1;
+            Toggled = false;
+            Dot.Margin = LeftSide;
+        }
+
+
         private void Dot_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (!Toggled)
@@ -70,7 +81,6 @@ namespace SBP_TRACKER.Controls
                 Back.Fill = Mode1;
                 Toggled = false;
                 Dot.Margin = LeftSide;
-
             }
 
 

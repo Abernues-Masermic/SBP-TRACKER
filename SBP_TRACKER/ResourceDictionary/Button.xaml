@@ -42,7 +42,7 @@
                     </ControlTemplate.Resources>
 
 
-                    <Border   x:Name="border"  CornerRadius="4"  RenderTransformOrigin="0.5,0.5" BorderBrush="Black" Background="Black" BorderThickness="1" >
+                    <Border x:Name="border" CornerRadius="4" RenderTransformOrigin="0.5,0.5" BorderBrush="Black" Background="Black" BorderThickness="1" >
                         <Border.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -135,6 +135,45 @@
         </Setter>
     </Style>
 
+
+
+    <Style x:Key="ToogleButtonStyle" TargetType="{x:Type ToggleButton}">
+        <Setter Property="Foreground" Value="Black"/>
+        <Setter Property="FontFamily" Value="Cambria"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border CornerRadius="2" 
+                          Background="{TemplateBinding Background}"
+                          BorderBrush="{TemplateBinding BorderBrush}"
+                          BorderThickness="{TemplateBinding BorderThickness}">
+                        
+                        <ContentPresenter x:Name="contentPresenter"                                          
+                            ContentTemplate="{TemplateBinding ContentTemplate}"   
+                            Content="{TemplateBinding Content}"              
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Center"/>
+                    </Border>
+                    
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="BorderBrush" Value="#007ACC"/>
+                            <Setter Property="BorderThickness" Value="2,2,3,3"/>
+                            <Setter Property="Background" Value="#FF1F6F8A"/>
+                            <Setter Property="Foreground" Value="White"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="False">
+                            <Setter Property="BorderBrush" Value="Black"/>
+                            <Setter Property="BorderThickness" Value="1,1,2,2"/>
+                            <Setter Property="Background" Value="White"/>
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
 
 </ResourceDictionary>

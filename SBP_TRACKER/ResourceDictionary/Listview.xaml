@@ -5,18 +5,15 @@
 
         <Setter Property="AlternationCount" Value="2"/>
 
-
         <Setter Property="ItemContainerStyle">
             <Setter.Value>
                 <Style TargetType="{x:Type ListViewItem}" >
-                    <Setter Property="FontSize" Value="14"/>
+                    <Setter Property="FontSize" Value="12"/>
                     <Setter Property="FontWeight" Value="Normal"/>
                     <Setter Property="FontFamily" Value="Verdana"/>
                     <Setter Property="Foreground" Value="Black"/>
-                    <Setter Property="VerticalContentAlignment" Value="Top"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
                     <Setter Property="BorderBrush" Value="LightGray"/>
-
-
 
                     <Style.Triggers>
                         
@@ -25,7 +22,7 @@
                         </Trigger>
                         
                         <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                            <Setter Property="Background" Value="#FFEAF5F9"></Setter>
+                            <Setter Property="Background" Value="#FFEEF6F9"></Setter>
                         </Trigger>
                         
                         <MultiTrigger>
@@ -50,26 +47,3 @@
     
     
     
-    
-    <!--
-        
-                    <ControlTemplate TargetType="{x:Type ListViewItem}">
-    <ControlTemplate.Resources>
-        <Border 
-                                        x:Key="SelectedTemplate"
-                                        x:Name="border"
-                                        SnapsToDevicePixels="true" 
-                                        BorderBrush="{TemplateBinding BorderBrush}" 
-                                        BorderThickness="{TemplateBinding BorderThickness}" 
-                                        Background="{TemplateBinding Background}"
-                                        CornerRadius="5">
-
-            <ContentControl 
-                                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
-                                            Margin="2,2,2,2" 
-                                            VerticalAlignment="Stretch"
-                                            Content="{TemplateBinding Content}"/>
-        </Border>
-    </ControlTemplate.Resources>
-    </ControlTemplate>
-    -->

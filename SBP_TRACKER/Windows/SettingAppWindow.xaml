@@ -4,11 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:cntrl="clr-namespace:NumericUpDownLib;assembly=NumericUpDownLib"
-        xmlns:cntrlUser="clr-namespace:SBP_TRACKER_Controls"
         mc:Ignorable="d"
         Title="MainWindow" 
-        Height="280" Width="320"
-        WindowStartupLocation="CenterScreen"
+        Height="360" Width="660"
+        WindowStartupLocation="Manual"
         WindowStyle="None"  
         AllowsTransparency="True"  
         Background="Transparent"      
@@ -18,9 +17,9 @@
         <Border  Style="{StaticResource Border_background}">
             <Grid>
                 <StackPanel Orientation="Vertical">
-                    
-                    <DockPanel DockPanel.Dock="Top" Margin="5" >
-                        <Border DockPanel.Dock="Left"  Background="Black" CornerRadius="5" BorderBrush="White" BorderThickness="1"  VerticalAlignment="Top" HorizontalAlignment="Stretch"  MouseLeftButtonDown="Control_MouseDown">
+
+                    <DockPanel DockPanel.Dock="Top" Margin="5"  >
+                        <Border DockPanel.Dock="Left"  Cursor="SizeAll"   Background="Black" CornerRadius="5" BorderBrush="White" BorderThickness="1"  VerticalAlignment="Top" HorizontalAlignment="Stretch"  MouseLeftButtonDown="Control_MouseDown">
                             <Label x:Name="Label_setting"  Content="SETTING APP" Style="{StaticResource Label_title}"  />
                         </Border>
 
@@ -36,48 +35,123 @@
                         </StackPanel>
                     </DockPanel>
 
-                    <Border  x:Name="Border_tcp_slave" DockPanel.Dock="Top" Style="{StaticResource Border_shadow}" Margin="5">
 
-                        <DockPanel >
+                    <WrapPanel Orientation="Horizontal" >
+
+                        <WrapPanel Orientation="Vertical" >
+                            <Border  x:Name="Border_general" DockPanel.Dock="Top" Style="{StaticResource Border_shadow}" Margin="5">
+                                <WrapPanel Orientation="Vertical">
+                                    <Border Style="{StaticResource Border_group}"  HorizontalAlignment="Left">
+                                        <Label  Style="{StaticResource Label_subtitle}" Content="GENERAL" VerticalContentAlignment="Center"   HorizontalContentAlignment="Center" Width="170" Padding="1"/>
+                                    </Border>
+
+                                    <CheckBox x:Name="Check_depur_enable" Content="DEPUR ENABLE" Style="{StaticResource Checkbox_setting}" Margin="5,10,5,5" VerticalContentAlignment="Center" />
+
+                                </WrapPanel>
+                            </Border>
+
+                            <Border  x:Name="Border_modbus" DockPanel.Dock="Top" Style="{StaticResource Border_shadow}" Margin="5">
+
+                                <WrapPanel Orientation="Vertical">
+
+                                    <Border Style="{StaticResource Border_group}"  HorizontalAlignment="Left">
+                                        <Label  Style="{StaticResource Label_subtitle}" Content="MODBUS" VerticalContentAlignment="Center"   HorizontalContentAlignment="Center" Width="170" Padding="1"/>
+                                    </Border>
+
+                                    <WrapPanel Orientation="Horizontal" Margin="5">
+                                        <Label Content="Read MET interval"  Style="{StaticResource Label_setting}" Width="150"/>
+                                        <cntrl:DecimalUpDown x:Name="DecimalUpDown_modbus_read_met" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="5" Margin="10,1,0,1" MinValue="10" MaxValue="120000" Value="1000" IsReadOnly="False"  />
+                                        <Label Content="ms"  Style="{StaticResource Label_setting}" Width="40"/>
+                                    </WrapPanel>
+
+                                    <WrapPanel Orientation="Horizontal" Margin="5">
+                                        <Label Content="Read TCU interval"  Style="{StaticResource Label_setting}" Width="150"/>
+                                        <cntrl:DecimalUpDown x:Name="DecimalUpDown_modbus_read_tcu" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="5" Margin="10,1,0,1" MinValue="10" MaxValue="120000" Value="1000" IsReadOnly="False"  />
+                                        <Label Content="ms"  Style="{StaticResource Label_setting}" Width="40"/>
+                                    </WrapPanel>
+
+                                    <WrapPanel Orientation="Horizontal" Margin="5">
+                                        <Label Content="Write TCU interval"  Style="{StaticResource Label_setting}" Width="150"/>
+                                        <cntrl:DecimalUpDown x:Name="DecimalUpDown_modbus_write_tcu" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="5" Margin="10,1,0,1" MinValue="10" MaxValue="120000" Value="1000" IsReadOnly="False"  />
+                                        <Label Content="ms"  Style="{StaticResource Label_setting}" Width="40"/>
+                                    </WrapPanel>
+
+                                    <WrapPanel Orientation="Horizontal" Margin="5">
+                                        <Label Content="CONN timeout"  Style="{StaticResource Label_setting}" Width="150"/>
+                                        <cntrl:DecimalUpDown x:Name="DecimalUpDown_modbus_conn_timeout" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="5" Margin="10,1,0,1" MinValue="10" MaxValue="120000" Value="1000" IsReadOnly="False"  />
+                                        <Label Content="ms"  Style="{StaticResource Label_setting}" Width="40"/>
+                                    </WrapPanel>
+
+                                    <WrapPanel Orientation="Horizontal" Margin="5">
+                                        <Label Content="@ SCS COMMAND"  Style="{StaticResource Label_setting}" Width="150"/>
+                                        <cntrl:DecimalUpDown x:Name="DecimalUpDown_modbus_dir_scs_command" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="5" Margin="10,1,0,1" MinValue="1" MaxValue="120000" Value="1000" IsReadOnly="False"  />
+                                        <Label Content="ms"  Style="{StaticResource Label_setting}" Width="40"/>
+                                    </WrapPanel>
+
+                                </WrapPanel>
+                            </Border>
+                        </WrapPanel>
+                        
+                        <Border  x:Name="Border_report" DockPanel.Dock="Top" Style="{StaticResource Border_shadow}" Margin="5">
 
                             <WrapPanel Orientation="Vertical">
 
                                 <Border Style="{StaticResource Border_group}"  HorizontalAlignment="Left">
-                                    <Label  Style="{StaticResource Label_subtitle}" Content="GENERAL" VerticalContentAlignment="Center"   HorizontalContentAlignment="Center" Width="170" Padding="1"/>
+                                    <Label  Style="{StaticResource Label_subtitle}" Content="RECORD" VerticalContentAlignment="Center"   HorizontalContentAlignment="Center" Width="170" Padding="1"/>
                                 </Border>
 
-
-                                <CheckBox x:Name="Check_depur_enable" Content="DEPUR ENABLE" Style="{StaticResource Checkbox_setting}" Margin="5" VerticalContentAlignment="Center" />
-
-                                <WrapPanel Orientation="Horizontal" Margin="5">
-                                    <Label Content="Record data interval"  Style="{StaticResource Label_setting}" Width="150"/>
-                                    <cntrl:DecimalUpDown x:Name="DecimalUpDown_wait_general_seq" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="5" Margin="10,1,0,1" MinValue="10" MaxValue="120000" Value="1000" IsReadOnly="False"  />
+                                <WrapPanel Orientation="Horizontal" Margin="5,10,5,5">
+                                    <Label Content="Record data MET 1"  Style="{StaticResource Label_setting}" Width="150"/>
+                                    <cntrl:DecimalUpDown x:Name="DecimalUpDown_record_data_met1" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="5"  MinValue="10" MaxValue="120000" Value="1000" IsReadOnly="False"  />
                                     <Label Content="ms"  Style="{StaticResource Label_setting}" Width="40"/>
                                 </WrapPanel>
 
                                 <WrapPanel Orientation="Horizontal" Margin="5">
-                                    <Label Content="Modbus read interval"  Style="{StaticResource Label_setting}" Width="150"/>
-                                    <cntrl:DecimalUpDown x:Name="DecimalUpDown_modbus_modubs_read" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="5" Margin="10,1,0,1" MinValue="10" MaxValue="120000" Value="1000" IsReadOnly="False"  />
+                                    <Label Content="Record data MET 2"  Style="{StaticResource Label_setting}" Width="150"/>
+                                    <cntrl:DecimalUpDown x:Name="DecimalUpDown_record_data_met2" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="5"  MinValue="10" MaxValue="120000" Value="1000" IsReadOnly="False"  />
                                     <Label Content="ms"  Style="{StaticResource Label_setting}" Width="40"/>
                                 </WrapPanel>
 
-                                <WrapPanel Orientation="Horizontal" Margin="5">
-                                    <Label Content="Modbus conn timeout"  Style="{StaticResource Label_setting}" Width="150"/>
-                                    <cntrl:DecimalUpDown x:Name="DecimalUpDown_modbus_conn_timeout" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="5" Margin="10,1,0,1" MinValue="10" MaxValue="120000" Value="1000" IsReadOnly="False"  />
+                                <WrapPanel Orientation="Horizontal" Margin="5,10,5,5">
+                                    <Label Content="Record data TCU"  Style="{StaticResource Label_setting}" Width="150"/>
+                                    <cntrl:DecimalUpDown x:Name="DecimalUpDown_record_data_tcu" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="5"  MinValue="10" MaxValue="120000" Value="1000" IsReadOnly="False"  />
                                     <Label Content="ms"  Style="{StaticResource Label_setting}" Width="40"/>
                                 </WrapPanel>
 
-                                <WrapPanel Orientation="Horizontal" Margin="5">
-                                    <Label Content="Modbus start address"  Style="{StaticResource Label_setting}" Width="150"/>
-                                    <cntrl:DecimalUpDown x:Name="DecimalUpDown_modbus_start_address" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="5" Margin="10,1,0,1" MinValue="10" MaxValue="120000" Value="1000" IsReadOnly="False"  />
+                                <WrapPanel Orientation="Horizontal"  Margin="5">
+                                    <Label x:Name="Label_decimal_sep"  Content="Decimal sep"  Style="{StaticResource Label_setting}"  Width="150"/>
+                                    <ComboBox x:Name="Combobox_decimal_sep" Width="60" IsEditable="True"   Style="{StaticResource Combobox_style}"  HorizontalAlignment="Left" >
+                                        <ComboBoxItem>.</ComboBoxItem>
+                                        <ComboBoxItem>,</ComboBoxItem>
+                                    </ComboBox>
                                 </WrapPanel>
+
+                                <WrapPanel Orientation="Horizontal"  Margin="5">
+                                    <Label x:Name="Label_field_sep"  Content="Field sep"  Style="{StaticResource Label_setting}"  Width="150"/>
+                                    <ComboBox x:Name="Combobox_field_sep"  Width="60"  IsEditable="True"  Style="{StaticResource Combobox_style}"  HorizontalAlignment="Left" >
+                                        <ComboBoxItem>,</ComboBoxItem>
+                                        <ComboBoxItem>;</ComboBoxItem>
+                                    </ComboBox>
+                                </WrapPanel>
+
+
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Label   Content="Date format" Style="{StaticResource Label_setting}" Width="150"/>
+                                    <TextBox x:Name="Textbox_date_format"   Style="{StaticResource ResourceKey=Textbox_setting}" HorizontalContentAlignment="Center" Width="180" />
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Label   Content="Provider" Style="{StaticResource Label_setting}" Width="150"/>
+                                    <ComboBox x:Name="Combobox_provider"   Style="{StaticResource ResourceKey=Combobox_style}" HorizontalContentAlignment="Center" Width="180" />
+                                </StackPanel>
+
 
                             </WrapPanel>
+                        </Border>
 
-                        </DockPanel>
-                    </Border>
-
+                    </WrapPanel>
                 </StackPanel>
+
             </Grid>
         </Border>
     </Border>

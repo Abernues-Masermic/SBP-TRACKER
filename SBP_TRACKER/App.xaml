@@ -12,7 +12,9 @@
                 <ResourceDictionary Source="ResourceDictionary/Checkbox.xaml"/>
                 <ResourceDictionary Source="ResourceDictionary/Combobox.xaml"/>
                 <ResourceDictionary Source="ResourceDictionary/DecimalUpDown.xaml"/>
+                <ResourceDictionary Source="ResourceDictionary/Expander.xaml"/>
                 <ResourceDictionary Source="ResourceDictionary/Gridview.xaml"/>
+                <ResourceDictionary Source="ResourceDictionary/Groupbox.xaml"/>
                 <ResourceDictionary Source="ResourceDictionary/Label.xaml"/>
                 <ResourceDictionary Source="ResourceDictionary/Listview.xaml"/>
                 <ResourceDictionary Source="ResourceDictionary/Radiobutton.xaml"/>

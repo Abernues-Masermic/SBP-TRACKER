@@ -68,6 +68,7 @@
 
     <SolidColorBrush x:Key="ScrollBarDisabledBackground" Color="#F4F4F4"/>
 
+    
 
     <LinearGradientBrush x:Key="CheckedWhite" StartPoint="0,0" EndPoint="0,1">
         <GradientStop Color="#FFB5B5B5" Offset="0" />
@@ -76,7 +77,6 @@
         <GradientStop Color="#FFFAFAFA" Offset="0.5" />
         <GradientStop Color="#FFFEFEFE" Offset="1" />
     </LinearGradientBrush>
-
 
     <LinearGradientBrush x:Key="CheckedBlue" StartPoint="0,0" EndPoint="0,1">
         <GradientStop Color="#FF5D8AD8" Offset="0" />
@@ -102,6 +102,11 @@
     <SolidColorBrush x:Key="CheckedGreenBorder" Color="#FF2E4C1E" />
     <SolidColorBrush x:Key="CheckedBlueBorder" Color="#FF143874" />
     <SolidColorBrush x:Key="CheckedRedBorder" Color="#FF4C1E1E" />
+
+
+
+
+
 
 
 </ResourceDictionary>

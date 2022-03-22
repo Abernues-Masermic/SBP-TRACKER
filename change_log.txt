@@ -11,8 +11,32 @@
 ==========================================================================
 History
 Date				Ver			Author	
-22/02/2022			1.0.0			Asier Lamariano
+10/03/2022			1.2.0			Ander Bernues
+04/03/2022			1.1.0			Ander Bernues
+22/02/2022			1.0.0			Ander Bernues
 
+
+-------------------------
+
+ver 1.2.0
+
+	IDE: Visual Studio 2022
+	Framework: .NET 6.0.
+	Incidence: Encode state, EMET watchdog, TCU Control
+	Proyects / classes: MainWindow.xaml, TCUEncodeState.cs, TCUCommand.cs
+	Detail: Develop SBP features. Read - Write TCU control 
+-------------------------
+
+-------------------------
+
+ver 1.1.0
+
+	IDE: Visual Studio 2022
+	Framework: .NET 6.0.
+	Incidence: Change csv file formats
+	Proyects / classes: TCPModbusSlaveEntry.cs, MainWindow.xaml
+	Detail: All variable values in a row an add Date as Double
+-------------------------
 
 -------------------------
 

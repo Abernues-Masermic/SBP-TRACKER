@@ -57,9 +57,9 @@
 
     <Style x:Key="Label_schema" TargetType="Label">
         <Setter Property="Label.FontFamily" Value="Cambria"/>
-        <Setter Property="FontSize"  Value="13"/>
+        <Setter Property="FontSize"  Value="12"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="Black"/>
+        <Setter Property="Foreground" Value="DarkRed"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
     </Style>
