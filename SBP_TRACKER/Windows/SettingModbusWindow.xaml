@@ -8,7 +8,7 @@
         xmlns:converter="clr-namespace:SBP_TRACKER.UIConverter" 
         mc:Ignorable="d"
         Title="SETTING MODBUS" 
-        Height="720" Width="1150"
+        Height="720" Width="1100"
         WindowStartupLocation="Manual"
         WindowStyle="None"  
         AllowsTransparency="True"  
@@ -18,8 +18,11 @@
 
     <Window.Resources>
         <converter:BooleanToColorConverterCheck x:Key="BooleanToColorConverterCheck"/>
-        <converter:EmetWatchdogConverterCheck x:Key="EmetWatchdogConverterCheck"/>
+        <converter:TypeSlaveToColorConverterCheck x:Key="TypeSlaveToColorConverterCheck"/>
+        <converter:LinkVarConverterCheck x:Key="LinkVarConverterCheck"/>
+        <converter:LinkAvgConverterCheck x:Key="LinkAvgConverterCheck"/>
         <converter:TypeVarConverterCheck x:Key="TypeVarConverterCheck"/>
+        <converter:FunctionConverterCheck x:Key="FunctionConverterCheck"/>
     </Window.Resources>
 
     <Border  Style="{StaticResource Border_background_separator}">
@@ -33,16 +36,16 @@
                         </Border>
 
                         <StackPanel DockPanel.Dock="Right"  Orientation="Horizontal" HorizontalAlignment="Right"  MouseLeftButtonDown="Control_MouseDown">
-
                             <Button x:Name="Button_exit" Style="{StaticResource Button_rounded}" Height="30" Width="30"  HorizontalAlignment="Right" Click="Button_exit_Click">
                                 <Image Source="/Images/exit.png"   Height="22" Width="22"/>
                             </Button>
                         </StackPanel>
                     </DockPanel>
 
-                    <Border  x:Name="Border_tcp_slave" DockPanel.Dock="Top" Style="{StaticResource Border_shadow}" Margin="5">
+                    <Border  x:Name="Border_tcp_slave" DockPanel.Dock="Top" Style="{StaticResource Border_shadow}" Margin="5,0,5,0">
 
                         <DockPanel>
+                            
                             <DockPanel>
                                 <Border x:Name="Border_slave_list" Style="{StaticResource Border_group}" DockPanel.Dock="Top"  BorderThickness="3,3,2,2"  Margin="5"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Width="267" SnapsToDevicePixels="True">
                                     <WrapPanel Orientation="Vertical">
@@ -60,26 +63,43 @@
                                                     <GridViewColumn x:Name="Gridview_slave_name" Width="65"  Header="NAME" DisplayMemberBinding="{Binding Name}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
                                                     <GridViewColumn x:Name="Gridview_slave_ip" Width="90"  Header="IP" DisplayMemberBinding="{Binding IP_primary}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
                                                     <GridViewColumn x:Name="Gridview_slave_uid" Width="45"  Header="UID" DisplayMemberBinding="{Binding UnitId}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
-                                                    <GridViewColumn x:Name="Gridview_TCU" Width="45"  Header="TCU" HeaderContainerStyle="{StaticResource Gridview_header_style}">
+                                                    <GridViewColumn x:Name="Gridview_mb_function" Width="45"  Header="FUNC" DisplayMemberBinding="{Binding Modbus_function, Converter={StaticResource FunctionConverterCheck}}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
+
+                                                    <GridViewColumn x:Name="Gridview_slave_type" Width="50"  Header="TYPE" HeaderContainerStyle="{StaticResource Gridview_header_style}">
                                                         <GridViewColumn.CellTemplate>
                                                             <DataTemplate>
                                                                 <Canvas  Margin="10,0,0,0" Height="15" Width="15" >
-                                                                    <Ellipse  Height="14" Width="14" Fill="{Binding Path=TCU, Converter={StaticResource BooleanToColorConverterCheck }}" />
+                                                                    <Ellipse  Height="14" Width="14" Fill="{Binding Path=Slave_type, Converter={StaticResource TypeSlaveToColorConverterCheck }}" />
                                                                 </Canvas>
 
                                                             </DataTemplate>
                                                         </GridViewColumn.CellTemplate>
                                                     </GridViewColumn>
 
+                                                    <GridViewColumn x:Name="Gridview_fast_mode_read" Width="100"  Header="FAST READ" HeaderContainerStyle="{StaticResource Gridview_header_style}">
+                                                        <GridViewColumn.CellTemplate>
+                                                            <DataTemplate>
+                                                                <Canvas  Margin="30,0,0,0" Height="15" Width="15" >
+                                                                    <Ellipse  Height="14" Width="14" Fill="{Binding Path=Fast_mode, Converter={StaticResource BooleanToColorConverterCheck }}" />
+                                                                </Canvas>
+                                                            </DataTemplate>
+                                                        </GridViewColumn.CellTemplate>
+                                                    </GridViewColumn>
+
+
                                                 </GridView>
                                             </ListView.View>
 
                                         </ListView>
 
-                                        <DockPanel Margin="5">
-                                            <Button x:Name="Button_new_tcp_slave" DockPanel.Dock="Top" Style="{StaticResource Button_rounded}" Content="NEW" Margin="0,5,0,5" Height="30"  Click="Button_new_tcp_slave_Click"/>
-                                            <Button x:Name="Button_remove_tcp_slave" DockPanel.Dock="Bottom" Style="{StaticResource Button_rounded}" Content="REMOVE" Margin="0,5,0,5" Height="30" Click="Button_remove_tcp_slave_Click"/>
-                                        </DockPanel>
+                                        <Grid Margin="5,2,5,2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Button x:Name="Button_new_tcp_slave" Grid.Column="0"  Style="{StaticResource Button_rounded}" Content="NEW" Margin="0,2,2,2" Height="30"  Click="Button_new_tcp_slave_Click"/>
+                                            <Button x:Name="Button_remove_tcp_slave" Grid.Column="1" DockPanel.Dock="Right" Style="{StaticResource Button_rounded}" Content="REMOVE" Margin="2,2,0,2" Height="30" Click="Button_remove_tcp_slave_Click"/>
+                                        </Grid>
                                     </WrapPanel>
                                 </Border>
 
@@ -91,12 +111,12 @@
                                         </Border>
                                         <WrapPanel Orientation="Horizontal" Margin="2">
                                             <Label Content="NAME"  Style="{StaticResource Label_setting}" Width="85"/>
-                                            <TextBox x:Name="Textbox_tcp_slave_name" Style="{StaticResource Textbox_setting}"  Width="150"/>
+                                            <TextBox x:Name="Textbox_tcp_slave_name" Style="{StaticResource Textbox_setting}"  Width="160"/>
                                         </WrapPanel>
 
                                         <WrapPanel Orientation="Horizontal" Margin="2">
                                             <Label Content="IP PRIMARY"  Style="{StaticResource Label_setting}" Width="85"/>
-                                            <cntrlUser:IPMaskedUserControl x:Name="Textbox_tcp_slave_ip_primary" HorizontalAlignment="Center"  Height="25" Width="150"/>
+                                            <cntrlUser:IPMaskedUserControl x:Name="Textbox_tcp_slave_ip_primary" HorizontalAlignment="Center"  Height="25" Width="160"/>
                                         </WrapPanel>
 
                                         <WrapPanel  Orientation="Horizontal" Margin="2">
@@ -115,17 +135,46 @@
                                         </WrapPanel>
 
                                         <WrapPanel  Orientation="Horizontal" Margin="2">
-                                            <Label Content="READ BYTES"  Style="{StaticResource Label_setting}" Width="85"/>
-                                            <cntrlLib:DecimalUpDown x:Name="DecimalUpDown_read_bytes" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="8" MinValue="0" MaxValue="120"  Value="0" IsReadOnly="False"  />
+                                            <Label Content="READ REG"  Style="{StaticResource Label_setting}" Width="85"/>
+                                            <cntrlLib:DecimalUpDown x:Name="DecimalUpDown_read_reg" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="8" MinValue="0" MaxValue="120"  Value="0" IsReadOnly="False"  />
                                         </WrapPanel>
 
                                         <WrapPanel  Orientation="Horizontal" Margin="2">
-                                            <Label Content="TCU"  Style="{StaticResource Label_setting}" Width="85"/>
-                                            <CheckBox x:Name="Checkbox_TCU" Style="{StaticResource Checkbox_setting}"/>
+                                            <Label Content="FUNCTION"  Style="{StaticResource Label_setting}" Width="85"/>
+                                            <ComboBox x:Name="Combobox_mb_function"   Width="160" SelectedIndex="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top"   Style="{StaticResource Combobox_style}">
+                                                <ComboBoxItem>READ HOLDING REG</ComboBoxItem>
+                                                <ComboBoxItem>READ INPUT REG</ComboBoxItem>
+                                            </ComboBox>
                                         </WrapPanel>
 
-                                        <Button x:Name="Button_update_tcp_slave" Style="{StaticResource Button_rounded}" Content="UPDATE" Margin="0,5,0,5" Height="30" Click="Button_update_tcp_slave_Click"/>
-                                        <Button x:Name="Button_cancel_tcp_slave" Style="{StaticResource Button_rounded}" Content="CANCEL" Margin="0,5,0,5" Height="30" Click="Button_cancel_tcp_slave_Click"/>
+                                        
+                                        <WrapPanel Orientation="Horizontal">
+
+                                            <WrapPanel  Orientation="Horizontal" Margin="2">
+                                                <Label Content="FAST MODE"  Style="{StaticResource Label_setting}" Width="85"/>
+                                                <CheckBox x:Name="Checkbox_fast_mode" Style="{StaticResource Checkbox_setting}"/>
+                                            </WrapPanel>
+
+                                        </WrapPanel>
+
+                                        <Border BorderBrush="Black" Background="Black" BorderThickness="2,2,3,3" CornerRadius="5" Height="33" HorizontalAlignment="Center">
+                                            <WrapPanel Orientation="Horizontal"  Margin="10,0,10,0" VerticalAlignment="Center">
+                                                <RadioButton x:Name="Radiobutton_General"  GroupName="Slave_mode" IsChecked="True" Style="{StaticResource Radio_button_style}" Content="GENERAL"/>
+                                                <RadioButton x:Name="Radiobutton_TCU"  GroupName="Slave_mode" Style="{StaticResource Radio_button_style}" Content="TCU" Margin="10,0,0,0"/>
+                                                <RadioButton x:Name="Radiobutton_Samca"  GroupName="Slave_mode" Style="{StaticResource Radio_button_style}" Content="SAMCA" Margin="10,0,0,0"/>
+                                            </WrapPanel>
+                                        </Border>
+
+                                        <Grid Margin="5" >
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Button x:Name="Button_update_tcp_slave" Grid.Column="0" Style="{StaticResource Button_rounded}" Content="UPDATE" Margin="0,2,2,2" Height="30" Click="Button_update_tcp_slave_Click"/>
+                                            <Button x:Name="Button_cancel_tcp_slave" Grid.Column="1" Style="{StaticResource Button_rounded}" Content="CANCEL" Margin="2,2,0,2" Height="30" Click="Button_cancel_tcp_slave_Click"/>
+
+                                        </Grid>
 
                                     </WrapPanel>
                                 </Border>
@@ -141,7 +190,7 @@
                                             <Label  Style="{StaticResource Label_subtitle}" Content="VAR ENTRY" VerticalContentAlignment="Center"   HorizontalContentAlignment="Center" Width="820" Padding="1"/>
                                         </Border>
 
-                                        <ListView x:Name="Listview_var_map" Style="{StaticResource Listview_style}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Margin="5" Height="500"  ScrollViewer.HorizontalScrollBarVisibility="Visible" 
+                                        <ListView x:Name="Listview_var_map" Style="{StaticResource Listview_style}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Margin="5" Height="515"  ScrollViewer.HorizontalScrollBarVisibility="Visible" 
                                                   PreviewMouseDoubleClick="Listview_var_map_DoubleClick"
                                                   SelectionChanged="Listview_var_map_SelectionChanged">
 
@@ -155,7 +204,42 @@
                                                     <GridViewColumn x:Name="Gridview_unit" Width="80"  Header="UNIT" DisplayMemberBinding="{Binding Unit}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
                                                     <GridViewColumn x:Name="Gridview_read_range" Width="90"  Header="RANGE" DisplayMemberBinding="{Binding Read_range_grid}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
                                                     <GridViewColumn x:Name="Gridview_scaled_range" Width="90"  Header="SCALE" DisplayMemberBinding="{Binding Scaled_range_grid}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
-                                                    <GridViewColumn x:Name="Gridview_emet_watchdog" Width="120"  Header="EMET WD" DisplayMemberBinding="{Binding Watchdog_assoc, Converter={StaticResource EmetWatchdogConverterCheck}}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
+                                                    <GridViewColumn x:Name="Gridview_offset" Width="90"  Header="OFFSET" DisplayMemberBinding="{Binding Offset}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
+                                                    <GridViewColumn x:Name="Gridview_link_to_tcu" Width="120"  Header="LINK TCU" DisplayMemberBinding="{Binding Link_to_send_tcu, Converter={StaticResource LinkVarConverterCheck}}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
+                                                    <GridViewColumn x:Name="Gridview_link_to_avg" Width="120"  Header="LINK AVG" DisplayMemberBinding="{Binding Link_to_avg, Converter={StaticResource LinkAvgConverterCheck}}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
+
+
+                                                    <GridViewColumn x:Name="Gridview_correction_load_pin" Width="70"  Header="DYN CORRECTION" HeaderContainerStyle="{StaticResource Gridview_header_style}">
+                                                        <GridViewColumn.CellTemplate>
+                                                            <DataTemplate>
+                                                                <Canvas  Margin="10,0,0,0" Height="15" Width="15" >
+                                                                    <Ellipse  Height="14" Width="14" Fill="{Binding Path=Correction_load_pin, Converter={StaticResource BooleanToColorConverterCheck }}"/>
+                                                                </Canvas>
+                                                            </DataTemplate>
+                                                        </GridViewColumn.CellTemplate>
+                                                    </GridViewColumn>
+                                                    
+                                                    <GridViewColumn x:Name="Gridview_scs_record" Width="85"  Header="SCS REC" HeaderContainerStyle="{StaticResource Gridview_header_style}">
+                                                        <GridViewColumn.CellTemplate>
+                                                            <DataTemplate>
+                                                                <Canvas  Margin="30,0,0,0" Height="15" Width="15" >
+                                                                    <Ellipse  Height="14" Width="14" Fill="{Binding Path=SCS_record, Converter={StaticResource BooleanToColorConverterCheck }}"/>
+                                                                </Canvas>
+                                                            </DataTemplate>
+                                                        </GridViewColumn.CellTemplate>
+                                                    </GridViewColumn>
+
+                                                    <GridViewColumn x:Name="Gridview_fast_mode_record" Width="85"  Header="FAST REC" HeaderContainerStyle="{StaticResource Gridview_header_style}">
+                                                        <GridViewColumn.CellTemplate>
+                                                            <DataTemplate>
+                                                                <Canvas  Margin="30,0,0,0" Height="15" Width="15" >
+                                                                    <Ellipse  Height="14" Width="14" Fill="{Binding Path=Fast_mode_record, Converter={StaticResource BooleanToColorConverterCheck }}" />
+                                                                </Canvas>
+                                                            </DataTemplate>
+                                                        </GridViewColumn.CellTemplate>
+                                                    </GridViewColumn>
+
+
                                                 </GridView>
                                             </ListView.View>
 

@@ -11,37 +11,24 @@ namespace SBP_TRACKER
         private Thread? m_thread;
 
 
+        public TCPModbusSlaveEntry TCP_modbus_slave_entry { get; set; }
+
         public Manage_tcp ManageTCP { get; set; }
-
-        public string Slave_name { get; set; }
-
-        public string IP_address { get; set; }
-        public int Port { get; set; }
-
-        public byte UnitId { get; set; }
-
-        public int Dir_ini { get; set; }
-
-        public int Read_bytes { get; set; }
-
 
         public bool Check_start_conn { get; set; }
 
+        private bool m_recovery_mode;
 
 
-        public Manage_thread(string slave_name, string ip_address, int port, byte unitId, int dir_ini, int read_bytes) { 
-            Slave_name = slave_name;
-            IP_address = ip_address;
-            Port = port;
-            UnitId = unitId;
-            Dir_ini = dir_ini;
-            Read_bytes = read_bytes;
-
+        public Manage_thread() { 
             ManageTCP = new Manage_tcp();
         }
 
 
-        public void Start_tcp_com() {
+        public void Start_tcp_com(bool recovery_mode) {
+
+            m_recovery_mode = recovery_mode;
+
             m_thread_start = new ThreadStart(Start_tcp_com_thread);
             m_thread = new Thread(m_thread_start);
             m_thread.SetApartmentState(ApartmentState.STA);
@@ -49,20 +36,25 @@ namespace SBP_TRACKER
         }
 
         private void Start_tcp_com_thread() {
-            if (ManageTCP.Connect(Slave_name, IP_address, Port, UnitId, Dir_ini))
-                Manage_logs.SaveLogValue("START SLAVE -> " + Slave_name + " / " + IP_address + " / " + Port + " / " + UnitId + " / " + Dir_ini + " / " + Read_bytes);   
+            if (ManageTCP.Connect(TCP_modbus_slave_entry, m_recovery_mode))
+                Manage_logs.SaveLogValue($"START SLAVE -> {TCP_modbus_slave_entry.Name} / {TCP_modbus_slave_entry.IP_primary} / {TCP_modbus_slave_entry.Port} / {TCP_modbus_slave_entry.UnitId} /{TCP_modbus_slave_entry.Dir_ini} /  {TCP_modbus_slave_entry.Modbus_function} /  {TCP_modbus_slave_entry.Read_reg}");   
         }
 
         public void Stop_tcp_com_thread()
         {
             ManageTCP.Disconnect();
-            Manage_logs.SaveLogValue("STOP SLAVE -> " + Slave_name);
+            Manage_logs.SaveLogValue($"STOP SLAVE -> {TCP_modbus_slave_entry.Name}");
         }
 
 
-        public Tuple<bool, int[]> Read_holding_registers_int32()
+        public Tuple<READ_STATE, int[]> Read_holding_registers_int32()
         {
-            return ManageTCP.Read_holding_registers_int32(Dir_ini, Read_bytes);
+            return ManageTCP.Read_holding_registers_int32(TCP_modbus_slave_entry.Dir_ini, TCP_modbus_slave_entry.Read_reg);
+        }
+
+        public Tuple<READ_STATE, int[]> Read_input_registers_int32()
+        {
+            return ManageTCP.Read_input_registers_int32(TCP_modbus_slave_entry.Dir_ini, TCP_modbus_slave_entry.Read_reg);
         }
 
 

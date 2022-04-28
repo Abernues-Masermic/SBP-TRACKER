@@ -5,7 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:cntrlLib="clr-namespace:NumericUpDownLib;assembly=NumericUpDownLib"
     Title="BIT STATUS"
-    Height="660" Width="400"
+    Height="660" Width="500"
     WindowStyle="None"       
     ShowInTaskbar="False"
     WindowStartupLocation="CenterOwner"

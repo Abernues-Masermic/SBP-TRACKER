@@ -41,8 +41,7 @@
 
                     </ControlTemplate.Resources>
 
-
-                    <Border x:Name="border" CornerRadius="4" RenderTransformOrigin="0.5,0.5" BorderBrush="Black" Background="Black" BorderThickness="1" >
+                    <Border x:Name="Button_border" CornerRadius="4" RenderTransformOrigin="0.5,0.5" BorderBrush="Black" Background="Black" BorderThickness="1" >
                         <Border.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -86,23 +85,22 @@
 
                     </Border>
 
-
                     <ControlTemplate.Triggers>
 
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="border" Property="Opacity" Value="0.5"/>
-                            <Setter TargetName="border" Property="Opacity"  Value="1"/>
+                            <Setter TargetName="Button_border" Property="Opacity" Value="0.5"/>
+                            <Setter TargetName="Button_border" Property="Opacity"  Value="1"/>
                             <Setter TargetName="contentPresenter" Property="Opacity"  Value="0.5"/>
                         </Trigger>
 
                         <Trigger Property="IsEnabled" Value="True">
-                            <Setter TargetName="border" Property="BorderThickness"   Value="1"/>
-                            <Setter TargetName="border" Property="BorderBrush"  Value="Black"/>
+                            <Setter TargetName="Button_border" Property="BorderThickness"   Value="1"/>
+                            <Setter TargetName="Button_border" Property="BorderBrush"  Value="Black"/>
                             <Setter Property="Foreground" Value="Black"/>
                         </Trigger>
 
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter Property="RenderTransform" TargetName="border">
+                            <Setter TargetName="Button_border" Property="RenderTransform">
                                 <Setter.Value>
                                     <TransformGroup>
                                         <ScaleTransform ScaleX="0.9" ScaleY="0.9"/>
@@ -116,12 +114,12 @@
 
                         <Trigger Property="IsMouseOver" Value="True">
 
-                            <Setter TargetName="border" Property="BorderThickness"   Value="2,2,2,2"/>
-                            <Setter TargetName="border" Property="BorderBrush"  Value="Red"/>
-                            <Setter Property="Foreground" Value="Red"/>
+                            <Setter TargetName="Button_border" Property="BorderThickness"   Value="1,1,1,2"/>
+                            <Setter TargetName="Button_border" Property="BorderBrush"  Value="#FF0656C1"/>
+                            <Setter Property="Foreground" Value="#FF0656C1"/>
 
                             <Trigger.ExitActions>
-                                <BeginStoryboard Storyboard="{StaticResource HideShine}" x:Name="HideShine_BeginStoryboard"/>
+                                <BeginStoryboard x:Name="HideShine_BeginStoryboard" Storyboard="{StaticResource HideShine}"/>
                             </Trigger.ExitActions>
                             <Trigger.EnterActions>
                                 <BeginStoryboard x:Name="ShowShine_BeginStoryboard" Storyboard="{StaticResource ShowShine}"/>
@@ -140,11 +138,13 @@
     <Style x:Key="ToogleButtonStyle" TargetType="{x:Type ToggleButton}">
         <Setter Property="Foreground" Value="Black"/>
         <Setter Property="FontFamily" Value="Cambria"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ToggleButton">
-                    <Border CornerRadius="2" 
+                    <Border CornerRadius="4" 
                           Background="{TemplateBinding Background}"
                           BorderBrush="{TemplateBinding BorderBrush}"
                           BorderThickness="{TemplateBinding BorderThickness}">
@@ -158,9 +158,9 @@
                     
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter Property="BorderBrush" Value="#007ACC"/>
-                            <Setter Property="BorderThickness" Value="2,2,3,3"/>
-                            <Setter Property="Background" Value="#FF1F6F8A"/>
+                            <Setter Property="BorderBrush" Value="Black"/>
+                            <Setter Property="BorderThickness" Value="1"/>
+                            <Setter Property="Background" Value="#FFB91111"/>
                             <Setter Property="Foreground" Value="White"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="False">
@@ -168,6 +168,18 @@
                             <Setter Property="BorderThickness" Value="1,1,2,2"/>
                             <Setter Property="Background" Value="White"/>
                             <Setter Property="Foreground" Value="Black"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="BorderBrush" Value="Black"/>
+                            <Setter Property="BorderThickness" Value="1,1,2,4"/>
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Trigger>
+
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="BorderBrush" Value="DarkBlue"/>
+                            <Setter Property="BorderThickness" Value="1,1,2,2"/>
+                            <Setter Property="Background" Value="{StaticResource CheckedRed}"/>
+                            <Setter Property="Foreground" Value="White"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

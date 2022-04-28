@@ -18,6 +18,8 @@ namespace SBP_TRACKER
 
         public bool Status_mask_enable { get; set; }
 
+        public int Link_to_graphic { get; set; }
+
         public List<string> List_status_mask { get; set; }
 
         public string Value { get; set; }
@@ -37,6 +39,7 @@ namespace SBP_TRACKER
         public void Adjust_columns()
         {
             Map(m => m.List_status_mask).Ignore();
+            Map(m => m.Value).Ignore();
         }
     }
 }

@@ -1,0 +1,55 @@
+﻿<Window x:Class="SBP_TRACKER.SelectVarMapWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:local="clr-namespace:SBP_TRACKER"
+    mc:Ignorable="d"
+    Title="SelectVarMapWindow" 
+    Height="560" Width="350"
+    WindowStartupLocation="CenterScreen"
+    WindowStyle="None"  
+    AllowsTransparency="True"  
+    Background="Transparent"      
+    Loaded="Window_Loaded">
+
+
+    <Border  Style="{StaticResource Border_background_separator}" BorderThickness="2,2,3,3">
+        <Border  Style="{StaticResource Border_background}" Background="#fff0f0f0">
+
+            <WrapPanel Orientation="Vertical">
+                <DockPanel DockPanel.Dock="Left"  >
+                    <Border  Background="Black" Cursor="SizeAll"  CornerRadius="5" BorderBrush="White" BorderThickness="1" Margin="2" Width="290"  HorizontalAlignment="Left"  MouseLeftButtonDown="Control_MouseDown">
+                        <Label x:Name="Label_title"   Style="{StaticResource Label_title}" Content="SELECT VAR MAP" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                    </Border>
+
+                    <Button x:Name="Button_exit" Style="{StaticResource Button_rounded}"  Height="32" Width="32" Margin="2" HorizontalAlignment="Right" Click="Button_exit_Click">
+                        <Image Height="22" Width="22" Source="/Images/exit.png"/>
+                    </Button>
+                </DockPanel>
+
+                <Border  x:Name="Border_var_map" Style="{StaticResource Border_shadow}" Margin="2" HorizontalAlignment="Stretch" >
+
+                    <ListView x:Name="Listview_schema_var_map" DockPanel.Dock="Bottom" Style="{StaticResource Listview_style}"  HorizontalAlignment="Left" VerticalAlignment="Stretch"  Margin="2" Height="400" SelectionChanged="Listview_schema_var_map_SelectionChanged">
+                        <ListView.View>
+                            <GridView >
+                                <GridViewColumn Width="320"  Header=""  HeaderContainerStyle="{StaticResource Gridview_header_style}" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+
+                </Border>
+
+                <WrapPanel Orientation="Horizontal">
+                    <Label x:Name="Label_selected_var" Style="{StaticResource Label_info}" Width="280" Height="30" Margin="5"   Content=""/>
+                    <Button x:Name="Button_remove_Var" Style="{StaticResource Button_rounded}"  Margin="5" Height="30" Width="30"  Click="Button_remove_Click">
+                        <Image Height="22" Width="22" Source="/Images/delete.png"/>
+                    </Button>
+                </WrapPanel>
+
+                <Button x:Name="Button_save" Style="{StaticResource Button_rounded}" Content="SAVE" Margin="0,5,0,5" Height="30" Width="330"  Click="Button_save_Click"/>
+
+            </WrapPanel>
+        </Border>
+    </Border>
+</Window>

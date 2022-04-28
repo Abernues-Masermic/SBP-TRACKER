@@ -10,11 +10,15 @@
 
   <ItemGroup>
     <None Remove="Images\add.png" />
-    <None Remove="Images\anenomether.png" />
+    <None Remove="Images\anenometer.png" />
+    <None Remove="Images\backward_disable.png" />
+    <None Remove="Images\backward_enable.png" />
     <None Remove="Images\delete.png" />
     <None Remove="Images\dyn.png" />
     <None Remove="Images\excel.png" />
     <None Remove="Images\exit.png" />
+    <None Remove="Images\forward_disable.png" />
+    <None Remove="Images\forward_enable.png" />
     <None Remove="Images\IconoRecord.png" />
     <None Remove="Images\IconoRecordD.png" />
     <None Remove="Images\mail.png" />
@@ -32,6 +36,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Images\backward_disable.png" />
+    <Resource Include="Images\backward_enable.png" />
     <Content Include="SBP_icon.ico" />
   </ItemGroup>
 
@@ -40,6 +46,8 @@
     <Resource Include="Images\anenomether.png" />
     <Resource Include="Images\delete.png" />
     <Resource Include="Images\dyn.png" />
+    <Resource Include="Images\forward_disable.png" />
+    <Resource Include="Images\forward_enable.png" />
     <Resource Include="Images\IconoRecord.png" />
     <Resource Include="Images\IconoRecordD.png" />
     <Resource Include="Images\mail.png" />
@@ -74,10 +82,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Controls\SwitchSlider2.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Windows\DefineMaskWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Windows\CodifiedStatusWindow.xaml.cs">
+    <Compile Update="Windows\SettingVarCodifiedStatusWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Update="Windows\BitStatusWindow.xaml.cs">
@@ -86,6 +97,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Update="Controls\SwitchSlider2.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Windows\DefineMaskWindow.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
@@ -102,7 +117,7 @@
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Windows\CodifiedStatusWindow.xaml">
+    <Page Update="Windows\SettingVarCodifiedStatusWindow.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>

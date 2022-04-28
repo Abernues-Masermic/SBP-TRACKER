@@ -97,25 +97,54 @@ namespace SBP_TRACKER
             bool load_ok = true;
             try
             {
+                int i_default = 10;
+                double d_default = 0.5;
+
                 Profile profile = new Xml(AppDomain.CurrentDomain.BaseDirectory + Constants.SettingApp_dir + @"\setting.xml");
 
                 Globals.GetTheInstance().Depur_enable = (BIT_STATE)int.Parse(profile.GetValue("General", "Depur_enable", 0).ToString());
 
-                Globals.GetTheInstance().Modbus_read_met_interval = int.Parse(profile.GetValue("Modbus", "Read_met_interval", 1000).ToString());
+                Globals.GetTheInstance().Modbus_read_scs_normal_interval = int.Parse(profile.GetValue("Modbus", "Read_scs_normal_interval", 1000).ToString());
+                Globals.GetTheInstance().Modbus_read_scs_fast_interval = int.Parse(profile.GetValue("Modbus", "Read_scs_fast_interval", 200).ToString());
                 Globals.GetTheInstance().Modbus_read_tcu_interval = int.Parse(profile.GetValue("Modbus", "Read_tcu_interval", 1000).ToString());
-                Globals.GetTheInstance().Modbus_write_tcu_interval = int.Parse(profile.GetValue("Modbus", "Write_tcu_interval", 1000).ToString());
-                Globals.GetTheInstance().Modbus_timeout = int.Parse(profile.GetValue("Modbus", "Timeout", 10000).ToString());
+                Globals.GetTheInstance().Modbus_write_tcu_watchdog_interval = int.Parse(profile.GetValue("Modbus", "Write_tcu_watchdog_interval", 1000).ToString());
+                Globals.GetTheInstance().Modbus_write_tcu_datetime_interval = int.Parse(profile.GetValue("Modbus", "Write_tcu_datetime_interval", 60000).ToString());
+                Globals.GetTheInstance().Modbus_write_samca_interval = int.Parse(profile.GetValue("Modbus", "Write_samca_interval", 1000).ToString());
+                Globals.GetTheInstance().Modbus_conn_timeout = int.Parse(profile.GetValue("Modbus", "Conn_timeout", 1000).ToString());
+                Globals.GetTheInstance().Modbus_comm_timeout = int.Parse(profile.GetValue("Modbus", "Comm_timeout", 10000).ToString());
+                Globals.GetTheInstance().Modbus_reconnect_interval = int.Parse(profile.GetValue("Modbus", "Reconnect_interval", 10000).ToString());
                 Globals.GetTheInstance().Modbus_dir_scs_command = int.Parse(profile.GetValue("Modbus", "scs_command", 3100).ToString());
+                Globals.GetTheInstance().Modbus_dir_tcu_datetime = int.Parse(profile.GetValue("Modbus", "tcu_datetime", 3300).ToString());
 
-                Globals.GetTheInstance().Record_data_met1_interval = int.Parse(profile.GetValue("Record", "Record_data_met1_interval", 1000).ToString());
-                Globals.GetTheInstance().Record_data_met2_interval = int.Parse(profile.GetValue("Record", "Record_data_met2_interval", 250).ToString());
-                Globals.GetTheInstance().Record_data_tcu_interval = int.Parse(profile.GetValue("Record", "Record_data_tcu_interval", 1000).ToString());
+                Globals.GetTheInstance().Record_scs_normal_interval = int.Parse(profile.GetValue("Record", "Record_scs_normal_interval", 1000).ToString());
+                Globals.GetTheInstance().Record_scs_fast_interval = int.Parse(profile.GetValue("Record", "Record_scs_fast_interval", 250).ToString());
+                Globals.GetTheInstance().Record_tcu_interval = int.Parse(profile.GetValue("Record", "Record_tcu_interval", 1000).ToString());
+                Globals.GetTheInstance().Record_samca_interval = int.Parse(profile.GetValue("Record", "Record_samca_interval", 1000).ToString());
 
                 Globals.GetTheInstance().Decimal_sep = (DECIMAL_SEP)int.Parse(profile.GetValue("Record", "Decimal_sep", 0).ToString());
                 Globals.GetTheInstance().Field_sep = (FIELD_SEP)int.Parse(profile.GetValue("Record", "Field_sep", 0).ToString());
                 Globals.GetTheInstance().SField_sep = Globals.GetTheInstance().Field_sep == FIELD_SEP.COMA ? "," : ";";
                 Globals.GetTheInstance().Date_format = profile.GetValue("Record", "Date_format", "yyyy/dd/MM HH:mm:ss.fff").ToString();
                 Globals.GetTheInstance().Format_provider = profile.GetValue("Record", "Format_provider", "en-US").ToString();
+
+                Globals.GetTheInstance().SBPT_trigger_3sec = profile.GetValue("WindConfig", "sbpt_trigger_3sec", d_default);
+                Globals.GetTheInstance().SBPT_trigger_10min = profile.GetValue("WindConfig", "sbpt_trigger_10min", d_default);
+                Globals.GetTheInstance().SBPT_wind_delay_time_3sec = profile.GetValue("WindConfig", "sbpt_wind_delay_time_3sec", i_default);
+                Globals.GetTheInstance().SBPT_low_hist_10min = profile.GetValue("WindConfig", "sbpt_low_hist_10min", d_default);
+
+                Globals.GetTheInstance().SAMCA_trigger_3sec = profile.GetValue("WindConfig", "samca_trigger_3sec", d_default);
+                Globals.GetTheInstance().SAMCA_trigger_10min = profile.GetValue("WindConfig", "samca_trigger_10min", d_default);
+                Globals.GetTheInstance().SAMCA_wind_delay_time_3sec = profile.GetValue("WindConfig", "samca_wind_delay_time_3sec", i_default);
+                Globals.GetTheInstance().SAMCA_low_hist_10min = profile.GetValue("WindConfig", "samca_low_hist_10min", d_default);
+
+                Globals.GetTheInstance().SBPT_inc_avg_interval = profile.GetValue("IncConfig", "sbpt_inc_avg_interval", i_default);
+                Globals.GetTheInstance().Max_diff_tcu_inc_emergency_stow = profile.GetValue("IncConfig", "max_diff_tcu_inc_emergency_stow", d_default);
+                Globals.GetTheInstance().Max_diff_tcu_inc_alarm = profile.GetValue("IncConfig", "max_diff_tcu_inc_alarm", d_default);
+
+                Globals.GetTheInstance().SBPT_dyn_avg_interval = profile.GetValue("DynConfig", "sbpt_dyn_avg_interval", i_default);
+                Globals.GetTheInstance().SBPT_dyn_max_mov_emerg_stow = profile.GetValue("DynConfig", "sbpt_dyn_max_mov_emerg_stow", i_default);
+                Globals.GetTheInstance().SBPT_dyn_max_mov_alarm = profile.GetValue("DynConfig", "sbpt_dyn_max_mov_alarm", i_default);
+                Globals.GetTheInstance().SBPT_dyn_max_static_alarm = profile.GetValue("DynConfig", "sbpt_dyn_max_static_alarm", i_default);
 
                 Globals.GetTheInstance().Mail_on = (BIT_STATE)int.Parse(profile.GetValue("Mail", "Mail_enable", 0).ToString());
                 Globals.GetTheInstance().Mail_instant = profile.GetValue("Mail", "Mail_instant", "00:00").ToString();
@@ -127,7 +156,7 @@ namespace SBP_TRACKER
             catch (Exception ex)
             {
                 load_ok = false;
-                Manage_logs.SaveErrorValue(typeof(Manage_file).Name + " ->  " + nameof(Load_app_setting) + " -> " + ex.Message.ToString());
+                Manage_logs.SaveErrorValue($"{typeof(Manage_file).Name} -> {nameof(Load_app_setting)} -> {ex.Message}");
             }
 
             return load_ok;
@@ -146,20 +175,46 @@ namespace SBP_TRACKER
 
                 profile.SetValue("General", "Depur_enable", (int)Globals.GetTheInstance().Depur_enable);
 
-                profile.SetValue("Modbus", "Read_met_interval", Globals.GetTheInstance().Modbus_read_met_interval);
+                profile.SetValue("Modbus", "Read_scs_normal_interval", Globals.GetTheInstance().Modbus_read_scs_normal_interval);
+                profile.SetValue("Modbus", "Read_scs_fast_interval", Globals.GetTheInstance().Modbus_read_scs_fast_interval);
                 profile.SetValue("Modbus", "Read_tcu_interval", Globals.GetTheInstance().Modbus_read_tcu_interval);
-                profile.SetValue("Modbus", "Write_tcu_interval", Globals.GetTheInstance().Modbus_write_tcu_interval);
-                profile.SetValue("Modbus", "Timeout", Globals.GetTheInstance().Modbus_timeout);
+                profile.SetValue("Modbus", "Write_tcu_watchdog_interval", Globals.GetTheInstance().Modbus_write_tcu_watchdog_interval);
+                profile.SetValue("Modbus", "Write_tcu_datetime_interval", Globals.GetTheInstance().Modbus_write_tcu_datetime_interval);
+                profile.SetValue("Modbus", "Write_samca_interval", Globals.GetTheInstance().Modbus_write_samca_interval);
+                profile.SetValue("Modbus", "Conn_timeout", Globals.GetTheInstance().Modbus_conn_timeout);
+                profile.SetValue("Modbus", "Comm_timeout", Globals.GetTheInstance().Modbus_comm_timeout);
+                profile.SetValue("Modbus", "Reconnect_interval", Globals.GetTheInstance().Modbus_reconnect_interval);
                 profile.SetValue("Modbus", "scs_command", Globals.GetTheInstance().Modbus_dir_scs_command);
+                profile.SetValue("Modbus", "tcu_datetime", Globals.GetTheInstance().Modbus_dir_tcu_datetime);
 
-                profile.SetValue("Record", "Record_data_met1_interval", Globals.GetTheInstance().Record_data_met1_interval);
-                profile.SetValue("Record", "Record_data_met2_interval", Globals.GetTheInstance().Record_data_met2_interval);
-                profile.SetValue("Record", "Record_data_tcu_interval", Globals.GetTheInstance().Record_data_tcu_interval);
+                profile.SetValue("Record", "Record_scs_normal_interval", Globals.GetTheInstance().Record_scs_normal_interval);
+                profile.SetValue("Record", "Record_scs_fast_interval", Globals.GetTheInstance().Record_scs_fast_interval);
+                profile.SetValue("Record", "Record_tcu_interval", Globals.GetTheInstance().Record_tcu_interval);
+                profile.SetValue("Record", "Record_samca_interval", Globals.GetTheInstance().Record_samca_interval);
 
                 profile.SetValue("Record", "Decimal_sep", (int)Globals.GetTheInstance().Decimal_sep);
                 profile.SetValue("Record", "Field_sep", (int)Globals.GetTheInstance().Field_sep);
                 profile.SetValue("Record", "Date_format", Globals.GetTheInstance().Date_format);
                 profile.SetValue("Record", "Format_provider", Globals.GetTheInstance().Format_provider);
+
+                profile.SetValue("WindConfig", "sbpt_trigger_3sec", Globals.GetTheInstance().SBPT_trigger_3sec);
+                profile.SetValue("WindConfig", "sbpt_trigger_10min", Globals.GetTheInstance().SBPT_trigger_10min);
+                profile.SetValue("WindConfig", "sbpt_wind_delay_time_3sec", Globals.GetTheInstance().SBPT_wind_delay_time_3sec);
+                profile.SetValue("WindConfig", "sbpt_low_hist_10min", Globals.GetTheInstance().SBPT_low_hist_10min);
+
+                profile.SetValue("WindConfig", "samca_trigger_3sec", Globals.GetTheInstance().SAMCA_trigger_3sec);
+                profile.SetValue("WindConfig", "samca_trigger_10min", Globals.GetTheInstance().SAMCA_trigger_10min);
+                profile.SetValue("WindConfig", "samca_wind_delay_time_3sec", Globals.GetTheInstance().SAMCA_wind_delay_time_3sec);
+                profile.SetValue("WindConfig", "samca_low_hist_10min", Globals.GetTheInstance().SAMCA_low_hist_10min);
+
+                profile.SetValue("IncConfig", "sbpt_inc_avg_interval", Globals.GetTheInstance().SBPT_inc_avg_interval);
+                profile.SetValue("IncConfig", "max_diff_tcu_inc_emergency_stow", Globals.GetTheInstance().Max_diff_tcu_inc_emergency_stow);
+                profile.SetValue("IncConfig", "max_diff_tcu_inc_alarm", Globals.GetTheInstance().Max_diff_tcu_inc_alarm);
+
+                profile.SetValue("DynConfig", "sbpt_dyn_avg_interval", Globals.GetTheInstance().SBPT_dyn_avg_interval);
+                profile.SetValue("DynConfig", "sbpt_dyn_max_mov_emerg_stow", Globals.GetTheInstance().SBPT_dyn_max_mov_emerg_stow);
+                profile.SetValue("DynConfig", "sbpt_dyn_max_mov_alarm", Globals.GetTheInstance().SBPT_dyn_max_mov_alarm);
+                profile.SetValue("DynConfig", "sbpt_dyn_max_static_alarm", Globals.GetTheInstance().SBPT_dyn_max_static_alarm);
 
                 profile.SetValue("Mail", "Mail_enable", (int)Globals.GetTheInstance().Mail_on);
                 profile.SetValue("Mail", "Mail_instant", Globals.GetTheInstance().Mail_instant);
@@ -171,7 +226,7 @@ namespace SBP_TRACKER
             catch (Exception ex)
             {
                 save_ok = false;
-                Manage_logs.SaveErrorValue(typeof(Manage_file).Name + " ->  " + nameof(Save_app_setting) + " -> " + ex.Message.ToString());
+                Manage_logs.SaveErrorValue($"{typeof(Manage_file).Name} -> {nameof(Save_app_setting)} -> {ex.Message}");
             }
 
             return save_ok;
@@ -201,7 +256,7 @@ namespace SBP_TRACKER
             catch (Exception ex)
             {
                 load_ok = false;
-                Manage_logs.SaveErrorValue(typeof(Manage_file).Name + " ->  " + nameof(Load_email_to) + " -> " + ex.Message.ToString());
+                Manage_logs.SaveErrorValue($"{typeof(Manage_file).Name} -> {nameof(Load_email_to)} -> {ex.Message}");
             }
 
             return load_ok;
@@ -254,10 +309,11 @@ namespace SBP_TRACKER
                 IEnumerable<TCPModbusSlaveEntry> records = csv_reader.GetRecords<TCPModbusSlaveEntry>();
                 Globals.GetTheInstance().List_modbus_slave_entry = records.ToList();
 
-                Globals.GetTheInstance().List_modbus_slave_entry.ForEach(entry =>
+                Globals.GetTheInstance().List_modbus_slave_entry.ForEach(slave_entry =>
                 {
-                    entry.Connected = false;
-                    entry.List_modbus_var = new List<TCPModbusVarEntry>();
+                    slave_entry.Connected = false;
+                    slave_entry.Field_safety_enable = true;
+                    slave_entry.List_modbus_var = new List<TCPModbusVarEntry>();
                 });
             }
             catch (Exception ex)
@@ -322,21 +378,27 @@ namespace SBP_TRACKER
                 IEnumerable<TCPModbusVarEntry> records = csv_reader.GetRecords<TCPModbusVarEntry>();
                 List<TCPModbusVarEntry> list_map = records.ToList();
 
-                Globals.GetTheInstance().List_modbus_slave_entry.ForEach(entry =>
+                string s_log = "VAR MAP ENTRIES \r\n ----------------------\r\n";
+
+                Globals.GetTheInstance().List_modbus_slave_entry.ForEach(slave_entry =>
                 {
-                    entry.List_modbus_var = list_map.Where(x => x.Slave.Equals(entry.Name)).ToList();
-                    entry.List_modbus_var.ForEach(var_map =>
+                    slave_entry.List_modbus_var = list_map.Where(x => x.Slave.Equals(slave_entry.Name)).ToList();
+                    slave_entry.List_modbus_var.ForEach(var_map =>
                     {
                         var_map.Read_range_grid = var_map.Read_range_min.ToString() + "  -  " + var_map.Read_range_max.ToString();
-                        var_map.Scaled_range_grid = var_map.Scaled_range_min.ToString() + "  -  " + var_map.Scaled_range_max.ToString();
+                        var_map.Scaled_range_grid = var_map.Scaled_range_min.ToString("0.00", Globals.GetTheInstance().nfi) + "  -  " + var_map.Scaled_range_max.ToString("0.00", Globals.GetTheInstance().nfi);
                         var_map.Scale_factor = Functions.Calculate_scale_factor(var_map);
+
+                        s_log += $"SLAVE : {var_map.Slave} / VAR : {var_map.Name} / @MB : {var_map.DirModbus} / READ RANGE : {var_map.Read_range_grid } / SCALED RANGE : {var_map.Scaled_range_grid } / SCALED FACTOR : {var_map.Scale_factor.ToString("0.00000", Globals.GetTheInstance().nfi)} \r\n";
                     });
                 });
+
+                Manage_logs.SaveLogValue(s_log);
             }
             catch (Exception ex)
             {
                 read_ok = false;
-                Manage_logs.SaveErrorValue(typeof(Manage_file).Name + " ->  " + nameof(Load_var_map_entries) + " -> " + ex.Message.ToString());
+                Manage_logs.SaveErrorValue($"{typeof(Manage_file).Name} -> {nameof(Load_var_map_entries)} -> {ex.Message}");
             }
 
             return read_ok;
@@ -372,7 +434,7 @@ namespace SBP_TRACKER
             catch (Exception ex)
             {
                 save_ok = false;
-                Manage_logs.SaveErrorValue(typeof(Manage_file).Name + " ->  " + nameof(Save_var_map_entries) + " -> " + ex.Message.ToString());
+                Manage_logs.SaveErrorValue($"{typeof(Manage_file).Name} -> {nameof(Save_var_map_entries)} -> {ex.Message}");
             }
 
             return save_ok;
@@ -461,7 +523,6 @@ namespace SBP_TRACKER
                 }
 
                 #endregion
-
             }
             catch (Exception ex)
             {
@@ -642,6 +703,43 @@ namespace SBP_TRACKER
         }
 
         #endregion
+
+
+
+        #region Load main drive slope correction
+
+        public static  bool Load_main_drive_slope_correction()
+        {
+            bool read_ok = false;
+            try
+            {
+                var config = new CsvConfiguration(CultureInfo.CurrentCulture) { Delimiter = ";", Encoding = Encoding.UTF8, HasHeaderRecord = true };
+
+                string slope_correction_csv = AppDomain.CurrentDomain.BaseDirectory + Constants.SettingApp_dir + @"\maindrive_slope_correction.csv";
+                using TextReader slope_correction_reader = new StreamReader(slope_correction_csv);
+                using var slope_correction_csv_reader = new CsvReader(slope_correction_reader, config);
+                slope_correction_csv_reader.Context.RegisterClassMap<SlopeCorrectionMap>();
+
+                IEnumerable<SlopeCorrection> records = slope_correction_csv_reader.GetRecords<SlopeCorrection>();
+                Globals.GetTheInstance().Dictionary_slope_correction = new();
+                records.ToList().ForEach(record => Globals.GetTheInstance().Dictionary_slope_correction.TryAdd<double, double>(record.Alpha_TT, record.Factor));
+   
+                Globals.GetTheInstance().List_slope_correction_alphaTT = Globals.GetTheInstance().Dictionary_slope_correction.Keys.ToList();
+                Globals.GetTheInstance().List_slope_correction_alphaTT.Sort();
+
+                read_ok = true;
+            }
+            catch (Exception ex)
+            {
+                read_ok = false;
+                Manage_logs.SaveErrorValue(typeof(Manage_file).Name + " ->  " + nameof(Load_main_drive_slope_correction) + " -> " + ex.Message.ToString());
+            }
+
+            return read_ok;
+        }
+
+        #endregion
+
 
     }
 }

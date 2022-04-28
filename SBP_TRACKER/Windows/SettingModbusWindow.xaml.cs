@@ -120,9 +120,15 @@ namespace SBP_TRACKER
                     DecimalUpDown_port.Value = m_current_slave_entry.Port;
                     DecimalUpDown_UnitId.Value = m_current_slave_entry.UnitId;
                     DecimalUpDown_dir_ini.Value = m_current_slave_entry.Dir_ini;
-                    DecimalUpDown_read_bytes.Value = m_current_slave_entry.Read_bytes;
-                    Checkbox_TCU.IsChecked = m_current_slave_entry.TCU;
-                    
+                    DecimalUpDown_read_reg.Value = m_current_slave_entry.Read_reg;
+
+                    Combobox_mb_function.SelectedIndex = (int)m_current_slave_entry.Modbus_function;
+                    Checkbox_fast_mode.IsChecked = m_current_slave_entry.Fast_mode;
+
+                    Radiobutton_General.IsChecked = m_current_slave_entry.Slave_type == SLAVE_TYPE.GENERAL;
+                    Radiobutton_TCU.IsChecked = m_current_slave_entry.Slave_type == SLAVE_TYPE.TCU;
+                    Radiobutton_Samca.IsChecked = m_current_slave_entry.Slave_type == SLAVE_TYPE.SAMCA;
+
                     #region Var map list
 
                     m_collection_var_entry.Clear();
@@ -239,15 +245,23 @@ namespace SBP_TRACKER
             if (Textbox_tcp_slave_name.Text == String.Empty)
                 save = false;
 
+            if (Combobox_mb_function.SelectedIndex == Constants.index_no_selected)
+                save = false;
+
             if (!save)
                 MessageBox.Show("Check parameters", "Error save", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
             
 
             if (save)
             {
-                if ((bool)Checkbox_TCU.IsChecked == true && !m_current_slave_entry.TCU && Globals.GetTheInstance().List_modbus_slave_entry.Exists(modbus_slave => modbus_slave.TCU))
+                if ((bool)Radiobutton_TCU.IsChecked == true && m_current_slave_entry.Slave_type != SLAVE_TYPE.TCU  && Globals.GetTheInstance().List_modbus_slave_entry.Exists(modbus_slave => modbus_slave.Slave_type == SLAVE_TYPE.TCU))
                 {
-                    MessageBox.Show("There is modbus slave already configured as TCU in the system", "Error save", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+                    MessageBox.Show("There is already modbus slav  configured as TCU in the system", "Error save", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+                }
+
+                if ((bool)Radiobutton_Samca.IsChecked == true && m_current_slave_entry.Slave_type != SLAVE_TYPE.SAMCA && Globals.GetTheInstance().List_modbus_slave_entry.Exists(modbus_slave => modbus_slave.Slave_type == SLAVE_TYPE.SAMCA))
+                {
+                    MessageBox.Show("There is already modbus slave configured as SAMCA in the system", "Error save", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
                 }
             }
 
@@ -264,8 +278,10 @@ namespace SBP_TRACKER
                     m_current_slave_entry.Port = (int)DecimalUpDown_port.Value;
                     m_current_slave_entry.UnitId = (byte)DecimalUpDown_UnitId.Value;
                     m_current_slave_entry.Dir_ini = (int)DecimalUpDown_dir_ini.Value;
-                    m_current_slave_entry.Read_bytes = (int)DecimalUpDown_read_bytes.Value;
-                    m_current_slave_entry.TCU = (bool)Checkbox_TCU.IsChecked;
+                    m_current_slave_entry.Read_reg = (int)DecimalUpDown_read_reg.Value;
+                    m_current_slave_entry.Modbus_function = (MODBUS_FUNCION) Combobox_mb_function.SelectedIndex;
+                    m_current_slave_entry.Slave_type = Radiobutton_General.IsChecked == true ? SLAVE_TYPE.GENERAL : Radiobutton_TCU.IsChecked == true ? SLAVE_TYPE.TCU : SLAVE_TYPE.SAMCA; 
+                    m_current_slave_entry.Fast_mode = (bool)Checkbox_fast_mode.IsChecked;
                     m_current_slave_entry.List_modbus_var = new List<TCPModbusVarEntry>();
 
                     Globals.GetTheInstance().List_modbus_slave_entry.Add(m_current_slave_entry);
@@ -280,8 +296,10 @@ namespace SBP_TRACKER
                         slave_entry.Port = (int)DecimalUpDown_port.Value;
                         slave_entry.UnitId = (byte)DecimalUpDown_UnitId.Value;
                         slave_entry.Dir_ini = (int)DecimalUpDown_dir_ini.Value;
-                        slave_entry.Read_bytes = (int)DecimalUpDown_read_bytes.Value;
-                        slave_entry.TCU = (bool)Checkbox_TCU.IsChecked;
+                        slave_entry.Read_reg = (int)DecimalUpDown_read_reg.Value;
+                        slave_entry.Modbus_function = (MODBUS_FUNCION) Combobox_mb_function.SelectedIndex;
+                        slave_entry.Slave_type = Radiobutton_General.IsChecked == true ? SLAVE_TYPE.GENERAL : Radiobutton_TCU.IsChecked == true ? SLAVE_TYPE.TCU : SLAVE_TYPE.SAMCA;
+                        slave_entry.Fast_mode = (bool)Checkbox_fast_mode.IsChecked;
                         return slave_entry;
                     }).ToList();
                 }
@@ -368,7 +386,7 @@ namespace SBP_TRACKER
             {
                 TCPModbusVarEntry selected_var_entry = item as TCPModbusVarEntry;
 
-                VarMapWindow varMapWindow = new()
+                SettingVarMapWindow varMapWindow = new()
                 {
                     Slave_entry = m_current_slave_entry,
                     Var_entry = selected_var_entry
@@ -402,16 +420,21 @@ namespace SBP_TRACKER
         {
             if (m_current_slave_entry != null)
             {
-                if (m_current_slave_entry.TCU)
+                if (m_current_slave_entry.Slave_type == SLAVE_TYPE.TCU)
                     MessageBox.Show("Cannot define variables for TCU slave", "WARNING", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
                 
                 else
                 {
-                    VarMapWindow varMapWindow = new();
+                    SettingVarMapWindow varMapWindow = new();
                     varMapWindow.Slave_entry = m_current_slave_entry;
-                    varMapWindow.Var_entry = new() { 
-                        Slave = m_current_slave_entry.Name, 
-                        Schema_pos = Constants.index_no_selected 
+                    varMapWindow.Var_entry = new() {
+                        Slave = m_current_slave_entry.Name,
+                        Graphic_pos = Constants.index_no_selected,
+                        DirModbus = Constants.index_no_selected,
+                        Link_to_send_tcu = (int) LINK_TO_SEND_TCU.NONE,
+                        Link_to_avg = (int)LINK_TO_AVG.NONE,
+                        SCS_record = true,
+                        Fast_mode_record = false
                     };
 
                     if (varMapWindow.ShowDialog() == true)

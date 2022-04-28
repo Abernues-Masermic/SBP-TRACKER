@@ -9,15 +9,9 @@ using System.Windows.Media;
 namespace SBP_TRACKER.Controls
 {
 
-    public partial class SwitchSlider : UserControl
+    public partial class SwitchSlider2 : UserControl
     {
-
-        Thickness LeftSide = new(-71, 0, 0, 0);
-        Thickness RightSide = new(0, 0, -71, 0);
-        SolidColorBrush Mode1 = new(Color.FromRgb(22, 105, 169));
-        SolidColorBrush Mode2 = new(Color.FromRgb(169, 123, 22));
         private bool Toggled = false;
-
 
 
 
@@ -38,14 +32,14 @@ namespace SBP_TRACKER.Controls
         }
 
 
-        public SwitchSlider()
+        public SwitchSlider2()
         {
             InitializeComponent();
-            Back.Fill = Mode1;
             Toggled = false;
-            Dot.Margin = LeftSide;
+            Switch_dot.HorizontalAlignment = HorizontalAlignment.Left;
             LabelLeft.Visibility = Visibility.Visible;
             LabelRight.Visibility = Visibility.Hidden;
+
         }
 
 
@@ -55,60 +49,26 @@ namespace SBP_TRACKER.Controls
 
         public void IniState()
         {
-            LabelLeft.Visibility = Visibility.Visible;
-            LabelRight.Visibility = Visibility.Hidden;
-            Back.Fill = Mode1;
             Toggled = false;
-            Dot.Margin = LeftSide;
         }
 
 
-        private void Dot_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void Switch_dot_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (!Toggled)
             {
+                Toggled = true;
+                Switch_dot.HorizontalAlignment = HorizontalAlignment.Right;
                 LabelLeft.Visibility = Visibility.Hidden;
                 LabelRight.Visibility = Visibility.Visible;
-                Back.Fill = Mode2;
-                Toggled = true;
-                Dot.Margin = RightSide;
-
             }
             else
             {
+                Toggled = false;
+                Switch_dot.HorizontalAlignment = HorizontalAlignment.Left;
                 LabelLeft.Visibility = Visibility.Visible;
                 LabelRight.Visibility = Visibility.Hidden;
-                Back.Fill = Mode1;
-                Toggled = false;
-                Dot.Margin = LeftSide;
             }
-
-
-
-
-        }
-
-        private void Back_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (!Toggled)
-            {
-                LabelLeft.Visibility = Visibility.Hidden;
-                LabelRight.Visibility = Visibility.Visible;
-                Back.Fill = Mode2;
-                Toggled = true;
-                Dot.Margin = RightSide;
-
-            }
-            else
-            {
-                LabelLeft.Visibility = Visibility.Visible;
-                LabelRight.Visibility = Visibility.Hidden;
-                Back.Fill = Mode1;
-                Toggled = false;
-                Dot.Margin = LeftSide;
-
-            }
-
         }
     }
 }

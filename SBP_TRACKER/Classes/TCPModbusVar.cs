@@ -17,9 +17,11 @@ namespace SBP_TRACKER
 
         public string? Unit { get; set; }
 
-        public int Watchdog_assoc { get; set; }
+        public int Link_to_send_tcu{ get; set; }
 
-        public int Schema_pos { get; set; }
+        public int Link_to_avg { get; set; }
+
+        public int Graphic_pos { get; set; }
 
 
 
@@ -31,6 +33,13 @@ namespace SBP_TRACKER
         public double Scaled_range_max { get; set; }
 
 
+        public double Offset { get; set; }
+
+        public bool Correction_load_pin { get; set; }
+
+        public bool SCS_record { get; set; }
+
+        public bool Fast_mode_record { get; set; }
 
 
         #region NOT SAVE FIELDS

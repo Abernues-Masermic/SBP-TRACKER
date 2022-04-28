@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -28,6 +29,8 @@ namespace SBP_TRACKER
 
         public List<TCUCommand> List_tcu_command { get; set; }
 
+        public ConcurrentDictionary<double, double> Dictionary_slope_correction { get; set; }
+        public List<double> List_slope_correction_alphaTT { get; set; }
 
         #region General
 
@@ -37,23 +40,29 @@ namespace SBP_TRACKER
 
         #region Modbus
 
-        public int Modbus_read_met_interval { get; set; }
+        public int Modbus_read_scs_normal_interval { get; set; }
+        public int Modbus_read_scs_fast_interval { get; set; }
         public int Modbus_read_tcu_interval { get; set; }
-        public int Modbus_write_tcu_interval { get; set; }
-        public int Modbus_timeout { get; set; }
-
+        public int Modbus_write_tcu_watchdog_interval { get; set; }
+        public int Modbus_write_tcu_datetime_interval { get; set; }
+        public int Modbus_write_samca_interval { get; set; }
+        public int Modbus_conn_timeout { get; set; }
+        public int Modbus_comm_timeout { get; set; }
+        public int Modbus_reconnect_interval { get; set; }
         public int Modbus_dir_scs_command { get; set; }
 
+        public int Modbus_dir_tcu_datetime { get; set; }
 
         #endregion
 
         #region Record
 
-        public int Record_data_met1_interval { get; set; }
-        public int Record_data_met2_interval { get; set; }
+        public int Record_scs_normal_interval { get; set; }
+        public int Record_scs_fast_interval { get; set; }
 
-        public int Record_data_tcu_interval { get; set; }
+        public int Record_tcu_interval { get; set; }
 
+        public int Record_samca_interval { get; set; }
 
         public DECIMAL_SEP Decimal_sep { get; set; }
         public FIELD_SEP Field_sep { get; set; }
@@ -62,6 +71,43 @@ namespace SBP_TRACKER
         public NumberFormatInfo nfi { get; set; }
         public string Date_format { get; set; }
         public string Format_provider { get; set; }
+
+        #endregion
+
+        #region Wind config
+
+        public double SBPT_trigger_3sec { get; set; }
+        public double SBPT_trigger_10min { get; set; }
+        public int SBPT_wind_delay_time_3sec { get; set; }
+        public double SBPT_low_hist_10min { get; set; }
+
+        public double SAMCA_trigger_3sec { get; set; }
+        public double SAMCA_trigger_10min { get; set; }
+        public int SAMCA_wind_delay_time_3sec { get; set; }
+        public double SAMCA_low_hist_10min { get; set; }
+
+        #endregion
+
+
+        #region INC config
+
+        public int SBPT_inc_avg_interval { get; set; }
+        public double Max_diff_tcu_inc_emergency_stow { get; set; }
+        public double Max_diff_tcu_inc_alarm { get; set; }
+
+        #endregion
+
+
+
+        #region DYN config
+
+        public int SBPT_dyn_avg_interval { get; set; }
+
+        public int SBPT_dyn_max_mov_emerg_stow{ get; set; }
+
+        public int SBPT_dyn_max_mov_alarm { get; set; }
+
+        public int SBPT_dyn_max_static_alarm { get; set; }
 
         #endregion
 

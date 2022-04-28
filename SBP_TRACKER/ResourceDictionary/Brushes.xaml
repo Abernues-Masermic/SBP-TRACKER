@@ -4,7 +4,7 @@
 
     <LinearGradientBrush x:Key="Tabcontrol_SegmentItemActive_gradient" StartPoint="0.5,0" EndPoint="0.5,1">
         <GradientStop Color="#032A6B" Offset="0" />
-        <GradientStop Color="Black" Offset="0.33" />
+        <GradientStop Color="#FF062150" Offset="0.33" />
         <GradientStop Color="#032A6B" Offset="0.66" />
         <GradientStop Color="#032A6B" Offset="1" />
     </LinearGradientBrush>
@@ -60,15 +60,21 @@
         </GradientBrush.GradientStops>
     </LinearGradientBrush>
 
-    <LinearGradientBrush  x:Key="Listtview_header_brush" EndPoint="0.5,1" StartPoint="0.5,0">
+    <LinearGradientBrush x:Key="Listtview_header_brush" EndPoint="0.5,1" StartPoint="0.5,0">
         <GradientStop Color="#FF223B84" Offset="1"/>
         <GradientStop Color="#FF57A0F4" Offset="0.2"/>
         <GradientStop Color="#FF4B94EC" Offset="0.2"/>
     </LinearGradientBrush>
 
-    <SolidColorBrush x:Key="ScrollBarDisabledBackground" Color="#F4F4F4"/>
 
-    
+
+    <LinearGradientBrush x:Key="ToogleRed" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#FFF77878" Offset="0" />
+        <GradientStop Color="#FFF98E8E" Offset="0.5" />
+        <GradientStop Color="#FFF77E7E" Offset="0.5" />
+        <GradientStop Color="#FFF9BBBB" Offset="1" />
+    </LinearGradientBrush>
+
 
     <LinearGradientBrush x:Key="CheckedWhite" StartPoint="0,0" EndPoint="0,1">
         <GradientStop Color="#FFB5B5B5" Offset="0" />
@@ -102,6 +108,7 @@
     <SolidColorBrush x:Key="CheckedGreenBorder" Color="#FF2E4C1E" />
     <SolidColorBrush x:Key="CheckedBlueBorder" Color="#FF143874" />
     <SolidColorBrush x:Key="CheckedRedBorder" Color="#FF4C1E1E" />
+    <SolidColorBrush x:Key="ScrollBarDisabledBackground" Color="#F4F4F4"/>
 
 
 

@@ -3,11 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:System="clr-namespace:System;assembly=mscorlib"
         xmlns:converter="clr-namespace:SBP_TRACKER.UIConverter" 
         xmlns:controls="clr-namespace:SBP_TRACKER.Controls"
         mc:Ignorable="d"
         Title="MainWindow" 
-        Height="720" Width="1150"
+        Height="720" Width="1100"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"  
         AllowsTransparency="True"  
@@ -17,10 +18,20 @@
     <Window.Resources>
         <converter:BooleanToColorConverterConnect x:Key="BooleanToColorConverterConnect"/>
         <converter:BooleanToColorConverterCheck x:Key="BooleanToColorConverterCheck"/>
+        <converter:TypeSlaveToColorConverterCheck x:Key="TypeSlaveToColorConverterCheck"/>
         <converter:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <converter:EmetWatchdogConverterCheck x:Key="EmetWatchdogConverterCheck"/>
+        <converter:LinkVarConverterCheck x:Key="LinkVarConverterCheck"/>
+        <converter:LinkAvgConverterCheck x:Key="LinkAvgConverterCheck"/>
+        <converter:LinkGraphicConverterCheck x:Key="LinkGraphicConverterCheck"/>
         <converter:TypeVarConverterCheck x:Key="TypeVarConverterCheck"/>
-       
+        <converter:FunctionConverterCheck x:Key="FunctionConverterCheck"/>
+
+        <Storyboard x:Key="BlinkStoryboard">
+            <ColorAnimation From="White" To="Green"  RepeatBehavior="Forever" Duration="00:00:00.3"
+                            Storyboard.TargetName="Ellipse_blink"
+                            Storyboard.TargetProperty="(Ellipse.Fill).(SolidColorBrush.Color)"/>
+        </Storyboard>
+
     </Window.Resources>
 
     <Border  Style="{StaticResource Border_background_separator}">
@@ -33,29 +44,29 @@
 
                         <DockPanel DockPanel.Dock="Left" Cursor="SizeAll" >
                             <Border  Background="Black" CornerRadius="5" BorderBrush="White" BorderThickness="1" Margin="10,5,5,5" Width="320"  HorizontalAlignment="Left"  MouseLeftButtonDown="Control_MouseDown">
-                                <Label x:Name="Label_ver"   Style="{StaticResource Label_title}" Content="TEKAMS / VER 1.0" />
+                                <Label x:Name="Label_ver"   Style="{StaticResource Label_title}" Content="TEKAMS / VER 1.0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" MouseRightButtonDown="Label_ver_MouseRightButtonDown"/>
                             </Border>
                         </DockPanel>
 
-                       
+
                         <StackPanel x:Name="Stackpanel_menu_main"  DockPanel.Dock="Right"   Margin="2"  Orientation="Horizontal" HorizontalAlignment="Right"  MouseLeftButtonDown="Control_MouseDown">
 
-                            <Button x:Name="Button_record" Style="{StaticResource Button_rounded}"  Height="32" Width="32" Margin="5" HorizontalAlignment="Right" Click="Button_record_Click">
+                            <Button x:Name="Button_record" Style="{StaticResource Button_rounded}" ToolTip="RECORD"  Height="32" Width="32" Margin="5" HorizontalAlignment="Right" Click="Button_record_Click">
                                 <Grid>
                                     <Image x:Name="Image_record_on" Height="25" Width="25" Visibility="Visible" Source="/Images/IconoRecord.png"/>
                                     <Image x:Name="Image_record_off" Height="25" Width="25" Visibility="Collapsed" Source="/Images/IconoRecordD.png"/>
                                 </Grid>
                             </Button>
 
-                            <Button x:Name="Button_setting_modbus" Style="{StaticResource Button_rounded}"  Height="32" Width="32" Margin="5" HorizontalAlignment="Right" Click="Button_setting_modbus_Click">
+                            <Button x:Name="Button_setting_modbus" Style="{StaticResource Button_rounded}" ToolTip="SETTING MODBUS"  Height="32" Width="32" Margin="5" HorizontalAlignment="Right" Click="Button_setting_modbus_Click">
                                 <Image Height="22" Width="22" Source="/Images/modbus.png"/>
                             </Button>
 
-                            <Button x:Name="Button_setting_mail" Style="{StaticResource Button_rounded}"  Height="32" Width="32" Margin="5" HorizontalAlignment="Right" Click="Button_setting_mail_Click">
+                            <Button x:Name="Button_setting_mail" Style="{StaticResource Button_rounded}" ToolTip="SETTING MAIL"  Height="32" Width="32" Margin="5" HorizontalAlignment="Right" Click="Button_setting_mail_Click">
                                 <Image Height="22" Width="22" Source="/Images/mail.png"/>
                             </Button>
 
-                            <Button x:Name="Button_setting_app" Style="{StaticResource Button_rounded}"  Height="32" Width="32" Margin="5" HorizontalAlignment="Right" Click="Button_setting_app_Click">
+                            <Button x:Name="Button_setting_app" Style="{StaticResource Button_rounded}" ToolTip="SETUP APP" Height="32" Width="32" Margin="5" HorizontalAlignment="Right" Click="Button_setting_app_Click">
                                 <Image Height="22" Width="22" Source="/Images/settings.png"/>
                             </Button>
 
@@ -70,37 +81,50 @@
                     <Border x:Name="Border_submenu" DockPanel.Dock="Top"  Style="{StaticResource Border_shadow}" Margin="5,5,5,0" Height="45">
                         <Grid VerticalAlignment="Center" >
 
-                            <CheckBox x:Name="Checkbox_start"  HorizontalAlignment="Left"  IsChecked="False" Margin="20,0,0,0"  Style="{StaticResource CheckBoxSwitchStyle}"  Checked="Checkbox_start_Checked" Unchecked="Checkbox_start_Unchecked"    />
+                            <CheckBox Name="Checkbox_start"  HorizontalAlignment="Left"  IsChecked="False" Margin="20,0,0,0"  Style="{StaticResource CheckBoxSwitchStyle}"  Checked="Checkbox_start_Checked" Unchecked="Checkbox_start_Unchecked"/>
 
-                            <controls:SwitchSlider x:Name="SwitchSliderShowMode"  HorizontalAlignment="Center" Height="60" LabelContentLeft="Table mode" LabelContentRight="Schema mode" VerticalAlignment="Center" Width="300" 
-                                                   MouseLeftButtonDown="SwitchSliderShowMode_MouseLeftButtonDown" 
-                                                   MouseRightButtonDown="SwitchSliderShowMode_MouseRightButtonDown"/>
+                            <Ellipse Name="Ellipse_blink" Fill="White" Stroke="Black" StrokeThickness="0.3"  Width="20" Height="20" HorizontalAlignment="Left" Margin="200,0,0,0">
 
-                            <ToggleButton x:Name = "ToggleButton_tcu_control" Style="{StaticResource ToogleButtonStyle}" Content="TCU CONTROL" IsChecked="True"  HorizontalAlignment="Right" Margin="0,0,20,0" Height="28" Width = "132"  
-                                          Checked = "ToggleButton_tcu_control_Checked" 
-                                          Unchecked = "ToggleButton_tcu_control_Unchecked"/>
+                                <Ellipse.BitmapEffect>
+                                    <DropShadowBitmapEffect Color="Black" Direction="-5" ShadowDepth="1" Softness=".1" />
+                                </Ellipse.BitmapEffect>
+                            </Ellipse>
+
+                            <Popup  Name="PopUpSlaves"  Height="25" Width="120"  Margin="0,0,0,0" IsOpen="False" Placement="Mouse" AllowsTransparency="True">
+                                <Border CornerRadius="5" BorderBrush="Black" BorderThickness="1,1,2,2" Background="{StaticResource Tabcontrol_Background_gradient}" >
+                                    <TextBlock Name="TextblockPopUp" Style="{StaticResource Textblock_schema}"  />
+                                </Border>
+                            </Popup>
+
+                            <Border x:Name="Border_slave_state" BorderBrush="Black" Visibility="Visible" Background="White" BorderThickness="2,2,3,3" CornerRadius="5" Height="33" Width="200" HorizontalAlignment="Center" Margin="0,0,300,0">
+                                <WrapPanel x:Name="Wrap_slave_state" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,10,0"/>
+                            </Border>
+
+                            <Border x:Name="Border_mode" BorderBrush="Black" Background="{StaticResource Tabcontrol_SegmentItemActive_gradient}" BorderThickness="2,2,3,3" CornerRadius="5" Height="33" HorizontalAlignment="Right" Margin="0,0,50,0">
+                                <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,10,0">
+                                    <RadioButton x:Name="Radio_table_mode" GroupName="Main_mode" IsChecked="True"  Style="{StaticResource Radio_button_style}" Width="150" Content="TABLE MODE" Checked="Radio_table_mode_Checked"/>
+                                    <RadioButton x:Name="Radio_graphic_mode" GroupName="Main_mode" Style="{StaticResource Radio_button_style}" Width="180" Content="GRAPHIC MODE" Checked="Radio_graphic_mode_Checked"/>
+                                    <RadioButton x:Name="Radio_tcu_mode" GroupName="Main_mode" Style="{StaticResource Radio_button_style}" Width="100" Content="TCU MODE" Checked="Radio_tcu_mode_Checked"/>
+                                </WrapPanel>
+                            </Border>
+
+                            <Button x:Name="Button_save_graphic_config" Style="{StaticResource Button_rounded}" Visibility="Collapsed"  Height="32" Width="32" Margin="5" HorizontalAlignment="Right" VerticalAlignment="Top" Click="Button_save_graphic_config_Click">
+                                <Image Height="25" Width="25" Source="/Images/Save.png"/>
+                            </Button>
 
                         </Grid>
                     </Border>
 
 
+                    <Grid  x:Name="GridShowData" Height="600">
 
-                    <Grid  x:Name="GridShowData"  Height="600">
-
-                        <Popup x:Name="PopupVarMap" Width="400" Height="30" IsOpen="False">
-                            <Border BorderBrush="White" BorderThickness="2" CornerRadius="3" Background="#FF2B4977" >
-                                <Label x:Name="Label_popup"  Style="{StaticResource Label_subtitle}" Foreground="White" Background="Transparent"/>
-                            </Border>
-                        </Popup>
-
-                        <Grid x:Name="Grid_table" Margin="5,0,5,0"  Visibility="Collapsed" >
+                        <Grid x:Name="Grid_table_mode" Margin="5,0,5,0"  Visibility="Visible" >
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
                             <Expander HorizontalAlignment="Left"  Style="{StaticResource Expander_style}"  Width="520"  IsExpanded="True"  ExpandDirection="Right" >
-
                                 <Grid >
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*"/>
@@ -124,11 +148,11 @@
                                                         <GridViewColumn x:Name="Gridview_port" Width="60" Header="PORT" DisplayMemberBinding="{Binding Port}" HeaderContainerStyle="{StaticResource Gridview_header_style}"  />
                                                         <GridViewColumn x:Name="Gridview_unit_id" Width="45" Header="UID" DisplayMemberBinding="{Binding UnitId}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
                                                         <GridViewColumn x:Name="Gridview_dir_ini" Width="65" Header="@ INI" DisplayMemberBinding="{Binding Dir_ini}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
-                                                        <GridViewColumn x:Name="Gridview_num_bytes" Width="70" Header="N BYTES" DisplayMemberBinding="{Binding Read_bytes}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
+                                                        <GridViewColumn x:Name="Gridview_num_reg" Width="70" Header="N REG" DisplayMemberBinding="{Binding Read_reg}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
                                                         <GridViewColumn x:Name="Gridview_state" Width="70" Header="STATE" HeaderContainerStyle="{StaticResource Gridview_header_style}">
                                                             <GridViewColumn.CellTemplate>
                                                                 <DataTemplate>
-                                                                    <Button  Margin="5,0,0,0" Click="Gridview_state_Click"  Height="20" Width="50" Cursor="Hand" >
+                                                                    <Button  Margin="2,0,0,0" Click="Gridview_state_Click"  Height="20" Width="50" Cursor="Hand" >
                                                                         <Canvas  Height="18" Width="48" Margin="-1">
 
                                                                             <Border BorderThickness="2" CornerRadius="3"  Height="18" Width="48" Background="{Binding Path=Connected, Converter={StaticResource BooleanToColorConverterConnect }}"/>
@@ -148,13 +172,25 @@
                                                             </GridViewColumn.CellTemplate>
                                                         </GridViewColumn>
 
-                                                        <GridViewColumn x:Name="Gridview_TCU" Width="45"  Header="TCU" HeaderContainerStyle="{StaticResource Gridview_header_style}">
+                                                        <GridViewColumn x:Name="Gridview_mb_function" Width="45"  Header="FUNC" DisplayMemberBinding="{Binding Modbus_function, Converter={StaticResource FunctionConverterCheck}}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
+
+                                                        <GridViewColumn x:Name="Gridview_slave_type" Width="50"  Header="TYPE" HeaderContainerStyle="{StaticResource Gridview_header_style}">
                                                             <GridViewColumn.CellTemplate>
                                                                 <DataTemplate>
                                                                     <Canvas  Margin="10,0,0,0" Height="15" Width="15" >
-                                                                        <Ellipse  Height="14" Width="14" Fill="{Binding Path=TCU, Converter={StaticResource BooleanToColorConverterCheck }}" />
+                                                                        <Ellipse  Height="14" Width="14" Fill="{Binding Path=Slave_type, Converter={StaticResource TypeSlaveToColorConverterCheck }}" />
                                                                     </Canvas>
 
+                                                                </DataTemplate>
+                                                            </GridViewColumn.CellTemplate>
+                                                        </GridViewColumn>
+
+                                                        <GridViewColumn x:Name="Gridview_fast_mode_read" Width="100"  Header="FAST READ" HeaderContainerStyle="{StaticResource Gridview_header_style}">
+                                                            <GridViewColumn.CellTemplate>
+                                                                <DataTemplate>
+                                                                    <Canvas  Margin="30,0,0,0" Height="15" Width="15" >
+                                                                        <Ellipse  Height="14" Width="14" Fill="{Binding Path=Fast_mode, Converter={StaticResource BooleanToColorConverterCheck }}" />
+                                                                    </Canvas>
                                                                 </DataTemplate>
                                                             </GridViewColumn.CellTemplate>
                                                         </GridViewColumn>
@@ -164,13 +200,12 @@
 
                                             </ListView>
 
-                                            <WrapPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                            <WrapPanel Orientation="Horizontal" Margin="2,0,0,0">
                                                 <CheckBox x:Name="Checkbox_all_slave" Style="{StaticResource Checkbox_disable_uncheck}"  HorizontalAlignment="Left"  IsChecked="True" VerticalAlignment="Center"  Checked="Checkbox_all_slave_Checked" />
                                                 <Label Style="{StaticResource Label_setting}" >CHECK ALL</Label>
                                             </WrapPanel>
                                         </WrapPanel>
                                     </Border>
-
                                 </Grid>
                             </Expander>
 
@@ -202,8 +237,41 @@
                                                 <GridViewColumn x:Name="Gridview_dir" Width="65"  Header="@MB" DisplayMemberBinding="{Binding DirModbus}" HeaderContainerStyle="{StaticResource Gridview_header_style}"  />
                                                 <GridViewColumn x:Name="Gridview_read_range" Width="90"  Header="RANGE" DisplayMemberBinding="{Binding Read_range_grid}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
                                                 <GridViewColumn x:Name="Gridview_scaled_range" Width="90"  Header="SCALE" DisplayMemberBinding="{Binding Scaled_range_grid}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
+                                                <GridViewColumn x:Name="Gridview_offset" Width="90"  Header="OFFSET" DisplayMemberBinding="{Binding Offset}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
                                                 <GridViewColumn x:Name="Gridview_desc" Width="350"  Header="DESCRIPTION" DisplayMemberBinding="{Binding Description}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
-                                                <GridViewColumn x:Name="Gridview_emet_watchdog" Width="120"  Header="EMET WD" DisplayMemberBinding="{Binding Watchdog_assoc, Converter={StaticResource EmetWatchdogConverterCheck}}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
+                                                <GridViewColumn x:Name="Gridview_link_to_var" Width="120"  Header="LINK TCU" DisplayMemberBinding="{Binding Link_to_send_tcu, Converter={StaticResource LinkVarConverterCheck}}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
+                                                <GridViewColumn x:Name="Gridview_link_to_avg" Width="120"  Header="LINK AVG" DisplayMemberBinding="{Binding Link_to_avg, Converter={StaticResource LinkAvgConverterCheck}}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
+
+
+                                                <GridViewColumn x:Name="Gridview_correction_load_pin" Width="70"  Header="DYN CORRECTION" HeaderContainerStyle="{StaticResource Gridview_header_style}">
+                                                    <GridViewColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <Canvas  Margin="10,0,0,0" Height="15" Width="15" >
+                                                                <Ellipse  Height="14" Width="14" Fill="{Binding Path=Correction_load_pin, Converter={StaticResource BooleanToColorConverterCheck }}"/>
+                                                            </Canvas>
+                                                        </DataTemplate>
+                                                    </GridViewColumn.CellTemplate>
+                                                </GridViewColumn>
+
+                                                <GridViewColumn x:Name="Gridview_scs_record" Width="85"  Header="SCS REC" HeaderContainerStyle="{StaticResource Gridview_header_style}">
+                                                    <GridViewColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <Canvas  Margin="30,0,0,0" Height="15" Width="15" >
+                                                                <Ellipse  Height="14" Width="14" Fill="{Binding Path=SCS_record, Converter={StaticResource BooleanToColorConverterCheck }}"/>
+                                                            </Canvas>
+                                                        </DataTemplate>
+                                                    </GridViewColumn.CellTemplate>
+                                                </GridViewColumn>
+
+                                                <GridViewColumn x:Name="Gridview_fast_mode_record" Width="85"  Header="FAST REC" HeaderContainerStyle="{StaticResource Gridview_header_style}">
+                                                    <GridViewColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <Canvas  Margin="30,0,0,0" Height="15" Width="15" >
+                                                                <Ellipse  Height="14" Width="14" Fill="{Binding Path=Fast_mode_record, Converter={StaticResource BooleanToColorConverterCheck }}" />
+                                                            </Canvas>
+                                                        </DataTemplate>
+                                                    </GridViewColumn.CellTemplate>
+                                                </GridViewColumn>
                                             </GridView>
                                         </ListView.View>
 
@@ -213,228 +281,947 @@
                             </Border>
                         </Grid>
 
-                        <DockPanel x:Name="Dockpanel_schema" Margin="5" Visibility="Collapsed" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="590" >
-
-                            <Border  x:Name="Border_var_map" Style="{StaticResource Border_shadow}" Margin="2" HorizontalAlignment="Stretch" >
-
-                                <ListView x:Name="Listview_schema_var_map" DockPanel.Dock="Bottom" Style="{StaticResource Listview_style}"  HorizontalAlignment="Left" VerticalAlignment="Stretch"  Margin="2" AllowDrop="True"                             
-                                          SelectionChanged="Listview_schema_var_map_SelectionChanged" 
-                                          PreviewDragOver="Listview_schema_var_map_PreviewDragOver" 
-                                          PreviewDrop="Listview_schema_var_map_PreviewDrop">
-
-                                    <ListView.View>
-                                        <GridView >
-                                            <GridViewColumn Width="180"  Header="VAR MAP"  HeaderContainerStyle="{StaticResource Gridview_header_style}" />
-                                        </GridView>
-                                    </ListView.View>
-
-                                </ListView>
-
-                            </Border>
-
+                        <DockPanel x:Name="Dockpanel_graphic_mode" Margin="5" Visibility="Collapsed" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="590" >
                             <Border  x:Name="Border_schema_map" Style="{StaticResource Border_shadow}" Margin="2" HorizontalAlignment="Stretch">
 
-                                <StackPanel Orientation="Vertical">
+                                <Grid>
 
-                                    <Button x:Name="Button_save_schema_map" Style="{StaticResource Button_rounded}"  Height="32" Width="32" Margin="5" HorizontalAlignment="Right" VerticalAlignment="Top" Click="Button_save_schema_map_Click">
-                                        <Image Height="25" Width="25" Source="/Images/Save.png"/>
-                                    </Button>
+                                    <Grid x:Name="Grid_first" Margin="5">
+                                        <Grid x:Name="Grid_south_corner">
 
-                                    <Grid Margin="5">
+                                            <Label Style="{StaticResource Label_subtitle}" FontSize="16" Content="SOUTH CORNER" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,0,0,0" Padding="0"/>
+                                            <Rectangle Width="350" Height="95" Margin="0,18,0,0" Fill="Transparent" Stroke="Black" RadiusX="2" RadiusY="2" StrokeThickness="2"  StrokeDashArray="3 3" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 
-                                        <Label  Style="{StaticResource Label_subtitle}" FontSize="18" Content="SOUTH" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                                        <Label  Style="{StaticResource Label_subtitle}" FontSize="18" Margin="195,0,0,0" Content="SOUTH LOCK" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                                        <Rectangle Width="185" Height="110" Margin="5,25,0,0" Fill="Transparent" Stroke="Black" RadiusX="2" RadiusY="2" StrokeThickness="2"  StrokeDashArray="3 3" HorizontalAlignment="Left"/>
-                                        <Rectangle Width="190" Height="110" Margin="200,25,0,0" Fill="Transparent" Stroke="Black" RadiusX="2" RadiusY="2" StrokeThickness="2"  StrokeDashArray="3 3" HorizontalAlignment="Left"/>
+                                            <WrapPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="5,22,0,0" >
 
-                                        <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5,30,0,0">
-                                            <WrapPanel Height="100"  Orientation="Vertical" Margin="10,0,0,0">
-                                                <Label x:Name="Label_sick_inc5_title" Style="{StaticResource Label_info}" Width="75" Height="25" Cursor="Hand" AllowDrop="True"  Content=""/>
-                                                <Image x:Name="Image_sick_inc5"  Source="/Images/sick.png"  Height="40"/>
-                                                <Border  Width="75" Height="25" BorderThickness="1,1,2,2" BorderBrush="Black" Background="WHite">
-                                                    <Label x:Name="Label_sick_inc5_value"  Style="{StaticResource Label_schema}" Content=""/>
-                                                </Border>
-                                            </WrapPanel>
+                                                <WrapPanel x:Name="Wrap_southcorner_inc5" Orientation="Vertical">
+                                                    <WrapPanel  x:Name="Label_southcorner_inc5_slope" Orientation="Horizontal" >
+                                                        <Label x:Name="Label_southcorner_inc5_slope_title" Style="{StaticResource Label_info}"  Content="INC5 SLOPE"/>
 
-                                            <WrapPanel Height="100"  Orientation="Vertical" Margin="10,0,0,0">
-                                                <Label x:Name="Label_sick_inc4_title" Style="{StaticResource Label_info}" Width="75" Height="25" Cursor="Hand" AllowDrop="True"  Content=""/>
-                                                <Image x:Name="Image_sick_inc4" Source="/Images/sick2.png"  Height="40"/>
-                                                <Border  Width="75" Height="25" BorderThickness="1,1,2,2" BorderBrush="Black" Background="WHite">
-                                                    <Label x:Name="Label_sick_inc4_value"  Style="{StaticResource Label_schema}" Content=""/>
-                                                </Border>
-                                            </WrapPanel>
+                                                        <Label x:Name="Label_southcorner_inc5_slope_long_title" Style="{StaticResource Label_info}" Cursor="Hand"  Width="28"  Margin="2,0,0,0" Content="LON"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_southcorner_inc5_slope_long_value"  Style="{StaticResource Label_graphic}"/>
+                                                        </Border>
 
-                                            <WrapPanel Height="100"  Orientation="Vertical" Margin="30,0,0,0">
-                                                <Label x:Name="Label_sick_inc3_title" Style="{StaticResource Label_info}" Width="75" Height="25" Cursor="Hand" AllowDrop="True"  Content=""/>
-                                                <Image x:Name="Image_sick_inc3" Source="/Images/sick2.png"  Height="40"/>
-                                                <Border  Width="75" Height="25" BorderThickness="1,1,2,2" BorderBrush="Black" Background="WHite">
-                                                    <Label x:Name="Label_sick_inc3_value"  Style="{StaticResource Label_schema}" Content=""/>
-                                                </Border>
-                                            </WrapPanel>
+                                                        <Label x:Name="Label_southcorner_inc5_slope_lat_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"  Margin="2,0,0,0" Content="LAT"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_southcorner_inc5_slope_lat_value"  Style="{StaticResource Label_graphic}"/>
+                                                        </Border>
 
-                                            <WrapPanel Height="100"  Orientation="Vertical" Margin="10,0,0,0">
-                                                <Label x:Name="Label_dyn1_title" Style="{StaticResource Label_info}" Width="75" Height="25"  Cursor="Hand" AllowDrop="True" Content=""/>
-                                                <Image x:Name="Image_dyn1" Source="/Images/dyn.png"  Height="40"/>
-                                                <Border  Width="75" Height="25" BorderThickness="1,1,2,2" BorderBrush="Black" Background="WHite">
-                                                    <Label x:Name="Label_dyn1_value"  Style="{StaticResource Label_schema}" Content=""/>
-                                                </Border>
-                                            </WrapPanel>
-                                        </WrapPanel>
+                                                    </WrapPanel>
 
+                                                    <WrapPanel x:Name="Wrap_southcorner_inc5_acceleration" Orientation="Horizontal">
+                                                        <Label x:Name="Label_southcorner_inc5_acceleration_title" Style="{StaticResource Label_info}"  Content="INC5 ACCEL"/>
 
-                                        <Grid>
-                                            <Label  Style="{StaticResource Label_subtitle}" FontSize="18" Margin="0,0,0,0" Content="NORTH LOCK" HorizontalAlignment="Right" VerticalAlignment="Top"/>
-                                            <Rectangle Width="90" Height="110" Margin="0,25,28,0" Fill="Transparent" Stroke="Black" RadiusX="2" RadiusY="2" StrokeThickness="2"  StrokeDashArray="3 3" HorizontalAlignment="Right"/>
+                                                        <Label x:Name="Label_southcorner_inc5_acceleration_x_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"   Margin="2,0,0,0" Content="X"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_southcorner_inc5_acceleration_x_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                        </Border>
 
-                                            <WrapPanel Height="100"  Orientation="Vertical" Margin="0,30,35,0" HorizontalAlignment="Right">
-                                                <Label x:Name="Label_sick_inc1_title" Style="{StaticResource Label_info}" Width="75" Height="25" Cursor="Hand" AllowDrop="True"  Content=""/>
-                                                <Image x:Name="Image_sick_inc1" Source="/Images/sick.png"  Height="40"/>
-                                                <Border  Width="75" Height="25" BorderThickness="1,1,2,2" BorderBrush="Black" Background="WHite">
-                                                    <Label x:Name="Label_sick_inc1_value"  Style="{StaticResource Label_schema}" Content=""/>
-                                                </Border>
+                                                        <Label x:Name="Label_southcorner_inc5_acceleration_y_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"  Margin="2,0,0,0"  Content="Y"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_southcorner_inc5_acceleration_y_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                        </Border>
+
+                                                        <Label x:Name="Label_southcorner_inc5_acceleration_z_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"   Margin="2,0,0,0" Content="Z"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_southcorner_inc5_acceleration_z_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                        </Border>
+                                                    </WrapPanel>
+
+                                                    <WrapPanel x:Name="Wrap_southcorner_inc5_velocity" Orientation="Horizontal" Visibility="Collapsed">
+                                                        <Label x:Name="Label_southcorner_inc5_velocity_title" Style="{StaticResource Label_info}"    Content="INC5 VEL"/>
+
+                                                        <Label x:Name="Label_southcorner_inc5_velocity_x_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"   Margin="2,0,0,0" Content="X"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_southcorner_inc5_velocity_x_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                        </Border>
+
+                                                        <Label x:Name="Label_southcorner_inc5_velocity_y_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"  Margin="2,0,0,0"  Content="Y"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_southcorner_inc5_velocity_y_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                        </Border>
+
+                                                        <Label x:Name="Label_southcorner_inc5_velocity_z_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"   Margin="2,0,0,0" Content="Z"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_southcorner_inc5_velocity_z_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                        </Border>
+                                                    </WrapPanel>
+                                                </WrapPanel>
+
+                                                <WrapPanel x:Name="Wrap_southcorner_inc4" Orientation="Vertical" Margin="0,5,0,0">
+                                                    <WrapPanel  x:Name="Label_southcorner_inc4_slope" Orientation="Horizontal" >
+                                                        <Label x:Name="Label_southcorner_inc4_slope_title" Style="{StaticResource Label_info}"   Content="INC4 SLOPE"/>
+
+                                                        <Label x:Name="Label_southcorner_inc4_slope_long_title" Style="{StaticResource Label_info}" Cursor="Hand"  Width="28"  Margin="2,0,0,0" Content="LON"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_southcorner_inc4_slope_long_value"  Style="{StaticResource Label_graphic}"/>
+                                                        </Border>
+
+                                                        <Label x:Name="Label_southcorner_inc4_slope_lat_title" Style="{StaticResource Label_info}"  Cursor="Hand" Width="28"  Margin="2,0,0,0" Content="LAT"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_southcorner_inc4_slope_lat_value"  Style="{StaticResource Label_graphic}"/>
+                                                        </Border>
+
+                                                    </WrapPanel>
+
+                                                    <WrapPanel x:Name="Wrap_southcorner_inc4_acceleration" Orientation="Horizontal">
+                                                        <Label x:Name="Label_southcorner_inc4_acceleration_title" Style="{StaticResource Label_info}"    Content="INC4 ACCEL"/>
+
+                                                        <Label x:Name="Label_southcorner_inc4_acceleration_x_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"   Margin="2,0,0,0" Content="X"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_southcorner_inc4_acceleration_x_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                        </Border>
+
+                                                        <Label x:Name="Label_southcorner_inc4_acceleration_y_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"  Margin="2,0,0,0"  Content="Y"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_southcorner_inc4_acceleration_y_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                        </Border>
+
+                                                        <Label x:Name="Label_southcorner_inc4_acceleration_z_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"   Margin="2,0,0,0" Content="Z"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_southcorner_inc4_acceleration_z_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                        </Border>
+                                                    </WrapPanel>
+
+                                                    <WrapPanel x:Name="Wrap_southcorner_inc4_velocity" Orientation="Horizontal" Visibility="Collapsed">
+                                                        <Label x:Name="Label_southcorner_inc4_velocity_title" Style="{StaticResource Label_info}"    Content="INC4 VEL"/>
+
+                                                        <Label x:Name="Label_southcorner_inc4_velocity_x_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"   Margin="2,0,0,0" Content="X"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_southcorner_inc4_velocity_x_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                        </Border>
+
+                                                        <Label x:Name="Label_southcorner_inc4_velocity_y_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"  Margin="2,0,0,0"  Content="Y"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_southcorner_inc4_velocity_y_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                        </Border>
+
+                                                        <Label x:Name="Label_southcorner_inc4_velocity_z_title" Style="{StaticResource Label_info}"  Cursor="Hand" Width="28"   Margin="2,0,0,0" Content="Z"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_southcorner_inc4_velocity_z_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                        </Border>
+                                                    </WrapPanel>
+                                                </WrapPanel>
+
                                             </WrapPanel>
                                         </Grid>
 
+                                        <Grid x:Name="Grid_south_lock">
+
+                                            <Label Style="{StaticResource Label_subtitle}" FontSize="16" Margin="365,0,0,0" Content="SOUTH LOCK" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0"/>
+                                            <Rectangle Width="347" Height="70" Margin="355,18,0,0" Fill="Transparent" Stroke="Black" RadiusX="2" RadiusY="2" StrokeThickness="2"  StrokeDashArray="3 3" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+
+                                            <WrapPanel x:Name="Wrap_southlock" Orientation="Vertical" Margin="360,22,0,0">
+                                                <WrapPanel x:Name="Wrap_southlock_inc3" Orientation="Vertical">
+                                                    <WrapPanel  x:Name="Label_southlock_inc3_slope" Orientation="Horizontal" >
+                                                        <Label x:Name="Label_southlock_inc3_slope_title" Style="{StaticResource Label_info}"   Content="INC3 SLOPE"/>
+
+                                                        <Label x:Name="Label_southlock_inc3_slope_long_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"  Margin="2,0,0,0" Content="LON"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_southlock_inc3_slope_long_value"  Style="{StaticResource Label_graphic}"/>
+                                                        </Border>
+
+                                                        <Label x:Name="Label_southlock_inc3_slope_lat_title" Style="{StaticResource Label_info}"  Cursor="Hand" Width="28"  Margin="2,0,0,0" Content="LAT"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_southlock_inc3_slope_lat_value"  Style="{StaticResource Label_graphic}"/>
+                                                        </Border>
+
+                                                    </WrapPanel>
+
+                                                    <WrapPanel x:Name="Wrap_southlock_inc3_acceleration" Orientation="Horizontal">
+                                                        <Label x:Name="Label_southlock_inc3_acceleration_title" Style="{StaticResource Label_info}"    Content="INC3 ACCEL"/>
+
+                                                        <Label x:Name="Label_southlock_inc3_acceleration_x_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"   Margin="2,0,0,0" Content="X"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_southlock_inc3_acceleration_x_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                        </Border>
+
+                                                        <Label x:Name="Label_southlock_inc3_acceleration_y_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"  Margin="2,0,0,0"  Content="Y"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_southlock_inc3_acceleration_y_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                        </Border>
+
+                                                        <Label x:Name="Label_southlock_inc3_acceleration_z_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"   Margin="2,0,0,0" Content="Z"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_southlock_inc3_acceleration_z_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                        </Border>
+                                                    </WrapPanel>
+                                                </WrapPanel>
+
+                                                <WrapPanel x:Name="Wrap_southlock_dyn1" Margin="0,2,0,0"  >
+                                                    <Label x:Name="Label_southlock_dyn1_title" Style="{StaticResource Label_info}" Cursor="Hand"  Content="DYN1"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_southlock_dyn1_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+                                            </WrapPanel>
+                                        </Grid>
+
+                                        <Grid x:Name="Grid_north_lock">
+                                            <Label  Style="{StaticResource Label_subtitle}" FontSize="16" Margin="0,0,5,0" Content="NORTH LOCK" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="0"/>
+                                            <Rectangle Width="345" Height="70" Margin="0,18,5,0" Fill="Transparent" Stroke="Black" RadiusX="2" RadiusY="2" StrokeThickness="2"  StrokeDashArray="3 3" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+
+                                            <WrapPanel x:Name="Wrap_northlock_inc1" Orientation="Vertical" Margin="0,22,10,0" HorizontalAlignment="Right">
+                                                <WrapPanel  x:Name="Label_northlock_inc1_slope" Orientation="Horizontal" >
+                                                    <Label x:Name="Label_northlock_inc1_slope_title" Style="{StaticResource Label_info}"  Content="INC1 SLOPE"/>
+
+                                                    <Label x:Name="Label_northlock_inc1_slope_long_title" Style="{StaticResource Label_info}"  Cursor="Hand" Width="28"  Margin="2,0,0,0" Content="LON"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_northlock_inc1_slope_long_value"  Style="{StaticResource Label_graphic}"/>
+                                                    </Border>
+
+                                                    <Label x:Name="Label_northlock_inc1_slope_lat_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"  Margin="2,0,0,0" Content="LAT"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_northlock_inc1_slope_lat_value"  Style="{StaticResource Label_graphic}"/>
+                                                    </Border>
+
+                                                </WrapPanel>
+
+                                                <WrapPanel x:Name="Wrap_northlock_inc1_acceleration" Orientation="Horizontal">
+                                                    <Label x:Name="Label_northlock_inc1_acceleration_title" Style="{StaticResource Label_info}" Cursor="Hand"    Content="INC1 ACCEL"/>
+
+                                                    <Label x:Name="Label_northlock_inc1_acceleration_x_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"   Margin="2,0,0,0" Content="X"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_northlock_inc1_acceleration_x_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+
+                                                    <Label x:Name="Label_northlock_inc1_acceleration_y_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"  Margin="2,0,0,0"  Content="Y"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_northlock_inc1_acceleration_y_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+
+                                                    <Label x:Name="Label_northlock_inc1_acceleration_z_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"   Margin="2,0,0,0" Content="Z"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_northlock_inc1_acceleration_z_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+                                            </WrapPanel>
+                                        </Grid>
                                     </Grid>
 
+                                    <Grid x:Name="Grid_maindrive" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,105,5,0">
+                                        <Label  Style="{StaticResource Label_subtitle}" FontSize="16" Content="MAIN DRIVE" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0" Padding="0"/>
+                                        <Rectangle Width="450" Height="95" Fill="Transparent" Stroke="Black" RadiusX="2" RadiusY="2" StrokeThickness="2"  Margin="0,16,0,0" StrokeDashArray="3 3" HorizontalAlignment="Center"/>
 
-                                    <Grid>
-                                        <Label  Style="{StaticResource Label_subtitle}" FontSize="18" Content="DRIVE" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,-20,0,0"/>
-                                        <Rectangle Width="790" Height="110" Fill="Transparent" Stroke="Black" RadiusX="2" RadiusY="2" StrokeThickness="2"  StrokeDashArray="3 3" HorizontalAlignment="Center"/>
+                                        <Grid Margin="0,20,5,0">
+                                            <WrapPanel Orientation="Vertical">
+                                                <WrapPanel x:Name="Wrap_tempprobe1" Orientation="Horizontal" Margin="5,0,0,0">
 
-                                        <WrapPanel  Orientation="Horizontal" Margin="10, 20,10,10" HorizontalAlignment="Center">
+                                                    <WrapPanel x:Name="Wrap_maindrive_tempprobe1" Margin="0,0,0,0"  >
+                                                        <Label x:Name="Label_maindrive_tempprobe1_title" Style="{StaticResource Label_info}" Cursor="Hand"  Content="TEMP PROBE 1"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_maindrive_tempprobe1_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                        </Border>
+                                                    </WrapPanel>
 
-                                            <WrapPanel Height="100"  Orientation="Vertical" Margin="10,0,0,0">
-                                                <Label x:Name="Label_temp_probe1_title" Style="{StaticResource Label_info}" Width="75" Height="25" Cursor="Hand" AllowDrop="True"  Content=""/>
-                                                <Image x:Name="Image_temp_probe1" Source="/Images/temp.png"  Height="30"/>
-                                                <Border  Width="75" Height="25" BorderThickness="1,1,2,2" BorderBrush="Black" Background="WHite">
-                                                    <Label x:Name="Label_temp_probe1_value"  Style="{StaticResource Label_schema}" Content=""/>
+                                                    <WrapPanel x:Name="Wrap_maindrive_tempprobe2" Margin="0,0,0,0"  >
+                                                        <Label x:Name="Label_maindrive_tempprobe2_title" Style="{StaticResource Label_info}" Cursor="Hand"   Content="TEMP PROBE 2"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_maindrive_tempprobe2_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                        </Border>
+                                                    </WrapPanel>
+
+                                                </WrapPanel>
+
+                                                <WrapPanel  x:Name="Wrap_tempprobe2" Orientation="Horizontal" Margin="5,0,0,0">
+                                                    <WrapPanel x:Name="Wrap_maindrive_tempprobe3" Margin="0,0,0,0"  >
+                                                        <Label x:Name="Label_maindrive_tempprobe3_title" Style="{StaticResource Label_info}" Cursor="Hand"  Content="TEMP PROBE 3"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_maindrive_tempprobe3_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                        </Border>
+                                                    </WrapPanel>
+
+                                                    <WrapPanel x:Name="Wrap_maindrive_tempprobe4" Margin="0,0,0,0"  >
+                                                        <Label x:Name="Label_maindrive_tempprobe4_title" Style="{StaticResource Label_info}" Cursor="Hand"   Content="TEMP PROBE 4"/>
+                                                        <Border  Style="{StaticResource Border_graphic_style}">
+                                                            <Label x:Name="Label_maindrive_tempprobe4_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                        </Border>
+                                                    </WrapPanel>
+
+                                                </WrapPanel>
+
+                                                <WrapPanel x:Name="Wrap_maindrive"  Margin="2,5,0,0" HorizontalAlignment="Left" Orientation="Horizontal">
+
+                                                    <WrapPanel x:Name="Wrap_maindrive_inc2" Orientation="Vertical" Margin="2,0,0,0" Visibility="Visible">
+                                                        <WrapPanel  x:Name="Label_maindrive_inc2_slope" Orientation="Horizontal" >
+                                                            <Label x:Name="Label_maindrive_inc2_slope_title" Style="{StaticResource Label_info}"  Content="INC2 SLOPE"/>
+
+                                                            <Label x:Name="Label_maindrive_inc2_slope_long_title" Style="{StaticResource Label_info}" Width="28"  Margin="2,0,0,0" Content="LON"/>
+                                                            <Border  Style="{StaticResource Border_graphic_style}">
+                                                                <Label x:Name="Label_maindrive_inc2_slope_long_value"  Style="{StaticResource Label_graphic}"/>
+                                                            </Border>
+
+                                                            <Label x:Name="Label_maindrive_inc2_slope_lat_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"  Margin="2,0,0,0" Content="LAT"/>
+                                                            <Border  Style="{StaticResource Border_graphic_style}">
+                                                                <Label x:Name="Label_maindrive_inc2_slope_lat_value"  Style="{StaticResource Label_graphic}"/>
+                                                            </Border>
+
+                                                        </WrapPanel>
+
+                                                        <WrapPanel x:Name="Wrap_southlock_inc2_acceleration" Orientation="Horizontal" >
+                                                            <Label x:Name="Label_maindrive_inc2_acceleration_title" Style="{StaticResource Label_info}"   Content="INC2 ACCEL"/>
+
+                                                            <Label x:Name="Label_maindrive_inc2_acceleration_x_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"   Margin="2,0,0,0" Content="X"/>
+                                                            <Border  Style="{StaticResource Border_graphic_style}">
+                                                                <Label x:Name="Label_maindrive_inc2_acceleration_x_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                            </Border>
+
+                                                            <Label x:Name="Label_maindrive_inc2_acceleration_y_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"  Margin="2,0,0,0"  Content="Y"/>
+                                                            <Border  Style="{StaticResource Border_graphic_style}">
+                                                                <Label x:Name="Label_maindrive_inc2_acceleration_y_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                            </Border>
+
+                                                            <Label x:Name="Label_maindrive_inc2_acceleration_z_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="28"   Margin="2,0,0,0" Content="Z"/>
+                                                            <Border  Style="{StaticResource Border_graphic_style}">
+                                                                <Label x:Name="Label_maindrive_inc2_acceleration_z_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                            </Border>
+                                                        </WrapPanel>
+
+                                                    </WrapPanel>
+
+                                                </WrapPanel>
+                                            </WrapPanel>
+
+                                            <WrapPanel  x:Name="Wrap_maindrive_others" Orientation="Vertical" Margin="310,0,0,0">
+                                                <WrapPanel x:Name="Wrap_maindrive_tracker_irr1"  >
+                                                    <Label x:Name="Label_maindrive_tracker_irr1_title" Style="{StaticResource Label_info}" Cursor="Hand"  Content="TRACKER IRR1"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_maindrive_tracker_irr1_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+
+                                                <WrapPanel x:Name="Wrap_maindrive_dyn3" Margin="0,0,0,0"  >
+                                                    <Label x:Name="Label_maindrive_dyn3_title" Style="{StaticResource Label_info}" Cursor="Hand"  Content="DYN3"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_maindrive_dyn3_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+
+                                                <WrapPanel x:Name="Wrap_maindrive_dyn2" Margin="0,0,0,0"  >
+                                                    <Label x:Name="Label_maindrive_dyn2_title" Style="{StaticResource Label_info}" Cursor="Hand"   Content="DYN2"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_maindrive_dyn2_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+                                            </WrapPanel>
+                                        </Grid>
+                                    </Grid>
+
+                                    <Grid x:Name="Grid_scada" Margin="5,114,0,0" Height="275" Width="550" VerticalAlignment="Top" HorizontalAlignment="Left">
+                                        <Label  Style="{StaticResource Label_subtitle}" Margin="2,7,0,0" Padding="5,0,5,0" FontSize="16" Content="SCADA" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                        <Rectangle Width="540" Height="220" Fill="Transparent" Stroke="Black" RadiusX="2" RadiusY="2" StrokeThickness="2"  StrokeDashArray="3 3" Margin="0,25,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+
+                                        <Border x:Name="Border_meteo_scada"  Style="{StaticResource Border_graphic_style}"  Width="530" Height="150"  BorderThickness="0,0,0,2" Background="Transparent"  Margin="5,28,0,5" VerticalAlignment="Top" HorizontalAlignment="Left">
+                                            <Grid x:Name="Grid_meteo_scada" >
+
+                                                <WrapPanel x:Name="Wrappanel_link_to_tcu"  Orientation="Horizontal">
+                                                    <WrapPanel x:Name="Wrappanel_link_to_tcu_1" Orientation="Vertical" Margin="0" >
+
+                                                        <WrapPanel Orientation="Horizontal">
+                                                            <Label Content="SCADA WATCHDOG"  Style="{StaticResource Label_info}" Width="105"/>
+                                                            <Border  Style="{StaticResource Border_graphic_style}">
+                                                                <Label x:Name="Label_scada_counter_to_tcu_graphic" Style="{StaticResource Label_graphic}" />
+                                                            </Border>
+                                                        </WrapPanel>
+
+                                                        <WrapPanel Orientation="Horizontal" >
+                                                            <Label Content="WIND SPEED"  Style="{StaticResource Label_info}" Width="105"/>
+                                                            <Border  Style="{StaticResource Border_graphic_style}">
+                                                                <Label x:Name="Label_wind_speed_to_tcu_graphic" Style="{StaticResource Label_graphic}" />
+                                                            </Border>
+                                                        </WrapPanel>
+
+                                                        <WrapPanel Orientation="Horizontal" >
+                                                            <Label Content="WIND DIRECTION"  Style="{StaticResource Label_info}" Width="105"/>
+                                                            <Border  Style="{StaticResource Border_graphic_style}">
+                                                                <Label x:Name="Label_wind_dir_to_tcu_graphic" Style="{StaticResource Label_graphic}" />
+                                                            </Border>
+                                                        </WrapPanel>
+
+                                                        <WrapPanel Orientation="Horizontal">
+                                                            <Label Content="TEMP"  Style="{StaticResource Label_info}" Width="105"/>
+                                                            <Border  Style="{StaticResource Border_graphic_style}">
+                                                                <Label x:Name="Label_ambient_temp_to_tcu_graphic" Style="{StaticResource Label_graphic}" />
+                                                            </Border>
+                                                        </WrapPanel>
+
+                                                    </WrapPanel>
+
+                                                    <WrapPanel x:Name="Wrappanel_link_to_tcu_2" Orientation="Vertical" Margin="0" >
+
+                                                        <WrapPanel Orientation="Horizontal">
+                                                            <Label Content="PRESSURE"  Style="{StaticResource Label_info}" Width="105"/>
+                                                            <Border  Style="{StaticResource Border_graphic_style}">
+                                                                <Label x:Name="Label_ambient_pressure_to_tcu_graphic" Style="{StaticResource Label_graphic}" />
+                                                            </Border>
+                                                        </WrapPanel>
+
+                                                        <WrapPanel Orientation="Horizontal">
+                                                            <Label Content="DIRECT IRR"  Style="{StaticResource Label_info}" Width="105"/>
+                                                            <Border  Style="{StaticResource Border_graphic_style}">
+                                                                <Label x:Name="Label_ambient_direct_irr_to_tcu_graphic" Style="{StaticResource Label_graphic}" />
+                                                            </Border>
+                                                        </WrapPanel>
+
+                                                        <WrapPanel Orientation="Horizontal">
+                                                            <Label Content="DIFUSSE IRR"  Style="{StaticResource Label_info}" Width="105"/>
+                                                            <Border  Style="{StaticResource Border_graphic_style}">
+                                                                <Label x:Name="Label_ambient_difusse_irr_to_tcu_graphic" Style="{StaticResource Label_graphic}" />
+                                                            </Border>
+                                                        </WrapPanel>
+
+                                                        <WrapPanel Orientation="Horizontal">
+                                                            <Label Content="METEO WATHCDOG"  Style="{StaticResource Label_info}" Width="105"/>
+                                                            <Border  Style="{StaticResource Border_graphic_style}">
+                                                                <Label x:Name="Label_meteo_counter_to_tcu_graphic" Style="{StaticResource Label_graphic}" />
+                                                            </Border>
+                                                        </WrapPanel>
+
+                                                    </WrapPanel>
+                                                </WrapPanel>
+
+                                                <Grid x:Name="Grid_field_safety"  Margin="0,82,0,0" Width="350" VerticalAlignment="Top" HorizontalAlignment="Left">
+                                                    <Rectangle  RadiusX="2" RadiusY="2" StrokeThickness="1" Stroke="#FF09304E" />
+
+                                                    <WrapPanel Orientation="Vertical" Margin="1,1,2,1" >
+
+                                                        <WrapPanel Orientation="Horizontal">
+                                                            <Label Content="FIELD SAFETY"  Style="{StaticResource Label_info}" Width="105"/>
+
+                                                            <Border  Style="{StaticResource Border_graphic_style}">
+                                                                <Label x:Name="Label_field_safety_supervisor_tcu_graphic" Style="{StaticResource Label_graphic}" />
+                                                            </Border>
+                                                        </WrapPanel>
+
+                                                        <WrapPanel Orientation="Horizontal" Margin="2,0,0,0">
+                                                            <WrapPanel Orientation="Vertical">
+
+                                                                <WrapPanel Orientation="Horizontal">
+                                                                    <Border x:Name="Border_autotrack_scada"  Width="10" Height="10" BorderThickness= "1,1,2,2" BorderBrush="Black" CornerRadius="1" Background="Transparent" />
+                                                                    <Label x:Name="Label_autotrack_scada"  Style="{StaticResource Label_graphic}" FontSize="10" Foreground="Black" Content="AUTOTRACK SCADA" Margin="2,0,0,0" />
+                                                                </WrapPanel>
+
+                                                                <WrapPanel Orientation="Horizontal">
+                                                                    <Border x:Name="Border_wind_ok"  Width="10" Height="10" BorderThickness= "1,1,2,2" BorderBrush="Black" CornerRadius="1" Background="Transparent"  />
+                                                                    <Label x:Name="Label_wind_ok"  Style="{StaticResource Label_graphic}" FontSize="10" Foreground="Black" Content="WIND OK" Margin="2,0,0,0" />
+                                                                </WrapPanel>
+
+                                                                <WrapPanel Orientation="Horizontal">
+                                                                    <Border x:Name="Border_autotrack_samca"  Width="10" Height="10" BorderThickness= "1,1,2,2" BorderBrush="Black" CornerRadius="1" Background="Transparent" />
+                                                                    <Label x:Name="Label_autotrack_samca"  Style="{StaticResource Label_graphic}" FontSize="10" Foreground="Black" Content="AUTOTRACK SAMCA" Margin="2,0,0,0" />
+                                                                </WrapPanel>
+
+                                                            </WrapPanel>
+
+                                                            <WrapPanel Orientation="Vertical" Margin="5,0,0,0">
+
+                                                                <WrapPanel Orientation="Horizontal">
+                                                                    <Border x:Name="Border_slaves_ok"  Width="10" Height="10" BorderThickness= "1,1,2,2" BorderBrush="Black" CornerRadius="1" Background="Transparent"  />
+                                                                    <Label x:Name="Label_slaves_ok"  Style="{StaticResource Label_graphic}" FontSize="10" Foreground="Black" Content="SLAVES OK" Margin="2,0,0,0" />
+                                                                </WrapPanel>
+
+                                                                <WrapPanel Orientation="Horizontal">
+                                                                    <Border x:Name="Border_inc_in_range_emergency_stow"  Width="10" Height="9" BorderThickness= "1,1,2,2" BorderBrush="Black" CornerRadius="1" Background="Transparent" />
+                                                                    <Label x:Name="Label_inc_in_range_emergency_stow"  Style="{StaticResource Label_graphic}" FontSize="10" Foreground="Black" Content="INC EMERG STOW OK" Margin="2,0,0,0" />
+                                                                </WrapPanel>
+
+                                                                <WrapPanel Orientation="Horizontal">
+                                                                    <Border x:Name="Border_inc_in_range_alarm"  Width="10" Height="10" BorderThickness= "1,1,2,2" BorderBrush="Black" CornerRadius="1" Background="Transparent" />
+                                                                    <Label x:Name="Label_inc_in_range_alarm"  Style="{StaticResource Label_graphic}" FontSize="10" Foreground="Black" Content="INC ALARM OK" Margin="2,0,0,0" />
+                                                                </WrapPanel>
+
+                                                            </WrapPanel>
+
+                                                            <WrapPanel Orientation="Vertical" Margin="5,0,0,0">
+
+                                                                <WrapPanel Orientation="Horizontal">
+                                                                    <Border x:Name="Border_emergency_stow"  Width="10" Height="10" BorderThickness= "1,1,2,2" BorderBrush="Black" CornerRadius="1" Background="Transparent" />
+                                                                    <Label x:Name="Label_emergency_stow"  Style="{StaticResource Label_graphic}" FontSize="10" Foreground="Black" Content="EMERG STOW" Margin="2,0,0,0" />
+                                                                </WrapPanel>
+
+                                                                <WrapPanel Orientation="Horizontal">
+                                                                    <Border x:Name="Border_dyn_in_range_emergency_stow"  Width="10" Height="9" BorderThickness= "1,1,2,2" BorderBrush="Black" CornerRadius="1" Background="Transparent" />
+                                                                    <Label x:Name="Label_dyn_in_range_emergency_stow"  Style="{StaticResource Label_graphic}" FontSize="10" Foreground="Black" Content="DYN EMERG STOW OK" Margin="2,0,0,0" />
+                                                                </WrapPanel>
+
+                                                                <WrapPanel Orientation="Horizontal">
+                                                                    <Border x:Name="Border_dyn_in_range_alarm"  Width="10" Height="10" BorderThickness= "1,1,2,2" BorderBrush="Black" CornerRadius="1" Background="Transparent" />
+                                                                    <Label x:Name="Label_dyn_in_range_alarm"  Style="{StaticResource Label_graphic}" FontSize="10" Foreground="Black" Content="DYN ALARM OK" Margin="2,0,0,0" />
+                                                                </WrapPanel>
+
+                                                            </WrapPanel>
+                                                        </WrapPanel>
+
+                                                    </WrapPanel>
+
+                                                </Grid>
+
+
+                                                <WrapPanel  x:Name="Wrappanel_autotracking" Orientation="Vertical" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,0,5">
+                                                    <WrapPanel  x:Name="Wrappanel_autotracking_slider"  Orientation="Horizontal"  Margin="5,5,5,2">
+                                                        <Label Style="{StaticResource Label_graphic}" FontSize="10" Foreground="Black" Content="AUTOTRACKING" />
+                                                        <controls:SwitchSlider2 x:Name="SwitchSlider_autotracking" LabelContentLeft="NO" LabelContentRight="YES" Height="28" Margin="5,0,0,0" />
+                                                    </WrapPanel>
+
+                                                    <ToggleButton x:Name="Toogle_emergency_stop" Style="{StaticResource ToogleButtonStyle}" Width="175" Height="25" HorizontalAlignment="Center" Margin="0,2,0,0" VerticalAlignment="Bottom"  Cursor="Hand" Content="EMERGENCY STOW"/>
+                                                </WrapPanel>
+
+                                                <WrapPanel x:Name="Wrappanel_scada_commands" Orientation="Horizontal"  Margin="0,0,0,5" Width="175" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                                    <Button x:Name="Button_stow" Style="{StaticResource Button_rounded}" Content="STOW"  Height="23" Width="82" FontSize="14" Margin="2" Click="Button_stow_Click" />
+                                                    <Button x:Name="Button_offline" Style="{StaticResource Button_rounded}" Content="OFFLINE"  Height="23" Width="82" FontSize="14"  Margin="2" Click="Button_offline_Click"/>
+                                                    <Button x:Name="Button_online" Style="{StaticResource Button_rounded}" Content="ONLINE"  Height="23" Width="82" FontSize="14"  Margin="2" Click="Button_online_Click"/>
+                                                    <Button x:Name="Button_tracking" Style="{StaticResource Button_rounded}" Content="TRACKING"  Height="23" Width="82" FontSize="14" Margin="2" Click="Button_tracking_Click"/>
+                                                </WrapPanel>
+                                            </Grid>
+                                        </Border>
+
+                                        <WrapPanel VerticalAlignment="Center" Orientation="Horizontal" Margin="5,150,0,0">
+
+                                            <WrapPanel Orientation="Vertical" Margin="2" >
+                                                <Label Width="112" Margin="2,2,2,4"/>
+                                                <Label x:Name="Label_avg_5m_sbpt" Content="AVG ANEN 5M SBPT"  Style="{StaticResource Label_info}"   Width="112"/>
+                                                <Label x:Name="Label_avg_5m_samca" Content="AVG ANEN 5M SAMCA"  Style="{StaticResource Label_info}" Width="112"/>
+                                            </WrapPanel>
+
+                                            <WrapPanel Orientation="Vertical" >
+                                                <Label Content="3 SEC"  Style="{StaticResource Label_info}"   Width="52" Height="16"/>
+                                                <Border  x:Name="Border_avg_5m_sbpt_3seg_value" Style="{StaticResource Border_graphic_style}" Margin="0,2,0,0" BorderThickness="2">
+                                                    <Label x:Name="Label_avg_5m_sbpt_3seg_value" Style="{StaticResource Label_graphic}"/>
+                                                </Border>
+                                                <Border  x:Name="Border_avg_5m_samca_3seg_value" Style="{StaticResource Border_graphic_style}" Margin="0,2,0,0" BorderThickness="2">
+                                                    <Label x:Name="Label_avg_5m_samca_3seg_value" Style="{StaticResource Label_graphic}"/>
                                                 </Border>
                                             </WrapPanel>
 
-                                            <WrapPanel Height="100"  Orientation="Vertical" Margin="10,0,0,0">
-                                                <Label x:Name="Label_temp_probe2_title" Style="{StaticResource Label_info}" Width="75" Height="25" Cursor="Hand" AllowDrop="True"  Content=""/>
-                                                <Image x:Name="Image_temp_probe2" Source="/Images/temp.png"  Height="30"/>
-                                                <Border  Width="75" Height="25" BorderThickness="1,1,2,2" BorderBrush="Black" Background="WHite">
-                                                    <Label x:Name="Label_temp_probe2_value"  Style="{StaticResource Label_schema}" Content=""/>
+                                            <WrapPanel Orientation="Vertical" Width="40">
+                                                <Label Content="MAX"  Style="{StaticResource Label_graphic}"  HorizontalContentAlignment="Center"   Height="16"  Margin="2,0,0,0"/>
+                                                <Label x:Name="Label_avg_5m_sbpt_3seg_max" Style="{StaticResource Label_graphic}" Margin="0,5,0,0" Content="12"/>
+                                                <Label x:Name="Label_avg_5m_samca_3seg_max"  Style="{StaticResource Label_graphic}" Margin="0,4,0,0" Content="12"/>
+                                            </WrapPanel>
+
+                                            <WrapPanel Orientation="Vertical" Width="6" >
+                                                <Label Content="|"  Style="{StaticResource Label_graphic}"  HorizontalContentAlignment="Center"    Height="16" />
+                                                <Label Content="|"  Style="{StaticResource Label_graphic}" Margin="0,5,0,0" />
+                                                <Label Content="|" Style="{StaticResource Label_graphic}" Margin="0,5,0,0"  />
+                                            </WrapPanel>
+
+                                            <WrapPanel Orientation="Vertical" Margin="10,0,0,0">
+                                                <Label Content="10 MIN"  Style="{StaticResource Label_info}"  Cursor="Hand" Width="52" Height="16" />
+                                                <Border x:Name="Border_avg_5m_sbpt_10min_value" Style="{StaticResource Border_graphic_style}" Margin="0,2,0,0"  BorderThickness="2">
+                                                    <Label x:Name="Label_avg_5m_sbpt_10min_value" Style="{StaticResource Label_graphic}" />
+                                                </Border>
+                                                <Border  x:Name="Border_avg_5m_samca_10min_value" Style="{StaticResource Border_graphic_style}" Margin="0,2,0,0" BorderThickness="2" >
+                                                    <Label x:Name="Label_avg_5m_samca_10min_value" Style="{StaticResource Label_graphic}" />
                                                 </Border>
                                             </WrapPanel>
 
-                                            <WrapPanel Height="100"  Orientation="Vertical" Margin="10,0,0,0">
-                                                <Label x:Name="Label_tracker_irr1_title" Style="{StaticResource Label_info}" Width="75" Height="25" Cursor="Hand" AllowDrop="True"  Content=""/>
-                                                <Image x:Name="Image_tracker_irr1" Source="/Images/tracker.png"  Height="40"/>
-                                                <Border  Width="75" Height="25" BorderThickness="1,1,2,2" BorderBrush="Black" Background="WHite">
-                                                    <Label x:Name="Label_tracker_irr1_value"  Style="{StaticResource Label_schema}" Content=""/>
-                                                </Border>
+                                            <WrapPanel Orientation="Vertical" Width="40" >
+                                                <Label Content="MAX"  Style="{StaticResource Label_graphic}"  HorizontalContentAlignment="Center"    Height="16"  Margin="2,0,0,0"/>
+                                                <Label x:Name="Label_avg_5m_sbpt_10min_max"  Style="{StaticResource Label_graphic}" Margin="0,5,0,0" Content="12"/>
+                                                <Label x:Name="Label_avg_5m_samca_10min_max"  Style="{StaticResource Label_graphic}" Margin="0,5,0,0" Content="12" />
                                             </WrapPanel>
 
-                                            <WrapPanel Height="100"  Orientation="Vertical" Margin="10,0,0,0">
-                                                <Label x:Name="Label_dyn3_title" Style="{StaticResource Label_info}" Width="75" Height="25"  Cursor="Hand" AllowDrop="True" Content=""/>
-                                                <Image x:Name="Image_dyn3" Source="/Images/dyn.png"  Height="40"/>
-                                                <Border  Width="75" Height="25" BorderThickness="1,1,2,2" BorderBrush="Black" Background="WHite">
-                                                    <Label x:Name="Label_dyn3_value"  Style="{StaticResource Label_schema}" Content=""/>
-                                                </Border>
+                                            <WrapPanel Orientation="Vertical" Width="6" >
+                                                <Label Content="-"  Style="{StaticResource Label_graphic}"  HorizontalContentAlignment="Center"    Height="16" />
+                                                <Label Content="-"  Style="{StaticResource Label_graphic}" Margin="0,5,0,0" />
+                                                <Label Content="-" Style="{StaticResource Label_graphic}" Margin="0,5,0,0"  />
                                             </WrapPanel>
 
-                                            <WrapPanel Height="100"  Orientation="Vertical" Margin="10,0,0,0">
-                                                <Label x:Name="Label_dyn2_title" Style="{StaticResource Label_info}" Width="75" Height="25"  Cursor="Hand" AllowDrop="True" Content=""/>
-                                                <Image x:Name="Image_dyn2" Source="/Images/dyn.png"  Height="40"/>
-                                                <Border  Width="75" Height="25" BorderThickness="1,1,2,2" BorderBrush="Black" Background="WHite">
-                                                    <Label x:Name="Label_dyn2_value"  Style="{StaticResource Label_schema}" Content=""/>
-                                                </Border>
+
+                                            <WrapPanel Orientation="Vertical" Width="55">
+                                                <Label Content="LOW HIST"  Style="{StaticResource Label_graphic}"  HorizontalContentAlignment="Center"    Height="16"  Margin="2,0,0,0"/>
+                                                <Label x:Name="Label_avg_5m_sbpt_low_hist_10min_value"  Style="{StaticResource Label_graphic}" Margin="0,5,0,0" Content="12"/>
+                                                <Label x:Name="Label_avg_5m_samca_low_hist_10min_value"  Style="{StaticResource Label_graphic}" Margin="0,5,0,0" Content="12" />
                                             </WrapPanel>
 
-                                            <WrapPanel Height="100"  Orientation="Vertical" Margin="10,0,0,0">
-                                                <Label x:Name="Label_sick_inc0_title" Style="{StaticResource Label_info}" Width="75" Height="25"  Cursor="Hand" AllowDrop="True" Content=""/>
-                                                <Image x:Name="Image_sick_inc0" Source="/Images/sick2.png"  Height="40"/>
-                                                <Border  Width="75" Height="25" BorderThickness="1,1,2,2" BorderBrush="Black" Background="WHite">
-                                                    <Label x:Name="Label_sick_inc0_value"  Style="{StaticResource Label_schema}" Content=""/>
-                                                </Border>
+                                            <WrapPanel Orientation="Vertical" >
+                                                <Label Content=""  Style="{StaticResource Label_graphic}"  HorizontalContentAlignment="Center"   Height="16"  Margin="2,0,0,0"/>
+                                                <Label Width="30" Style="{StaticResource Label_graphic}" Margin="0,5,0,0" Content="m/s"/>
+                                                <Label Width="30" Style="{StaticResource Label_graphic}" Margin="0,5,0,0" Content="m/s" />
                                             </WrapPanel>
-
-                                            <WrapPanel Height="100"  Orientation="Vertical" Margin="10,0,0,0">
-                                                <Label x:Name="Label_sick_inc2_title" Style="{StaticResource Label_info}" Width="75" Height="25"  Cursor="Hand" AllowDrop="True" Content=""/>
-                                                <Image x:Name="Image_sick_inc2" Source="/Images/sick2.png"  Height="40"/>
-                                                <Border  Width="75" Height="25" BorderThickness="1,1,2,2" BorderBrush="Black" Background="WHite">
-                                                    <Label x:Name="Label_sick_inc2_value"  Style="{StaticResource Label_schema}" Content=""/>
-                                                </Border>
-                                            </WrapPanel>
-
-                                            <WrapPanel Height="100"  Orientation="Vertical" Margin="10,0,0,0">
-                                                <Label x:Name="Label_temp_probe3_title" Style="{StaticResource Label_info}" Width="75" Height="25" Cursor="Hand" AllowDrop="True"  Content=""/>
-                                                <Image x:Name="Image_temp_probe3" Source="/Images/temp.png"  Height="30"/>
-                                                <Border  Width="75" Height="25" BorderThickness="1,1,2,2" BorderBrush="Black" Background="WHite">
-                                                    <Label x:Name="Label_temp_probe3_value"  Style="{StaticResource Label_schema}" Content=""/>
-                                                </Border>
-                                            </WrapPanel>
-
-                                            <WrapPanel Height="100"  Orientation="Vertical" Margin="10,0,0,0">
-                                                <Label x:Name="Label_temp_probe4_title" Style="{StaticResource Label_info}" Width="75" Height="25" Cursor="Hand" AllowDrop="True"  Content=""/>
-                                                <Image x:Name="Image_temp_probe4" Source="/Images/temp.png"  Height="30"/>
-                                                <Border  Width="75" Height="25" BorderThickness="1,1,2,2" BorderBrush="Black" Background="WHite">
-                                                    <Label x:Name="Label_temp_probe4_value"  Style="{StaticResource Label_schema}" Content=""/>
-                                                </Border>
-                                            </WrapPanel>
-
 
                                         </WrapPanel>
                                     </Grid>
 
-                                    <Grid Margin="15" HorizontalAlignment="Right" Height="240" Width="300">
+                                    <Grid x:Name="Grid_tcu"  Margin="5" VerticalAlignment="Bottom" HorizontalAlignment="Left" >
 
-                                        <Label  Style="{StaticResource Label_subtitle}" FontSize="18" Content="WEATHER MASK" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-25,0,0"/>
-                                        <Rectangle Width="300" Height="240" Fill="Transparent" Stroke="Black" RadiusX="2" RadiusY="2" StrokeThickness="2"  StrokeDashArray="3 3" HorizontalAlignment="Center"/>
+                                        <Label  Style="{StaticResource Label_subtitle}" Margin="2,0,0,0" FontSize="16" Content="TCU" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                        <Rectangle Width="540" Height="185" Fill="Transparent" Stroke="Black" RadiusX="2" RadiusY="2" StrokeThickness="2"  StrokeDashArray="3 3" Margin="0,22,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 
 
-                                        <WrapPanel Height="100"  Orientation="Vertical" Margin="10,30,0,0" VerticalAlignment="Top">
-                                            <Label x:Name="Label_wd1_title" Style="{StaticResource Label_info}" Width="75" Height="25"  Cursor="Hand" AllowDrop="True"  Content=""/>
-                                            <Image x:Name="Image_wd1" Source="/Images/weather1.png" Height="40" />
-                                            <Border  Width="75" Height="25" BorderThickness="1,1,2,2" BorderBrush="Black" Background="WHite">
-                                                <Label  x:Name="Label_wd1_value" Style="{StaticResource Label_schema}" Content=""/>
-                                            </Border>
-                                        </WrapPanel>
+                                        <WrapPanel Margin="0,20,0,0" Orientation="Horizontal">
+                                            <WrapPanel  Orientation="Vertical" Margin="2,0,0,0">
 
-                                        <WrapPanel Height="100"  Orientation="Vertical" Margin="120,10,0,0" VerticalAlignment="Top">
-                                            <Label x:Name="Label_anenomether1_title" Style="{StaticResource Label_info}" Width="75" Height="25"  Cursor="Hand" AllowDrop="True"  Content=""/>
-                                            <Image x:Name="Image_anenomether1" Source="/Images/anenomether.png"  Height="40"/>
-                                            <Border  Width="75" Height="25" BorderThickness="1,1,2,2" BorderBrush="Black" Background="WHite">
-                                                <Label x:Name="Label_anenomether1_value"  Style="{StaticResource Label_schema}" Content=""/>
-                                            </Border>
-                                        </WrapPanel>
+                                                <Border Style="{StaticResource Border_graphic_style}" BorderThickness="0,0,1,1" HorizontalAlignment="Left" Background="{StaticResource Tabcontrol_Background_gradient}"  Margin="0,6,0,3" Width="290" Height="22">
+                                                    <WrapPanel Orientation="Horizontal">
+                                                        <Label x:Name="Label_TCU_tracker_status_title" Style="{StaticResource Label_setting}" Width="150" Height="23"  Content="TRACKER STATUS : "/>
+                                                        <Label x:Name="Label_TCU_tracker_status_value"   Style="{StaticResource Label_graphic_big}" Content="" />
+                                                    </WrapPanel>
+                                                </Border>
 
-                                        <WrapPanel Height="100"  Orientation="Vertical" Margin="0,60,20,0" VerticalAlignment="Top" HorizontalAlignment="Right">
-                                            <Label x:Name="Label_anenomether2_title" Style="{StaticResource Label_info}" Width="75" Height="25"  Cursor="Hand" AllowDrop="True"  Content=""/>
-                                            <Image x:Name="Image_anenomether2" Source="/Images/anenomether.png"  Height="40"/>
-                                            <Border  Width="75" Height="25" BorderThickness="1,1,2,2" BorderBrush="Black" Background="WHite">
-                                                <Label x:Name="Label_anenomether2_value"  Style="{StaticResource Label_schema}" Content=""/>
-                                            </Border>
-                                        </WrapPanel>
+                                                <WrapPanel Margin="0,0,0,1">
+                                                    <WrapPanel Orientation="Vertical"  Margin="0,0,0,0">
+                                                        <WrapPanel Orientation="Horizontal" >
+                                                            <Label x:Name="Label_position_el_title" Style="{StaticResource Label_info_big}" Content="POS. ACTUAL"/>
 
-                                        <WrapPanel Height="100"  Orientation="Vertical" Margin="80,100,0,0" VerticalAlignment="Bottom" HorizontalAlignment="Left">
-                                            <Label x:Name="Label_fixed_irr2_title" Style="{StaticResource Label_info}" Width="75" Height="25" Cursor="Hand" AllowDrop="True"  Content=""/>
-                                            <Image x:Name="Image_fixed_irr2" Source="/Images/tracker.png"  Height="40"/>
-                                            <Border  Width="75" Height="25" BorderThickness="1,1,2,2" BorderBrush="Black" Background="WHite">
-                                                <Label x:Name="Label_fixed_irr2_value"  Style="{StaticResource Label_schema}" Content=""/>
-                                            </Border>
+                                                            <Border  Style="{StaticResource Border_graphic_big_style}">
+                                                                <Label x:Name="Label_TCU_position_el_value"  Style="{StaticResource Label_graphic_big}"  />
+                                                            </Border>
+                                                        </WrapPanel>
+
+                                                        <WrapPanel Orientation="Horizontal">
+                                                            <Label x:Name="Label_position_setpoint_title" Style="{StaticResource Label_info_big}" Content="POS. SET"/>
+
+                                                            <Border  Style="{StaticResource Border_graphic_big_style}">
+                                                                <Label x:Name="Label_TCU_position_setpoint_value"  Style="{StaticResource Label_graphic_big}"  />
+                                                            </Border>
+                                                        </WrapPanel>
+
+                                                        <WrapPanel Orientation="Horizontal">
+                                                            <Label x:Name="Label_error_el_title" Style="{StaticResource Label_info_big}" Content="POS. ERROR"/>
+
+                                                            <Border  Style="{StaticResource Border_graphic_big_style}">
+                                                                <Label x:Name="Label_TCU_error_el_value"  Style="{StaticResource Label_graphic_big}"  />
+                                                            </Border>
+                                                        </WrapPanel>
+                                                    </WrapPanel>
+
+                                                    <WrapPanel Orientation="Vertical"  Margin="2,0,0,0" >
+
+                                                        <WrapPanel Orientation="Horizontal" >
+                                                            <Label x:Name="Label_main_drive_power_title" Style="{StaticResource Label_info_big}"  Content="MAIN DRIVE"/>
+
+                                                            <Border Style="{StaticResource Border_graphic_big_style}" >
+                                                                <Label x:Name="Label_TCU_main_drive_power_value"  Style="{StaticResource Label_graphic_big}"  />
+                                                            </Border>
+                                                        </WrapPanel>
+
+                                                        <WrapPanel Orientation="Horizontal" >
+                                                            <Label x:Name="Label_lock1_drive_power_title" Style="{StaticResource Label_info_big}"  Content="LOCK1 DRIVE"/>
+
+                                                            <Border  Style="{StaticResource Border_graphic_big_style}">
+                                                                <Label x:Name="Label_TCU_lock1_drive_power_value"  Style="{StaticResource Label_graphic_big}"  />
+                                                            </Border>
+                                                        </WrapPanel>
+
+                                                        <WrapPanel Orientation="Horizontal" >
+                                                            <Label x:Name="Label_lock2_drive_power_title" Style="{StaticResource Label_info_big}"   Content="LOCK2 DRIVE"/>
+
+                                                            <Border  Style="{StaticResource Border_graphic_big_style}">
+                                                                <Label x:Name="Label_TCU_lock2_drive_power_value"  Style="{StaticResource Label_graphic_big}"  />
+                                                            </Border>
+                                                        </WrapPanel>
+
+                                                    </WrapPanel>
+
+
+                                                </WrapPanel>
+
+                                                <WrapPanel Orientation="Horizontal" DockPanel.Dock="Left" Margin="0,0,0,2">
+                                                    <WrapPanel Orientation="Horizontal" Margin="0,0,0,0">
+                                                        <Label x:Name="Label_consigna_desfase_el_title" Style="{StaticResource Label_info_big}"  Content="DESFASE ELEV."/>
+
+                                                        <Border  Style="{StaticResource Border_graphic_big_style}">
+                                                            <Label x:Name="Label_TCU_consigna_desfase_el_value"  Style="{StaticResource Label_graphic_big}"  />
+                                                        </Border>
+                                                    </WrapPanel>
+
+                                                    <WrapPanel Orientation="Horizontal" Margin="2,0,0,0">
+                                                        <Label x:Name="Label_tracker_speed_title" Style="{StaticResource Label_info_big}"  Content="TRACKER SPEED"/>
+
+                                                        <Border  Style="{StaticResource Border_graphic_big_style}">
+                                                            <Label x:Name="Label_TCU_traker_speed_value"  Style="{StaticResource Label_graphic_big}"  />
+                                                        </Border>
+                                                    </WrapPanel>
+                                                </WrapPanel>
+                                                
+
+                                                
+
+
+
+                                                <Border x:Name="Border_bit_states" Background="{StaticResource Tabcontrol_Background_gradient}"  HorizontalAlignment="Left" VerticalAlignment="Bottom" BorderBrush="Black"  BorderThickness="2,1,3,1" CornerRadius="2" Height="26" Width="485" Margin="2,3,0,3">
+                                                    <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="4,4,2,4">
+
+                                                        <WrapPanel Orientation="Horizontal">
+
+                                                            <Border x:Name="Border_main_drive"  Width="20" Height="13" Visibility="Collapsed" BorderThickness= "1,1,2,2" BorderBrush="Black" CornerRadius="1" Background="Transparent" Margin="0,1,0,0"/>
+                                                            <Label x:Name="Label_main_drive"  Style="{StaticResource Label_graphic_big}" FontSize="13" Foreground="Black" Content="MAIN DRIVE" Margin="10,0,0,0" />
+
+                                                            <Grid  Height="20" Width="20"  Margin="10,0,0,0">
+                                                                <Image x:Name="Image_main_drive_backward_disable" Source="/Images/backward_disable.png"/>
+                                                                <Image x:Name="Image_main_drive_backward_enable" Source="/Images/backward_enable.png"/>
+                                                            </Grid>
+                                                            <Grid  Height="20" Width="20" Margin="10,0,0,0">
+                                                                <Image x:Name="Image_main_drive_forward_disable" Source="/Images/forward_disable.png"/>
+                                                                <Image x:Name="Image_main_drive_forward_enable" Source="/Images/forward_enable.png"/>
+                                                            </Grid>
+                                                        </WrapPanel>
+
+                                                        <Border Width="2" Height="20" BorderBrush="Black" BorderThickness="1" CornerRadius="1" Margin="10,0,10,0"/>
+
+                                                        <WrapPanel Orientation="Horizontal">
+
+                                                            <Border x:Name="Border_lock1"  Width="20" Height="13" BorderThickness= "1,1,2,2" BorderBrush="Black" CornerRadius="1" Background="Transparent" Margin="0,2,0,0"/>
+                                                            <Label x:Name="Label_lock1"  Style="{StaticResource Label_graphic_big}" FontSize="13" Foreground="Black" Content="LOCK1" Margin="10,0,0,0" />
+
+                                                            <Grid  Height="20" Width="20"  Margin="10,0,0,0">
+                                                                <Image x:Name="Image_lock1_backward_disable" Source="/Images/backward_disable.png"/>
+                                                                <Image x:Name="Image_lock1_backward_enable" Source="/Images/backward_enable.png"/>
+                                                            </Grid>
+                                                            <Grid  Height="20" Width="20" Margin="10,0,0,0">
+                                                                <Image x:Name="Image_lock1_forward_disable" Source="/Images/forward_disable.png"/>
+                                                                <Image x:Name="Image_lock1_forward_enable" Source="/Images/forward_enable.png"/>
+                                                            </Grid>
+
+                                                        </WrapPanel>
+
+                                                        <Border Width="2" Height="20" BorderBrush="Black" BorderThickness="1" CornerRadius="1" Margin="10,0,10,0"/>
+
+                                                        <WrapPanel Orientation="Horizontal">
+                                                            <Border x:Name="Border_lock2"  Width="20" Height="13" BorderThickness= "1,1,2,2" BorderBrush="Black" CornerRadius="1" Background="Transparent" Margin="0,2,0,0"/>
+                                                            <Label x:Name="Label_lock2"  Style="{StaticResource Label_graphic_big}" FontSize="13" Foreground="Black" Content="LOCK2" Margin="10,0,0,0" />
+
+                                                            <Grid  Height="20" Width="20"  Margin="10,0,0,0">
+                                                                <Image x:Name="Image_lock2_backward_disable" Source="/Images/backward_disable.png"/>
+                                                                <Image x:Name="Image_lock2_backward_enable" Source="/Images/backward_enable.png"/>
+                                                            </Grid>
+                                                            <Grid  Height="20" Width="20" Margin="10,0,0,0">
+                                                                <Image x:Name="Image_lock2_forward_disable" Source="/Images/forward_disable.png"/>
+                                                                <Image x:Name="Image_lock2_forward_enable" Source="/Images/forward_enable.png"/>
+                                                            </Grid>
+
+                                                        </WrapPanel>
+
+                                                    </WrapPanel>
+                                                </Border>
+
+                                                <WrapPanel x:Name="Wraper_utc" Orientation="Vertical" VerticalAlignment="Bottom" Margin="0,0,0,0" >
+                                                    <Border BorderBrush="Black" BorderThickness="1" Margin="2,0,0,0" Width="485" Background="{StaticResource Tabcontrol_Background_gradient}" >
+                                                        <WrapPanel Orientation="Horizontal">
+
+                                                            <WrapPanel Width="240">
+                                                                <Label Style="{StaticResource Label_graphic_big}"  Foreground="Black" Content="UTC:" Width="40"  />
+                                                                <Label x:Name="Label_TCU_datetime_value" Style="{StaticResource Label_graphic_big}" Visibility="Visible"/>
+                                                            </WrapPanel>
+
+                                                            <WrapPanel Margin="120,2,0,0">
+                                                                <Label Style="{StaticResource Label_graphic}"  Foreground="Black" Content="MSEC:" Width="40" HorizontalContentAlignment="Left" />
+                                                                <Label x:Name="Label_TCU_milisec_value" Style="{StaticResource Label_graphic}"  Visibility="Visible" />
+                                                            </WrapPanel>
+
+                                                        </WrapPanel>
+                                                    </Border>
+                                                </WrapPanel>
+
+                                            </WrapPanel>
                                         </WrapPanel>
 
 
                                     </Grid>
 
-                                </StackPanel>
+                                    <Grid x:Name="Grid_weather_mask" VerticalAlignment="Center" Margin="0,0,5,55" HorizontalAlignment="Right">
 
+                                        <Label  Style="{StaticResource Label_subtitle}" FontSize="16" Content="WEATHER MAST" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="0" Margin="0,8,10,0" />
+                                        <Rectangle Width="350" Height="50" Fill="Transparent" Stroke="Black" RadiusX="2" RadiusY="2" StrokeThickness="2"  StrokeDashArray="3 3" Margin="0,25,5,0" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+
+                                        <WrapPanel x:Name="Wrap_weather_mast" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,30,10,0">
+
+                                            <WrapPanel Orientation="Vertical">
+
+                                                <WrapPanel x:Name="Wrap_weather_mast_fixed_irr2" Margin="0,0,0,0"  >
+                                                    <Label x:Name="Label_weather_mast_fixed_irr2_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="112"  Content="FIXED IRR2"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_weather_mast_fixed_irr2_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+
+                                                <WrapPanel x:Name="Wrap_weather_mast_wd1" Margin="0,0,0,0"  >
+                                                    <Label x:Name="Label_weather_mast_wd1_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="112"  Content="WD1"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_weather_mast_wd1_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+
+                                            </WrapPanel>
+
+                                            <WrapPanel Orientation="Vertical" Margin="2,0,0,0">
+
+                                                <WrapPanel x:Name="Wrap_weather_mast_anenometer1" Margin="0,0,0,0"  >
+                                                    <Label x:Name="Label_weather_mast_anenometer1_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="112"  Content="ANENOMETER 3M"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_weather_mast_anenometer1_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+
+                                                <WrapPanel x:Name="Wrap_weather_mast_anenometer2" Margin="0,0,0,0"  >
+                                                    <Label x:Name="label_weather_mast_anenometer2_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="112"  Content="ANENOMETER 5M"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_weather_mast_anenometer2_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+                                            </WrapPanel>
+                                        </WrapPanel>
+                                    </Grid>
+
+                                    <Grid x:Name="Grid_samca_meteo_station" Margin="0,0,5,5" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+
+                                        <Label  Style="{StaticResource Label_subtitle}" FontSize="16" Content="SAMCA METEO STATION" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="0" Margin="0,0,10,0" />
+                                        <Rectangle Width="350" Height="240" Fill="Transparent" Stroke="Black" RadiusX="2" RadiusY="2" StrokeThickness="2"  StrokeDashArray="3 3" Margin="0,20,5,0" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+
+
+                                        <WrapPanel x:Name="Wrap_samca_meteo_station" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,25,10,0">
+
+                                            <WrapPanel Orientation="Vertical">
+                                                <WrapPanel x:Name="Wrap_samca_irradiance_ghi" Margin="0,0,0,0"  >
+                                                    <Label x:Name="Label_samca_irradiance_ghi_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="112"  Content="IRR GHI"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_samca_irradiance_ghi_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+
+                                                <WrapPanel x:Name="Wrap_samca_irradiance_poa" Margin="0,0,0,0"  >
+                                                    <Label x:Name="Label_samca_irradiance_poa_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="112"  Content="IRR POA"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_samca_irradiance_poa_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+
+                                                <WrapPanel x:Name="Wrap_samca_irradiance_clean" Margin="0,0,0,0"  >
+                                                    <Label x:Name="Label_samca_irradiance_clean_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="112"  Content="IRR CLEAN"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_samca_irradiance_clean_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+
+                                                <WrapPanel x:Name="Wrap_samca_irradiance_soiled" Margin="0,0,0,0"  >
+                                                    <Label x:Name="Label_samca_irradiance_soiled_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="112"  Content="IRR SOILED"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_samca_irradiance_soiled_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+
+                                                <Label Style="{StaticResource Label_info}"    Content="WIN" Margin="1,5,0,2" HorizontalAlignment="Left" Width="167"/>
+
+                                                <WrapPanel x:Name="Wrap_samca_wind_dir"  >
+                                                    <Label x:Name="Label_samca_wind_dir_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="112"  Content="DIRECTION"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_samca_wind_dir_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+
+                                                <WrapPanel x:Name="Wrap_samca_wind_speed_main_10m" Margin="0,0,0,0"  >
+                                                    <Label x:Name="Label_samca_wind_speed_main_10m_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="112"  Content="SPEED MAIN 10M"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_samca_wind_speed_main_10m_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+
+                                                <WrapPanel x:Name="Wrap_samca_wind_speed_main_5m" Margin="0,0,0,0"  >
+                                                    <Label x:Name="Label_samca_wind_speed_main_5m_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="112"  Content="SPEED MAIN 5M"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_samca_wind_speed_main_5m_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+
+                                                <WrapPanel x:Name="Wrap_samca_wind_speed_sec_10m" Margin="0,0,0,0"  >
+                                                    <Label x:Name="Label_samca_wind_speed_sec_10m_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="112"  Content="SPEED SEC 10M"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_samca_wind_speed_sec_10m_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+
+                                                <WrapPanel x:Name="Wrap_samca_wind_speed_sec_5m" Margin="0,0,0,0"  >
+                                                    <Label x:Name="Label_samca_wind_speed_sec_5m_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="112"  Content="SPEED SEC 5M"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_samca_wind_speed_sec_5m_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+                                            </WrapPanel>
+
+                                            <WrapPanel Orientation="Vertical" Margin="2,0,0,0">
+                                                <WrapPanel x:Name="Wrap_samca_thermometer_panel1" Margin="0,0,0,0"  >
+                                                    <Label x:Name="Label_samca_thermometer_panel1_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="112"  Content="THERMOMETER 1"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_samca_thermometer_panel1_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+
+                                                <WrapPanel x:Name="Wrap_samca_thermometer_panel2" Margin="0,0,0,0"  >
+                                                    <Label x:Name="Label_samca_thermometer_panel2_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="112"  Content="THERMOMETER 2"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_samca_thermometer_panel2_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+
+                                                <WrapPanel x:Name="Wrap_samca_humidity" Margin="0,0,0,0"  >
+                                                    <Label x:Name="Label_samca_humidity_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="112"  Content="HUMIDITY"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_samca_humidity_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+
+                                                <WrapPanel x:Name="Wrap_samca_rain_fall" Margin="0,0,0,0"  >
+                                                    <Label x:Name="Label_samca_rain_fall_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="112"  Content="RAIN FALL"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_samca_rain_fall_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+
+
+                                                <Label Style="{StaticResource Label_info}" Content="INVERTER" Margin="1,5,0,2" HorizontalAlignment="Left" Width="167"/>
+
+                                                <WrapPanel x:Name="Wrap_samca_inverter_current"   >
+                                                    <Label x:Name="Label_samca_inverter_current_tracker_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="112"  Content="CURRENT TRACKER"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_samca_inverter_current_tracker_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+
+                                                <WrapPanel x:Name="Wrap_samca_inverter_voltage_tracker" Margin="0,0,0,0"  >
+                                                    <Label x:Name="Label_samca_inverter_voltage_tracker_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="112"  Content="VOLTAGE TRACKER"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_samca_inverter_voltage_tracker_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+
+
+                                                <WrapPanel x:Name="Wrap_samca_inverter_current_fixed" Margin="0,0,0,0"  >
+                                                    <Label x:Name="Label_samca_inverter_current_fixed_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="112"  Content="CURRENT FIXED"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_samca_inverter_current_fixed_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+
+                                                <WrapPanel x:Name="Wrap_samca_inverter_voltage" Margin="0,0,0,0"  >
+                                                    <Label x:Name="Label_samca_inverter_voltage_fixed_title" Style="{StaticResource Label_info}" Cursor="Hand" Width="112"  Content="VOLTAGE FIXED"/>
+                                                    <Border  Style="{StaticResource Border_graphic_style}">
+                                                        <Label x:Name="Label_samca_inverter_voltage_fixed_value"  Style="{StaticResource Label_graphic}" Content=""/>
+                                                    </Border>
+                                                </WrapPanel>
+
+                                            </WrapPanel>
+                                        </WrapPanel>
+
+                                        <WrapPanel x:Name="Wrappanel_samca_commands" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,10,5" >
+                                            <Button x:Name="Button_samca_stow" Style="{StaticResource Button_rounded}" Content="STOW"  Height="23" Width="80" FontSize="14" Margin="2" Click="Button_samca_stow_Click" />
+                                            <Button x:Name="Button_samca_track" Style="{StaticResource Button_rounded}" Content="TRACK"  Height="23" Width="80" FontSize="14"  Margin="2" Click="Button_samca_track_Click"/>
+                                        </WrapPanel>
+
+
+                                    </Grid>
+                                </Grid>
                             </Border>
                         </DockPanel>
 
-
-                        <Grid x:Name="Grid_tcu_control" Margin="5,0,5,0"  Visibility="Visible" >
+                        <Grid x:Name="Grid_tcu_control_mode" Margin="5,0,5,0" Visibility="Collapsed">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
-
-                            <DockPanel Grid.Column="0" >
+                            <DockPanel Grid.Column="0">
 
                                 <Border  x:Name="Border_codified_state"  Style="{StaticResource Border_shadow}" Margin="2"  DockPanel.Dock="Top">
                                     <WrapPanel Orientation="Vertical">
@@ -448,26 +1235,38 @@
 
                                             <ListView.View>
                                                 <GridView  >
-                                                    <GridViewColumn x:Name="GridviewColumn_codif_state_dir" Width="70" Header="@MB" DisplayMemberBinding="{Binding DirModbus}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
+                                                    <GridViewColumn x:Name="GridviewColumn_codif_state_dir" Width="65" Header="@MB" DisplayMemberBinding="{Binding DirModbus}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
                                                     <GridViewColumn x:Name="GridviewColumn_codif_state_name" Width="190" Header="NAME" DisplayMemberBinding="{Binding Name}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
-                                                    <GridViewColumn x:Name="GridviewColumn_codif_state_vartype" Width="85" Header="TYPE" DisplayMemberBinding="{Binding TypeVar}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
+                                                    <GridViewColumn x:Name="GridviewColumn_codif_state_vartype" Width="80" Header="TYPE" DisplayMemberBinding="{Binding TypeVar}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
+
                                                     <GridViewColumn x:Name="GridviewColumn_codif_state_value" Width="95"  Header="VALUE" HeaderContainerStyle="{StaticResource Gridview_header_style}">
                                                         <GridViewColumn.CellTemplate>
                                                             <DataTemplate>
                                                                 <Border CornerRadius="5"  Background="#FF20487F" >
-                                                                    <TextBlock Text="{Binding Value}" FontWeight="Bold" Foreground="White" HorizontalAlignment="Left" Padding="5,1,0,1" Width="115" />
+                                                                    <TextBlock Text="{Binding Value}" FontWeight="Bold" Foreground="White" HorizontalAlignment="Left" Padding="5,1,0,1" Width="165" />
                                                                 </Border>
                                                             </DataTemplate>
                                                         </GridViewColumn.CellTemplate>
                                                     </GridViewColumn>
 
                                                     <GridViewColumn x:Name="GridviewColumn_codif_state_unit" Width="70"  Header="UNIT" DisplayMemberBinding="{Binding Unit}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
-                                                    <GridViewColumn x:Name="GridviewColumn_codif_state_record" Width="115" Header="RECORD SCS" DisplayMemberBinding="{Binding SCS_record}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
 
-                                                    <GridViewColumn x:Name="GridviewColumn_codif_state_mask" Width="110" Header="BIT STATUS" HeaderContainerStyle="{StaticResource Gridview_header_style}">
+                                                    <GridViewColumn x:Name="Gridview_link_to_graphic" Width="120"  Header="LINK GRAPHIC" DisplayMemberBinding="{Binding Link_to_graphic, Converter={StaticResource LinkGraphicConverterCheck}}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
+
+                                                    <GridViewColumn x:Name="GridviewColumn_codif_state_record" Width="85"  Header="SCS REC" HeaderContainerStyle="{StaticResource Gridview_header_style}">
                                                         <GridViewColumn.CellTemplate>
                                                             <DataTemplate>
-                                                                <Button  Style="{StaticResource Button_rounded}"  Margin="5,0,0,0" Content="CHECK" Height="23" Width="90" Visibility="{Binding Path=Status_mask, Converter={StaticResource BooleanToVisibilityConverter }}"  Cursor="Hand" Click="Gridview_mask_Click" />
+                                                                <Canvas  Margin="30,0,0,0" Height="15" Width="15" >
+                                                                    <Ellipse  Height="14" Width="14" Fill="{Binding Path=SCS_record, Converter={StaticResource BooleanToColorConverterCheck }}"/>
+                                                                </Canvas>
+                                                            </DataTemplate>
+                                                        </GridViewColumn.CellTemplate>
+                                                    </GridViewColumn>
+
+                                                    <GridViewColumn x:Name="GridviewColumn_codif_state_mask" Width="112" Header="BIT STATUS" HeaderContainerStyle="{StaticResource Gridview_header_style}">
+                                                        <GridViewColumn.CellTemplate>
+                                                            <DataTemplate>
+                                                                <Button  Style="{StaticResource Button_rounded}"  Margin="2,0,0,0" Content="CHECK" Height="23" Width="90" Visibility="{Binding Path=Status_mask_enable, Converter={StaticResource BooleanToVisibilityConverter }}"  Cursor="Hand" Click="Gridview_mask_Click" />
                                                             </DataTemplate>
                                                         </GridViewColumn.CellTemplate>
                                                     </GridViewColumn>
@@ -477,16 +1276,16 @@
 
                                         </ListView>
 
-                                        <Button x:Name="Button_new_codif_state" Style="{StaticResource Button_rounded}" Content="NEW" Margin="5" Height="30" Width="540"  Click="Button_new_codif_state_Click"/>
-                                        <Button x:Name="Button_remove_codif_state" Style="{StaticResource Button_rounded}" Content="REMOVE" Margin="5" Height="30" Width="540" Click="Button_remove_codif_state_Click"/>
-
+                                        <StackPanel Orientation="Vertical">
+                                            <Button x:Name="Button_new_codif_state" Style="{StaticResource Button_rounded}" Content="NEW" Margin="5" Height="30" Width="520"  Click="Button_new_codif_state_Click"/>
+                                            <Button x:Name="Button_remove_codif_state" Style="{StaticResource Button_rounded}" Content="REMOVE" Margin="5" Height="30" Width="520" Click="Button_remove_codif_state_Click"/>
+                                        </StackPanel>
                                     </WrapPanel>
                                 </Border>
-                                
+
                             </DockPanel>
 
-
-                            <DockPanel Grid.Column="1"  >
+                            <DockPanel Grid.Column="1">
                                 <Border  x:Name="Border_tcu_commands" Style="{StaticResource Border_shadow}" DockPanel.Dock="Top" Margin="2">
 
                                     <WrapPanel Orientation="Horizontal">
@@ -497,7 +1296,7 @@
                                             </Border>
 
                                             <ListView x:Name="Listview_tcu_commands"  Style="{StaticResource Listview_style}"  
-                                                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Margin="5" Height="400"  Width="265" 
+                                                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Margin="5" Height="380"  Width="250" 
                                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                 ScrollViewer.HorizontalScrollBarVisibility="Visible"
                                                 SelectionChanged="Listview_tcu_commands_SelectionChanged" >
@@ -505,21 +1304,21 @@
                                                 <ListView.View>
                                                     <GridView  >
                                                         <GridViewColumn x:Name="Gridviewcolumn_command_index" Width="45" Header="ID" DisplayMemberBinding="{Binding Index}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
-                                                        <GridViewColumn x:Name="Gridviewcolumn_command_name" Width="240" Header="NAME" DisplayMemberBinding="{Binding Name}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
+                                                        <GridViewColumn x:Name="Gridviewcolumn_command_name" Width="250" Header="NAME" DisplayMemberBinding="{Binding Name}" HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
                                                     </GridView>
                                                 </ListView.View>
 
                                             </ListView>
                                         </WrapPanel>
 
-                                        <WrapPanel  Orientation="Vertical" Margin="5,0,0,0">
+                                        <WrapPanel  Orientation="Vertical" Margin="2,0,0,0">
 
                                             <Border Style="{StaticResource Border_shadow}"  Margin="0,5,0,5"  HorizontalAlignment="Stretch" Width="260">
                                                 <Label  Style="{StaticResource Label_subtitle}" Content="PARAMETERS" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="1" />
                                             </Border>
 
                                             <Border Background="{StaticResource Tabcontrol_Background_gradient}" CornerRadius="5" BorderThickness="0,0,1,1" BorderBrush="Black" Margin="0,5,0,0"  >
-                                                <WrapPanel x:Name="WrapPanelTCUParameters" Orientation="Vertical" Height="362"  HorizontalAlignment="Left" />
+                                                <WrapPanel x:Name="WrapPanelTCUParameters" Orientation="Vertical" Height="342"  HorizontalAlignment="Left" />
                                             </Border>
 
                                             <Button x:Name="Button_send_command"  Style="{StaticResource Button_rounded}" Content="SEND"  Height="32" HorizontalAlignment="Stretch" Margin="0,5,0,5" Click="Button_send_command_Click"/>
@@ -528,54 +1327,74 @@
                                     </WrapPanel>
                                 </Border>
 
-                                <Border  x:Name="Border_emet_watchdog" Style="{StaticResource Border_shadow}" Margin="2"  DockPanel.Dock="Bottom">
+                                <Border  x:Name="Border_meteo_station_watchdog" Style="{StaticResource Border_shadow}" Margin="2"  DockPanel.Dock="Bottom">
                                     <WrapPanel Orientation="Vertical" DockPanel.Dock="Bottom">
 
                                         <Border Style="{StaticResource Border_shadow}"  Margin="5"  HorizontalAlignment="Stretch">
-                                            <Label  Style="{StaticResource Label_subtitle}" Content="EMET WATCHDOG" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Width="550" Padding="1"/>
+                                            <Label  Style="{StaticResource Label_subtitle}" Content="METEO STATION VALUES" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Width="520" Padding="1"/>
                                         </Border>
 
                                         <WrapPanel Orientation="Horizontal">
                                             <WrapPanel Orientation="Vertical">
-                                                
-                                                <WrapPanel Orientation="Horizontal" Margin="2">
-                                                    <Label Content="WD COUNTER SCS"  Style="{StaticResource Label_setting}" Width="140"/>
-                                                    <Label x:Name="Label_wd_counter_scs_value" Style="{StaticResource Label_info}" Width="70"/>
-                                                    <Label x:Name="Label_wd_counter_scs_unit"   Style="{StaticResource Label_setting}" Width="40"/>
+
+                                                <WrapPanel Orientation="Horizontal" Margin="1">
+                                                    <Label Content="SCADA WD"  Style="{StaticResource Label_setting}" Width="117"/>
+                                                    <Label x:Name="Label_scada_counter_to_tcu_value" Style="{StaticResource Label_info}" Width="80"/>
+                                                    <Label x:Name="Label_scada_counter_to_tcu_unit"   Style="{StaticResource Label_setting}" Width="50"/>
                                                 </WrapPanel>
 
-                                                <WrapPanel Orientation="Horizontal" Margin="2">
-                                                    <Label Content="WIND SPEED"  Style="{StaticResource Label_setting}" Width="140"/>
-                                                    <Label x:Name="Label_wind_speed_value" Style="{StaticResource Label_info}" Width="70"/>
-                                                    <Label x:Name="Label_wind_speed_unit"  Style="{StaticResource Label_setting}" Width="40"/>
+                                                <WrapPanel Orientation="Horizontal" Margin="1">
+                                                    <Label Content="WIND SPEED"  Style="{StaticResource Label_setting}" Width="117"/>
+                                                    <Label x:Name="Label_wind_speed_to_tcu_value" Style="{StaticResource Label_info}" Width="80"/>
+                                                    <Label x:Name="Label_wind_speed_to_tcu_unit"  Style="{StaticResource Label_setting}" Width="50"/>
                                                 </WrapPanel>
 
-                                                <WrapPanel Orientation="Horizontal" Margin="2">
-                                                    <Label Content="WIND DIRECTION"  Style="{StaticResource Label_setting}" Width="140"/>
-                                                    <Label x:Name="Label_wind_direction_value" Style="{StaticResource Label_info}" Width="70"/>
-                                                    <Label x:Name="Label_wind_direction_unit"  Style="{StaticResource Label_setting}" Width="40"/>
+                                                <WrapPanel Orientation="Horizontal" Margin="1">
+                                                    <Label Content="WIND DIR"  Style="{StaticResource Label_setting}" Width="117"/>
+                                                    <Label x:Name="Label_wind_dir_to_tcu_value" Style="{StaticResource Label_info}" Width="80"/>
+                                                    <Label x:Name="Label_wind_dir_to_tcu_unit"  Style="{StaticResource Label_setting}" Width="50"/>
+                                                </WrapPanel>
+
+                                                <WrapPanel Orientation="Horizontal" Margin="1">
+                                                    <Label Content="AMBIENT TEMP"  Style="{StaticResource Label_setting}" Width="117"/>
+                                                    <Label x:Name="Label_ambient_temp_to_tcu_value" Style="{StaticResource Label_info}" Width="80"/>
+                                                    <Label x:Name="Label_ambient_temp_to_tcu_unit" Style="{StaticResource Label_setting}" Width="50"/>
+                                                </WrapPanel>
+
+                                                <WrapPanel Orientation="Horizontal" Margin="1">
+                                                    <Label Content="AMBIENT PRESSURE"  Style="{StaticResource Label_setting}" Width="117"/>
+                                                    <Label x:Name="Label_ambient_pressure_to_tcu_value" Style="{StaticResource Label_info}" Width="80"/>
+                                                    <Label x:Name="Label_ambient_pressure_to_tcu_unit" Style="{StaticResource Label_setting}" Width="50"/>
                                                 </WrapPanel>
 
                                             </WrapPanel>
 
-                                            <WrapPanel Orientation="Vertical" Margin="25,0,0,0">
+                                            <WrapPanel Orientation="Vertical" Margin="15,0,0,0">
 
-                                                <WrapPanel Orientation="Horizontal" Margin="2">
-                                                    <Label Content="TEMPERATURE"  Style="{StaticResource Label_setting}" Width="140"/>
-                                                    <Label x:Name="Label_temp_value" Style="{StaticResource Label_info}" Width="70"/>
-                                                    <Label x:Name="Label_temp_unit" Style="{StaticResource Label_setting}" Width="40"/>
+                                               
+                                                <WrapPanel Orientation="Horizontal" Margin="1">
+                                                    <Label Content="DIRECT IRRAD"  Style="{StaticResource Label_setting}" Width="117"/>
+                                                    <Label x:Name="Label_ambient_direct_irr_to_tcu_value" Style="{StaticResource Label_info}" Width="80"/>
+                                                    <Label x:Name="Label_ambient_direct_irr_to_tcu_unit" Style="{StaticResource Label_setting}" Width="50"/>
                                                 </WrapPanel>
 
-                                                <WrapPanel Orientation="Horizontal" Margin="2">
-                                                    <Label Content="RADIATION"  Style="{StaticResource Label_setting}" Width="140"/>
-                                                    <Label x:Name="Label_radiation_value" Style="{StaticResource Label_info}" Width="70"/>
-                                                    <Label x:Name="Label_radiation_unit" Style="{StaticResource Label_setting}" Width="40"/>
+                                                <WrapPanel Orientation="Horizontal" Margin="1">
+                                                    <Label Content="DIFUSSE IRRAD"  Style="{StaticResource Label_setting}" Width="117"/>
+                                                    <Label x:Name="Label_ambient_difusse_irr_to_tcu_value" Style="{StaticResource Label_info}" Width="80"/>
+                                                    <Label x:Name="Label_ambient_difusse_irr_to_tcu_unit" Style="{StaticResource Label_setting}" Width="50"/>
+                                                </WrapPanel>
+                                                
+
+                                                <WrapPanel Orientation="Horizontal" Margin="1">
+                                                    <Label Content="FIELD SAFETY"  Style="{StaticResource Label_setting}" Width="117"/>
+                                                    <Label x:Name="Label_field_safety_supervisor_tcu_value" Style="{StaticResource Label_info}" Width="80"/>
+                                                    <Label x:Name="Label_field_safety_supervisor_tcu_unit" Style="{StaticResource Label_setting}" Width="50"/>
                                                 </WrapPanel>
 
-                                                <WrapPanel Orientation="Horizontal" Margin="2">
-                                                    <Label Content="FIELD SAFETY SUP."  Style="{StaticResource Label_setting}" Width="140"/>
-                                                    <Label x:Name="Label_safety_supervisor_value" Style="{StaticResource Label_info}" Width="70"/>
-                                                    <Label x:Name="Label_safety_supervisor_unit" Style="{StaticResource Label_setting}" Width="40"/>
+                                                <WrapPanel Orientation="Horizontal" Margin="1">
+                                                    <Label Content="METEO WD"  Style="{StaticResource Label_setting}" Width="117"/>
+                                                    <Label x:Name="Label_meteo_counter_to_tcu_value" Style="{StaticResource Label_info}" Width="80"/>
+                                                    <Label x:Name="Label_meteo_counter_to_tcu_unit"   Style="{StaticResource Label_setting}" Width="50"/>
                                                 </WrapPanel>
 
                                             </WrapPanel>
@@ -585,7 +1404,6 @@
                                 </Border>
 
                             </DockPanel>
-
                         </Grid>
 
                     </Grid>
@@ -596,7 +1414,6 @@
                     <WrapPanel HorizontalAlignment="Center" Margin="10" Orientation="Vertical" VerticalAlignment="Center">
                         <Image  Height="140" Source="/Images/wait.png" Margin="5"/>
                         <Label x:Name="Label_wait"  FontSize="24" Content="WAIT..." HorizontalContentAlignment="Center" Height="145" Width="380" Padding="1" FontFamily="Cambria" FontWeight="Bold" BorderBrush="Black" BorderThickness="2"  Foreground="Black" Background="White"   VerticalContentAlignment="Center" />
-
                     </WrapPanel>
                 </Border>
 

@@ -67,7 +67,7 @@ namespace SBP_TRACKER
                 Label label_title = new()
                 {
                     Style = this.FindResource("Label_info") as Style,
-                    Width = 220,
+                    Width = 300,
                     Content = TCU_codified_status_entry.List_status_mask[bit_index]
                 };
 

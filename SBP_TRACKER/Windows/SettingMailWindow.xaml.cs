@@ -31,15 +31,22 @@ namespace SBP_TRACKER
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            Check_mail_enable.IsChecked = Globals.GetTheInstance().Mail_on == BIT_STATE.ON ? true : false;
-            Time_sendMail.Text = Globals.GetTheInstance().Mail_instant;
-            Textbox_from.Text = Globals.GetTheInstance().Mail_from;
-            Textbox_username.Text = Globals.GetTheInstance().Mail_user;
-            Textbox_pass.Password = Globals.GetTheInstance().Mail_pass;
-            Textbox_smtp.Text = Globals.GetTheInstance().Mail_smtp_client;
+            try
+            {
+                Check_mail_enable.IsChecked = Globals.GetTheInstance().Mail_on == BIT_STATE.ON ? true : false;
+                Time_sendMail.Text = Globals.GetTheInstance().Mail_instant;
+                Textbox_from.Text = Globals.GetTheInstance().Mail_from;
+                Textbox_username.Text = Globals.GetTheInstance().Mail_user;
+                Textbox_pass.Password = Globals.GetTheInstance().Mail_pass;
+                Textbox_smtp.Text = Globals.GetTheInstance().Mail_smtp_client;
 
-            ListboxTo.Items.Clear();
-            Globals.GetTheInstance().List_mail_to.ForEach(mailto => ListboxTo.Items.Add(mailto));
+                ListboxTo.Items.Clear();
+                Globals.GetTheInstance().List_mail_to.ForEach(mailto => ListboxTo.Items.Add(mailto));
+            }
+            catch (Exception ex)
+            {
+                Manage_logs.SaveErrorValue($"{GetType().Name}  -> {nameof(SettingMailWindow)} -> {ex.Message}");
+            }
         }
 
         #endregion
@@ -107,7 +114,6 @@ namespace SBP_TRACKER
                     Time_sendMail.Text = "__:__";
                 }
             }
-
         }
 
         #endregion

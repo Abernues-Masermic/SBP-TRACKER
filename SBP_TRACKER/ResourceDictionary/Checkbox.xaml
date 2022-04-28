@@ -25,64 +25,61 @@
                 <ControlTemplate TargetType="{x:Type CheckBox}">
 
                     <ControlTemplate.Resources>
-                        
-                        <Storyboard x:Key="OnChecking">
-                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="slider" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.X)">
-                                <SplineDoubleKeyFrame KeyTime="00:00:00.1000000" Value="77" />
+
+                        <Storyboard x:Key="OnUnchecking">
+                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Border_slider" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.X)">
+                                <SplineDoubleKeyFrame KeyTime="00:00:00.1000000" Value="80" />
                             </DoubleAnimationUsingKeyFrames>
                         </Storyboard>
-                        
-                        <Storyboard x:Key="OnUnchecking">
-                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="slider" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.X)">
+
+                        <Storyboard x:Key="OnChecking">
+                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Border_slider" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.X)">
                                 <SplineDoubleKeyFrame KeyTime="00:00:00.1000000" Value="0" />
                             </DoubleAnimationUsingKeyFrames>
                         </Storyboard>
-                        
+
                     </ControlTemplate.Resources>
 
-                    <DockPanel x:Name="dockPanel">
+                    <DockPanel>
                         <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}" ContentTemplate="{TemplateBinding ContentTemplate}" RecognizesAccessKey="True" VerticalAlignment="Center" />
                         <Grid>
-                            
-                            <Border x:Name="BackgroundBorder" BorderBrush="#FF939393"  Background="{StaticResource CheckedWhite}" BorderThickness="1,1,2,2" CornerRadius="3" Height="27" Width="150">
+                            <Border x:Name="BackgroundBorder" BorderBrush="#FF939393"  Background="{StaticResource CheckedWhite}" BorderThickness="1,1,2,2" CornerRadius="3" Height="30" Width="165">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition />
                                         <ColumnDefinition />
                                     </Grid.ColumnDefinitions>
 
-                                    <Label x:Name="Label_start" Content="START" Grid.Column="0"  Style="{StaticResource LabelCheckedOptions}"  HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                    <Label x:Name="Label_stop" Content="STOP" Grid.Column="1" Style="{StaticResource LabelCheckedOptions}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <Label x:Name="Label_stop" Content="STOP" Grid.Column="0" Style="{StaticResource LabelCheckedOptions}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <Label x:Name="Label_start" Content="START" Grid.Column="1"  Style="{StaticResource LabelCheckedOptions}"  HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 </Grid>
                             </Border>
 
-                            <Border BorderBrush="#FF939393" Background="{StaticResource CheckedWhite}" RenderTransform="{StaticResource RenderTransformCheckbox}"  HorizontalAlignment="Left" x:Name="slider" Width="73" Height="27" BorderThickness="1" CornerRadius="3" RenderTransformOrigin="0.5,0.5"/>
-
+                            <Border x:Name="Border_slider" BorderBrush="#FF939393" Background="{StaticResource CheckedWhite}"  Cursor="Hand" Opacity="0.7" RenderTransform="{StaticResource RenderTransformCheckbox}"  HorizontalAlignment="Left" Width="85" Height="30" BorderThickness="1" CornerRadius="3" RenderTransformOrigin="0.5,0.5"/>
                         </Grid>
                     </DockPanel>
 
                     <ControlTemplate.Triggers>
                         
-                        <Trigger Property="IsChecked" Value="True">
+                        <Trigger Property="IsChecked" Value="False">
                             <Trigger.ExitActions>
-                                <BeginStoryboard Storyboard="{StaticResource OnUnchecking}" x:Name="OnUnchecking_BeginStoryboard" />
+                                <BeginStoryboard Storyboard="{StaticResource OnChecking}" x:Name="OnChecking_BeginStoryboard"/>
                             </Trigger.ExitActions>
                             
                             <Trigger.EnterActions>
-                                <BeginStoryboard Storyboard="{StaticResource OnChecking}" x:Name="OnChecking_BeginStoryboard" />
+                                <BeginStoryboard Storyboard="{StaticResource OnUnchecking}" x:Name="OnUnchecking_BeginStoryboard"/>
                             </Trigger.EnterActions>
 
-                            <Setter TargetName="BackgroundBorder" Property="Background" Value="{StaticResource CheckedGreen}" />
-                            <Setter TargetName="BackgroundBorder" Property="BorderBrush" Value="{StaticResource CheckedGreenBorder}" />
-                        </Trigger>
-
-                        <Trigger Property="IsChecked" Value="False">
                             <Setter TargetName="BackgroundBorder" Property="Background" Value="{StaticResource CheckedRed}" />
                             <Setter TargetName="BackgroundBorder" Property="BorderBrush" Value="{StaticResource CheckedRedBorder}" />
                         </Trigger>
 
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="BackgroundBorder" Property="Background" Value="{StaticResource CheckedGreen}" />
+                            <Setter TargetName="BackgroundBorder" Property="BorderBrush" Value="{StaticResource CheckedGreenBorder}" />
+                        </Trigger>
+
                         <Trigger Property="IsEnabled" Value="False">
-                            <!-- ToDo: Add Style for Isenabled == False -->
                         </Trigger>
                         
                     </ControlTemplate.Triggers>

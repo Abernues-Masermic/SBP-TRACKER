@@ -2,7 +2,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="BIT MASK"
-    Height="700" Width="400"
+    Height="700" Width="500"
     WindowStyle="None"  
     WindowStartupLocation="CenterScreen"
     ShowInTaskbar="False"
@@ -43,82 +43,82 @@
                             
                             <WrapPanel Orientation="Horizontal" Margin="2">
                                 <Label Style="{StaticResource Label_setting}" Content="0" Width="80" HorizontalContentAlignment="Center"/>
-                                <TextBox x:Name="Textbox_bit0" Style="{StaticResource Textbox_setting}"  Width="250" HorizontalContentAlignment="Center"/>
+                                <TextBox x:Name="Textbox_bit0" Style="{StaticResource Textbox_setting}"  Width="350" HorizontalContentAlignment="Center"/>
                             </WrapPanel>
 
                             <WrapPanel Orientation="Horizontal" Margin="2">
                                 <Label Style="{StaticResource Label_setting}" Content="1" Width="80" HorizontalContentAlignment="Center"/>
-                                <TextBox x:Name="Textbox_bit1" Style="{StaticResource Textbox_setting}"  Width="250" HorizontalContentAlignment="Center"/>
+                                <TextBox x:Name="Textbox_bit1" Style="{StaticResource Textbox_setting}"  Width="350" HorizontalContentAlignment="Center"/>
                             </WrapPanel>
 
                             <WrapPanel Orientation="Horizontal" Margin="2">
                                 <Label Style="{StaticResource Label_setting}" Content="2" Width="80" HorizontalContentAlignment="Center"/>
-                                <TextBox x:Name="Textbox_bit2" Style="{StaticResource Textbox_setting}"  Width="250" HorizontalContentAlignment="Center"/>
+                                <TextBox x:Name="Textbox_bit2" Style="{StaticResource Textbox_setting}"  Width="350" HorizontalContentAlignment="Center"/>
                             </WrapPanel>
 
                             <WrapPanel Orientation="Horizontal" Margin="2">
                                 <Label Style="{StaticResource Label_setting}" Content="3" Width="80" HorizontalContentAlignment="Center"/>
-                                <TextBox x:Name="Textbox_bit3" Style="{StaticResource Textbox_setting}"  Width="250" HorizontalContentAlignment="Center"/>
+                                <TextBox x:Name="Textbox_bit3" Style="{StaticResource Textbox_setting}"  Width="350" HorizontalContentAlignment="Center"/>
                             </WrapPanel>
 
                             <WrapPanel Orientation="Horizontal" Margin="2">
                                 <Label Style="{StaticResource Label_setting}" Content="4" Width="80" HorizontalContentAlignment="Center"/>
-                                <TextBox x:Name="Textbox_bit4" Style="{StaticResource Textbox_setting}"  Width="250" HorizontalContentAlignment="Center"/>
+                                <TextBox x:Name="Textbox_bit4" Style="{StaticResource Textbox_setting}"  Width="350" HorizontalContentAlignment="Center"/>
                             </WrapPanel>
 
                             <WrapPanel Orientation="Horizontal" Margin="2">
                                 <Label Style="{StaticResource Label_setting}" Content="5" Width="80" HorizontalContentAlignment="Center"/>
-                                <TextBox x:Name="Textbox_bit5" Style="{StaticResource Textbox_setting}"  Width="250" HorizontalContentAlignment="Center"/>
+                                <TextBox x:Name="Textbox_bit5" Style="{StaticResource Textbox_setting}"  Width="350" HorizontalContentAlignment="Center"/>
                             </WrapPanel>
 
                             <WrapPanel Orientation="Horizontal" Margin="2">
                                 <Label Style="{StaticResource Label_setting}" Content="6" Width="80" HorizontalContentAlignment="Center"/>
-                                <TextBox x:Name="Textbox_bit6" Style="{StaticResource Textbox_setting}"  Width="250" HorizontalContentAlignment="Center"/>
+                                <TextBox x:Name="Textbox_bit6" Style="{StaticResource Textbox_setting}"  Width="350" HorizontalContentAlignment="Center"/>
                             </WrapPanel>
 
                             <WrapPanel Orientation="Horizontal" Margin="2">
                                 <Label Style="{StaticResource Label_setting}" Content="7" Width="80" HorizontalContentAlignment="Center"/>
-                                <TextBox x:Name="Textbox_bit7" Style="{StaticResource Textbox_setting}"  Width="250" HorizontalContentAlignment="Center"/>
+                                <TextBox x:Name="Textbox_bit7" Style="{StaticResource Textbox_setting}"  Width="350" HorizontalContentAlignment="Center"/>
                             </WrapPanel>
 
                             <WrapPanel Orientation="Horizontal" Margin="2">
                                 <Label Style="{StaticResource Label_setting}" Content="8" Width="80" HorizontalContentAlignment="Center"/>
-                                <TextBox x:Name="Textbox_bit8" Style="{StaticResource Textbox_setting}"  Width="250" HorizontalContentAlignment="Center"/>
+                                <TextBox x:Name="Textbox_bit8" Style="{StaticResource Textbox_setting}"  Width="350" HorizontalContentAlignment="Center"/>
                             </WrapPanel>
 
                             <WrapPanel Orientation="Horizontal" Margin="2">
                                 <Label Style="{StaticResource Label_setting}" Content="9" Width="80" HorizontalContentAlignment="Center"/>
-                                <TextBox x:Name="Textbox_bit9" Style="{StaticResource Textbox_setting}"  Width="250" HorizontalContentAlignment="Center"/>
+                                <TextBox x:Name="Textbox_bit9" Style="{StaticResource Textbox_setting}"  Width="350" HorizontalContentAlignment="Center"/>
                             </WrapPanel>
 
                             <WrapPanel Orientation="Horizontal" Margin="2">
                                 <Label Style="{StaticResource Label_setting}" Content="10" Width="80" HorizontalContentAlignment="Center"/>
-                                <TextBox x:Name="Textbox_bit10" Style="{StaticResource Textbox_setting}"  Width="250" HorizontalContentAlignment="Center"/>
+                                <TextBox x:Name="Textbox_bit10" Style="{StaticResource Textbox_setting}"  Width="350" HorizontalContentAlignment="Center"/>
                             </WrapPanel>
 
                             <WrapPanel Orientation="Horizontal" Margin="2">
                                 <Label Style="{StaticResource Label_setting}" Content="11" Width="80" HorizontalContentAlignment="Center"/>
-                                <TextBox x:Name="Textbox_bit11" Style="{StaticResource Textbox_setting}"  Width="250" HorizontalContentAlignment="Center"/>
+                                <TextBox x:Name="Textbox_bit11" Style="{StaticResource Textbox_setting}"  Width="350" HorizontalContentAlignment="Center"/>
                             </WrapPanel>
 
                             <WrapPanel Orientation="Horizontal" Margin="2">
                                 <Label Style="{StaticResource Label_setting}" Content="12" Width="80" HorizontalContentAlignment="Center"/>
-                                <TextBox x:Name="Textbox_bit12" Style="{StaticResource Textbox_setting}"  Width="250" HorizontalContentAlignment="Center"/>
+                                <TextBox x:Name="Textbox_bit12" Style="{StaticResource Textbox_setting}"  Width="350" HorizontalContentAlignment="Center"/>
                             </WrapPanel>
 
                             <WrapPanel Orientation="Horizontal" Margin="2">
                                 <Label Style="{StaticResource Label_setting}" Content="13" Width="80" HorizontalContentAlignment="Center"/>
-                                <TextBox x:Name="Textbox_bit13" Style="{StaticResource Textbox_setting}"  Width="250" HorizontalContentAlignment="Center"/>
+                                <TextBox x:Name="Textbox_bit13" Style="{StaticResource Textbox_setting}"  Width="350" HorizontalContentAlignment="Center"/>
                             </WrapPanel>
 
                             <WrapPanel Orientation="Horizontal" Margin="2">
                                 <Label Style="{StaticResource Label_setting}" Content="14" Width="80" HorizontalContentAlignment="Center"/>
-                                <TextBox x:Name="Textbox_bit14" Style="{StaticResource Textbox_setting}"  Width="250" HorizontalContentAlignment="Center"/>
+                                <TextBox x:Name="Textbox_bit14" Style="{StaticResource Textbox_setting}"  Width="350" HorizontalContentAlignment="Center"/>
                             </WrapPanel>
 
                             <WrapPanel Orientation="Horizontal" Margin="2">
                                 <Label Style="{StaticResource Label_setting}" Content="15" Width="80" HorizontalContentAlignment="Center"/>
-                                <TextBox x:Name="Textbox_bit15" Style="{StaticResource Textbox_setting}"  Width="250" HorizontalContentAlignment="Center"/>
+                                <TextBox x:Name="Textbox_bit15" Style="{StaticResource Textbox_setting}"  Width="350" HorizontalContentAlignment="Center"/>
                             </WrapPanel>
 
                         </WrapPanel>

@@ -27,17 +27,20 @@
 
     <Style x:Key="Label_setting" TargetType="Label">
         <Setter Property="Label.FontFamily" Value="Cambria"/>
-        <Setter Property="FontSize"  Value="13"/>
+        <Setter Property="FontSize"  Value="12"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="Black"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="Padding" Value="2,1,2,1"/>
     </Style>
 
     <Style x:Key="Label_info" TargetType="{x:Type Label}">
         <Setter Property="Padding" Value="2"/>
         <Setter Property="Margin" Value="1"/>
-        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Height" Value="18"/>
+        <Setter Property="Width" Value="80"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="FontFamily" Value="Cambria"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
@@ -45,6 +48,13 @@
         <Setter Property="Background" Value="Black"/>
         <Setter Property="Foreground" Value="White"/>
     </Style>
+
+    <Style x:Key="Label_info_big"  TargetType="{x:Type Label}" BasedOn="{StaticResource Label_info}" >
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Height" Value="22"/>
+        <Setter Property="Width" Value="120"/>
+    </Style>
+
 
     <Style x:Key="Label_usercontrol" TargetType="Label">
         <Setter Property="Label.FontFamily" Value="Cambria"/>
@@ -55,14 +65,31 @@
         <Setter Property="HorizontalAlignment" Value="Center"/>
     </Style>
 
-    <Style x:Key="Label_schema" TargetType="Label">
+    <Style x:Key="Label_graphic" TargetType="Label">
         <Setter Property="Label.FontFamily" Value="Cambria"/>
-        <Setter Property="FontSize"  Value="12"/>
+        <Setter Property="FontSize"  Value="10"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="DarkRed"/>
+        <Setter Property="Foreground" Value="#FF0C4665"/>
+        <Setter Property="Padding" Value="1"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
     </Style>
 
+    <Style x:Key="Label_graphic_big"  TargetType="{x:Type Label}" BasedOn="{StaticResource Label_graphic}" >
+        <Setter Property="FontSize" Value="12"/>
+    </Style>
 
+    <Style x:Key="Label_slider"  TargetType="{x:Type Label}">
+        <Setter Property="FontFamily" Value="Cambria"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontSize" Value="25"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Width" Value="120"/>
+        <Setter Property="Padding" Value="0"/>
+    </Style>
+
+
+    
 </ResourceDictionary>

@@ -1,0 +1,38 @@
+﻿<UserControl x:Class="SBP_TRACKER.Controls.SwitchSlider2"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="40" d:DesignWidth="150">
+    
+    <Viewbox Margin="2">
+
+        <Border  x:Name="Control_background"  BorderBrush="Black" Background="{StaticResource CheckedWhite}" BorderThickness="2,2,3,3" CornerRadius="15" Height="55" Width="160">
+            <Grid Margin="2" >
+
+                <Rectangle x:Name="Switch_dot" Fill="#FF3173CA"  StrokeThickness="3" Stroke="#FF124B77" Height="45" Width="80" RadiusY="10" RadiusX="12" />
+                <Label x:Name="LabelLeft" Content="{Binding LabelContentLeft,  RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" Style="{StaticResource Label_slider}" HorizontalContentAlignment="Left"  Margin="10,0,0,0" MouseLeftButtonDown="Switch_dot_MouseLeftButtonDown">
+                    <Label.BitmapEffect>
+                        <DropShadowBitmapEffect ShadowDepth="0.1" Direction="120" Color="#FF675B5B" Softness="0"/>
+                    </Label.BitmapEffect>
+                </Label>
+
+                <Label x:Name="LabelRight" Content="{Binding LabelContentRight,  RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=1}}" Style="{StaticResource Label_slider}"  HorizontalContentAlignment="Right"  Margin="0,0,10,0" MouseLeftButtonDown="Switch_dot_MouseLeftButtonDown">
+                    <Label.BitmapEffect>
+                        <DropShadowBitmapEffect ShadowDepth="0.1" Direction="120" Color="#FF675B5B" Softness="0"/>
+                    </Label.BitmapEffect>
+                </Label>
+
+            </Grid>
+        </Border>
+    </Viewbox>
+
+
+</UserControl>
+
+
+    
+    
+    
+    

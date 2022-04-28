@@ -8,53 +8,90 @@ namespace SBP_TRACKER
 
     internal class Manage_tcp
     {
+        private TCPModbusSlaveEntry _modbus_slave_entry;
         private ModbusClient? m_modbus_client;
 
+        private readonly System.Timers.Timer m_timer_recovery_read_write;
+        private DateTime m_date_error_start;
+        public bool m_enable_read_write_reg;
+        private bool b_connected = false;
+        private bool m_recovery_mode { get; set; }
 
-        public string Slave_name {get; set;}
 
-        public bool Connect(string slave_name,string ip_address, int port, byte slave_address, int dir_ini)
+
+
+
+
+
+
+        #region Constructor
+
+        public Manage_tcp()
+        {
+            m_timer_recovery_read_write = new System.Timers.Timer();
+            m_timer_recovery_read_write.Elapsed += Timer_recovery_read_write_Tick;
+            m_timer_recovery_read_write.Interval = Globals.GetTheInstance().Modbus_conn_timeout;
+            m_timer_recovery_read_write.Stop();
+        }
+
+        #endregion
+
+
+        #region Connect / disconnect
+
+        public bool Connect(TCPModbusSlaveEntry modbus_slave_entry, bool recovery_mode)
         {
             bool start_ok = false;
 
             TCP_ACTION action = TCP_ACTION.CONNECT;
             try
             {
-                Slave_name = slave_name;
+                _modbus_slave_entry = modbus_slave_entry;
 
                 m_modbus_client = new ModbusClient()
                 {
-                    IPAddress = ip_address,
-                    Port = port,
-                    UnitIdentifier = slave_address,
-                    ConnectionTimeout = Globals.GetTheInstance().Modbus_timeout
+                    IPAddress = modbus_slave_entry.IP_primary,
+                    Port = modbus_slave_entry.Port,
+                    UnitIdentifier = modbus_slave_entry.UnitId,
+                    ConnectionTimeout = Globals.GetTheInstance().Modbus_conn_timeout
                 };
 
                 m_modbus_client.Connect();
+                int[] read_data = m_modbus_client.ReadHoldingRegisters(_modbus_slave_entry.Dir_ini, _modbus_slave_entry.Read_reg);
 
-                m_modbus_client.ReadHoldingRegisters(dir_ini, 0);
-
-                start_ok = true;       
+                action = TCP_ACTION.CONNECT;
+                m_enable_read_write_reg = true;
+                b_connected = true;
+                start_ok = true;
             }
-            catch 
+            catch (Exception ex)
             {
+                Manage_logs.SaveErrorValue($"{GetType().Name} -> {nameof(Connect)} -> {ex.Message}");
                 action = TCP_ACTION.ERROR_CONNECT;
             }
 
-            Globals.GetTheInstance().Manage_delegate.Manage_tcp_to_main(slave_name, action, new List<int>());
+
+            if (recovery_mode && action == TCP_ACTION.ERROR_CONNECT)
+                Globals.GetTheInstance().Manage_delegate.Manage_tcp_to_main(_modbus_slave_entry.Name, TCP_ACTION.RECONNECT, new List<int>());
+
+            else
+                Globals.GetTheInstance().Manage_delegate.Manage_tcp_to_main(_modbus_slave_entry.Name, action, new List<int>());
 
             return start_ok;
         }
 
 
-        public bool Disconnect() { 
+        public bool Disconnect()
+        {
             bool stop_ok = false;
             try
             {
+                b_connected = false;
+
                 if (m_modbus_client != null)
                     m_modbus_client.Disconnect();
 
-                Globals.GetTheInstance().Manage_delegate.Manage_tcp_to_main(Slave_name, TCP_ACTION.DISCONNECT, new List<int>());
+                Globals.GetTheInstance().Manage_delegate.Manage_tcp_to_main(_modbus_slave_entry.Name, TCP_ACTION.DISCONNECT, new List<int>());
 
                 stop_ok = true;
             }
@@ -71,76 +108,208 @@ namespace SBP_TRACKER
             return is_connected && m_modbus_client.Available(1000);
         }
 
+        #endregion
+
+
+
+        #region Timer error read write
+
+        private void Timer_recovery_read_write_Tick(object sender, EventArgs e)
+        {
+            if (b_connected)
+            {
+                try
+                {
+                    int[] read_data = m_modbus_client.ReadHoldingRegisters(_modbus_slave_entry.Dir_ini, _modbus_slave_entry.Read_reg);
+                    Manage_logs.SaveLogValue($"COMMUNICATIONS RECOVERY OK  -> {_modbus_slave_entry.Name} / {_modbus_slave_entry.UnitId} / {_modbus_slave_entry.IP_primary}");
+                    Globals.GetTheInstance().Manage_delegate.Manage_tcp_to_main(_modbus_slave_entry.Name, TCP_ACTION.RECOVERY, new List<int>());
+                    m_enable_read_write_reg = true;
+                    m_timer_recovery_read_write.Stop();
+                }
+                catch
+                {
+                    if (DateTime.Now.Subtract(m_date_error_start) > TimeSpan.FromMilliseconds(Globals.GetTheInstance().Modbus_comm_timeout))
+                    {
+                        Manage_logs.SaveLogValue($"TIMER COMMUNICATION WAIT TIME FINISHED. TRY TO RECONNECT -> {_modbus_slave_entry.Name}");
+                        Globals.GetTheInstance().Manage_delegate.Manage_tcp_to_main(_modbus_slave_entry.Name, TCP_ACTION.RECONNECT, new List<int>());
+                        m_timer_recovery_read_write.Stop();
+                    }
+                }
+            }
+            else
+                m_timer_recovery_read_write.Stop();
+        }
+
+        #endregion
+
 
 
 
         #region Modbus general functions
 
+        private bool m_read_flag= false;
+
         #region Read holding registers i32
 
-        public Tuple<bool, int[]> Read_holding_registers_int32(int start_address, int num_bytes)
+        public Tuple<READ_STATE, int[]> Read_holding_registers_int32(int start_address, int num_bytes)
         {
-            bool  read_ok = true;
+            READ_STATE read_state = READ_STATE.WAIT;
             int[] received_data = Array.Empty<int>();
-
-            TCP_ACTION action = TCP_ACTION.READ;
-
-            try
+            if (m_enable_read_write_reg && !m_read_flag)
             {
-                if (Is_connected())
-                    received_data = m_modbus_client.ReadHoldingRegisters(start_address, num_bytes);
-              
-                else
-                    read_ok = false;
-            }
-            catch
-            {
-                read_ok = false;
-                action = TCP_ACTION.ERROR_READ;
+                m_read_flag = true;
+
+                TCP_ACTION action = TCP_ACTION.READ;
+
+                try
+                {
+                    if (Is_connected())
+                    {
+                        received_data = m_modbus_client.ReadHoldingRegisters(start_address, num_bytes);
+                        read_state = READ_STATE.OK;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    read_state = READ_STATE.ERROR;
+                    m_enable_read_write_reg = false;
+
+                    Manage_logs.SaveErrorValue($"{typeof(Manage_tcp).Name}  ->  {nameof(Read_holding_registers_int32)} -> {ex.Message}");
+
+                    action = TCP_ACTION.ERROR_READ;
+                    m_date_error_start = DateTime.Now;
+                    m_timer_recovery_read_write.Start();
+                }
+
+                Globals.GetTheInstance().Manage_delegate.Manage_tcp_to_main(_modbus_slave_entry.Name, action, received_data.ToList());
+
+                m_read_flag = false;
             }
 
-            Globals.GetTheInstance().Manage_delegate.Manage_tcp_to_main(Slave_name, action, received_data.ToList());
-
-            return Tuple.Create(read_ok, received_data);
+            return Tuple.Create(read_state, received_data);
         }
 
         #endregion
 
         #region Read holding registers float
 
-        public Tuple<bool, float> Read_holding_registers_float(int start_address, int num_bytes)
+        public Tuple<READ_STATE, float> Read_holding_registers_float(int start_address, int num_bytes)
         {
-            bool read_ok = false;
+            READ_STATE read_state = READ_STATE.WAIT;
+            int[] i_received_data = Array.Empty<int>();
             float f_received_data = 0;
-
-            try
+            if (m_enable_read_write_reg && !m_read_flag)
             {
-                int[] i_received_data = m_modbus_client.ReadHoldingRegisters(start_address, num_bytes);
-                f_received_data = ModbusClient.ConvertRegistersToFloat(i_received_data);
-                read_ok = true;
+                m_read_flag = true;
 
-                Globals.GetTheInstance().Manage_delegate.Manage_tcp_to_main(Slave_name, TCP_ACTION.READ, i_received_data.ToList());
+                TCP_ACTION action = TCP_ACTION.READ;
+
+                try
+                {
+                    i_received_data = m_modbus_client.ReadHoldingRegisters(start_address, num_bytes);
+                    f_received_data = ModbusClient.ConvertRegistersToFloat(i_received_data);
+                    read_state = READ_STATE.OK;
+
+                    Globals.GetTheInstance().Manage_delegate.Manage_tcp_to_main(_modbus_slave_entry.Name, TCP_ACTION.READ, i_received_data.ToList());
+                }
+                catch (Exception ex)
+                {
+                    read_state=READ_STATE.ERROR;
+                    m_enable_read_write_reg = false;
+
+                    Manage_logs.SaveErrorValue($"{typeof(Manage_tcp).Name}  ->  {nameof(Read_holding_registers_float)} -> {ex.Message}");
+
+                    action = TCP_ACTION.ERROR_READ;
+                    m_date_error_start = DateTime.Now;
+                    m_timer_recovery_read_write.Start();
+
+                }
+
+                Globals.GetTheInstance().Manage_delegate.Manage_tcp_to_main(_modbus_slave_entry.Name, action, i_received_data.ToList());
+
+                m_read_flag = false;
             }
-            catch { }
 
-            return Tuple.Create(read_ok, f_received_data);
+            return Tuple.Create(read_state, f_received_data);
         }
 
         #endregion
+
+        #region Read input registers i32
+
+        public Tuple<READ_STATE, int[]> Read_input_registers_int32(int start_address, int num_bytes)
+        {
+            READ_STATE read_state = READ_STATE.WAIT;
+            int[] received_data = Array.Empty<int>();
+
+            if (m_enable_read_write_reg && !m_read_flag)
+            {
+                m_read_flag = true;
+
+                TCP_ACTION action = TCP_ACTION.READ;
+
+                try
+                {
+                    if (Is_connected())
+                    {
+                        received_data = m_modbus_client.ReadInputRegisters(start_address, num_bytes);
+                        read_state = READ_STATE.OK;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    read_state=READ_STATE.ERROR;
+                    m_enable_read_write_reg = false;
+
+                    Manage_logs.SaveErrorValue($"{typeof(Manage_tcp).Name}  ->  {nameof(Read_input_registers_int32)} -> {ex.Message}");
+
+                    action = TCP_ACTION.ERROR_READ;
+                    m_date_error_start = DateTime.Now;
+                    m_timer_recovery_read_write.Start();
+                }
+
+                Globals.GetTheInstance().Manage_delegate.Manage_tcp_to_main(_modbus_slave_entry.Name, action, received_data.ToList());
+
+                m_read_flag = false;
+            }
+            return Tuple.Create(read_state, received_data);
+        }
+
+        #endregion
+
 
         #region Write single register
 
         public bool Write_single_registers(int start_address, int value)
         {
             bool write_ok = false;
-            try
-            {
-                m_modbus_client.WriteSingleRegister(start_address, value);
-                write_ok = true;
 
-                Globals.GetTheInstance().Manage_delegate.Manage_tcp_to_main(Slave_name, TCP_ACTION.WRITE, new List<int>());
+            if (m_enable_read_write_reg && !m_read_flag)
+            {
+                m_read_flag = true;
+
+                TCP_ACTION action = TCP_ACTION.WRITE;
+                try
+                {
+                    m_modbus_client.WriteSingleRegister(start_address, value);
+                    write_ok = true;
+                }
+                catch (Exception ex)
+                {
+                    m_enable_read_write_reg = false;
+
+                    Manage_logs.SaveErrorValue($"{typeof(Manage_tcp).Name}  ->  {nameof(Write_single_registers)} -> {ex.Message}");
+
+                    action = TCP_ACTION.ERROR_WRITE;
+                    m_date_error_start = DateTime.Now;
+                    m_timer_recovery_read_write.Start();
+                }
+
+                Globals.GetTheInstance().Manage_delegate.Manage_tcp_to_main(_modbus_slave_entry.Name, action, new List<int>());
+
+                m_read_flag = false;
             }
-            catch { }
 
             return write_ok;
         }
@@ -152,14 +321,30 @@ namespace SBP_TRACKER
         public bool Write_multiple_registers(int start_address, int[] values)
         {
             bool write_ok = false;
-            try
+            if (m_enable_read_write_reg && !m_read_flag)
             {
-                m_modbus_client.WriteMultipleRegisters(start_address, values);
-                write_ok = true;
+                m_read_flag = true;
 
-                Globals.GetTheInstance().Manage_delegate.Manage_tcp_to_main(Slave_name, TCP_ACTION.WRITE, new List<int>());
+                TCP_ACTION action = TCP_ACTION.WRITE;
+                try
+                {
+                    m_modbus_client.WriteMultipleRegisters(start_address, values);
+                    write_ok = true;
+                }
+                catch (Exception ex)
+                {
+                    m_enable_read_write_reg = false;
+
+                    Manage_logs.SaveErrorValue($"{typeof(Manage_tcp).Name}  ->  {nameof(Write_multiple_registers)} -> {ex.Message}");
+
+                    action = TCP_ACTION.ERROR_WRITE;
+                    m_date_error_start = DateTime.Now;
+                    m_timer_recovery_read_write.Start();
+                }
+                Globals.GetTheInstance().Manage_delegate.Manage_tcp_to_main(_modbus_slave_entry.Name, action, new List<int>());
+
+                m_read_flag = false;
             }
-            catch { }
 
             return write_ok;
         }
