@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 
@@ -23,6 +24,8 @@ namespace SBP_TRACKER
         public SettingVarMapWindow()
         {
             InitializeComponent();
+
+            DecimalUpDown_send_to_samca_pos.MaxValue = Constants.WR_SAMCA_REG_SIZE -1;
 
             Combobox_var_linked.ItemsSource = Enum.GetNames(typeof(LINK_TO_SEND_TCU));
             Combobox_avg_linked.ItemsSource = Enum.GetNames(typeof(LINK_TO_AVG));
@@ -69,6 +72,8 @@ namespace SBP_TRACKER
             Checkbox_correction_load_pin.IsChecked = Var_entry.Correction_load_pin;
             Checkbox_scs_record.IsChecked = Var_entry.SCS_record;
             Checkbox_fast_mode_record.IsChecked = Var_entry.Fast_mode_record;
+            Checkbox_samca_record.IsChecked = Var_entry.SAMCA_record;
+            DecimalUpDown_send_to_samca_pos.Value = Var_entry.Send_to_samca_pos == String.Empty ? Constants.index_no_selected : decimal.Parse(Var_entry.Send_to_samca_pos);       
         }
 
         #endregion
@@ -97,10 +102,10 @@ namespace SBP_TRACKER
             if (save_ok)
             {
                 bool name_duplicated = false;
-                Globals.GetTheInstance().List_modbus_slave_entry.ForEach(entry =>
+                Globals.GetTheInstance().List_slave_entry.ForEach(slave_entry =>
                 {
                     if (!name_duplicated)
-                        name_duplicated = entry.List_modbus_var.Exists(modbus_var => modbus_var.Name.Equals(Textbox_var_name.Text) && !modbus_var.Name.Equals(Var_entry.Name));
+                        name_duplicated = slave_entry.List_var_entry.Exists(modbus_var => modbus_var.Name.Equals(Textbox_var_name.Text) && !modbus_var.Name.Equals(Var_entry.Name));
                 });
 
                 if (name_duplicated)
@@ -125,7 +130,6 @@ namespace SBP_TRACKER
                     MessageBox.Show("@ Modbus cannot be less than 0", "Error save", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
                 }
             }
-
             if (save_ok)
             {
                 if (
@@ -136,16 +140,33 @@ namespace SBP_TRACKER
                     MessageBox.Show("Error in range definition values", "Error save", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
                 }
             }
-
             if (save_ok)
             {
-                if (Slave_entry.List_modbus_var.Exists(modbus_var => (modbus_var.DirModbus == (int)DecimalUpDown_dir_modbus.Value) && (Var_entry.DirModbus != (int)DecimalUpDown_dir_modbus.Value)))
+                if (Slave_entry.List_var_entry.Exists(var_entry => (var_entry.DirModbus == (int)DecimalUpDown_dir_modbus.Value) && (Var_entry.DirModbus != (int)DecimalUpDown_dir_modbus.Value)))
                 {
                     save_ok = false;
                     MessageBox.Show("@ Modbus already selected in other var associated with slave  ", "Error save", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
                 }
             }
+            if (save_ok)
+            {
+                if (DecimalUpDown_send_to_samca_pos.Value != Constants.index_no_selected)
+                {
+                    List<TCPModbusVarEntry> list_all_var_entry = new();
+                    Globals.GetTheInstance().List_slave_entry.ForEach(slave_entry =>   list_all_var_entry.AddRange(slave_entry.List_var_entry));
 
+                    if (list_all_var_entry.Exists(var_entry => (var_entry.Send_to_samca_pos == DecimalUpDown_send_to_samca_pos.Value.ToString()) && (var_entry.DirModbus != Var_entry.DirModbus)))
+                    {
+                        save_ok = false;
+                        MessageBox.Show("SEND TO SAMCA @ modbus already selected in other var entry", "Error save", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+                    }
+                    if (Globals.GetTheInstance().List_tcu_codified_status.Exists(codified_status => codified_status.Send_to_samca_pos == DecimalUpDown_send_to_samca_pos.Value.ToString()))
+                    {
+                        save_ok = false;
+                        MessageBox.Show("SEND TO SAMCA @ modbus already selected in other codified status var", "Error save", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+                    }
+                }
+            }
             if (save_ok)
             {
                 Var_entry.Name = Textbox_var_name.Text;
@@ -173,6 +194,9 @@ namespace SBP_TRACKER
                 Var_entry.Correction_load_pin = (bool)Checkbox_correction_load_pin.IsChecked;
                 Var_entry.SCS_record = (bool)Checkbox_scs_record.IsChecked;
                 Var_entry.Fast_mode_record = (bool)Checkbox_fast_mode_record.IsChecked;
+                Var_entry.SAMCA_record = (bool)Checkbox_samca_record.IsChecked;
+
+                Var_entry.Send_to_samca_pos = DecimalUpDown_send_to_samca_pos.Value == Constants.index_no_selected ? String.Empty : DecimalUpDown_send_to_samca_pos.Value.ToString();
 
                 Var_entry.Scale_factor = Functions.Calculate_scale_factor(Var_entry);
 

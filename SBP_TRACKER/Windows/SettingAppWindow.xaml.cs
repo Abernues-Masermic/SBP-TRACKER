@@ -42,8 +42,11 @@ namespace SBP_TRACKER
             DecimalUpDown_modbus_conn_timeout.Value = Globals.GetTheInstance().Modbus_conn_timeout;
             DecimalUpDown_modbus_comm_timeout.Value = Globals.GetTheInstance().Modbus_comm_timeout;
             DecimalUpDown_modbus_reconnect.Value = Globals.GetTheInstance().Modbus_reconnect_interval;
-            DecimalUpDown_modbus_dir_scs_command.Value = Globals.GetTheInstance().Modbus_dir_scs_command;
+            DecimalUpDown_modbus_dir_tcu_command.Value = Globals.GetTheInstance().Modbus_dir_tcu_command;
             DecimalUpDown_modbus_dir_tcu_datetime.Value = Globals.GetTheInstance().Modbus_dir_tcu_datetime;
+            DecimalUpDown_modbus_dir_wr_samca.Value = Globals.GetTheInstance().Modbus_dir_write_samca;
+            
+            DecimalUpDown_refresh_scada.Value = Globals.GetTheInstance().Refresh_scada_interval;
 
             //RECORD
             DecimalUpDown_record_scs_normal.Value = Globals.GetTheInstance().Record_scs_normal_interval;
@@ -109,8 +112,11 @@ namespace SBP_TRACKER
             Globals.GetTheInstance().Modbus_conn_timeout = (int)DecimalUpDown_modbus_conn_timeout.Value;
             Globals.GetTheInstance().Modbus_comm_timeout = (int)DecimalUpDown_modbus_comm_timeout.Value;
             Globals.GetTheInstance().Modbus_reconnect_interval = (int)DecimalUpDown_modbus_reconnect.Value;
-            Globals.GetTheInstance().Modbus_dir_scs_command = (int)DecimalUpDown_modbus_dir_scs_command.Value;
-            Globals.GetTheInstance().Modbus_dir_tcu_datetime= (int)DecimalUpDown_modbus_dir_tcu_datetime.Value;
+            Globals.GetTheInstance().Modbus_dir_tcu_command = (int)DecimalUpDown_modbus_dir_tcu_command.Value;
+            Globals.GetTheInstance().Modbus_dir_tcu_datetime = (int)DecimalUpDown_modbus_dir_tcu_datetime.Value;
+            Globals.GetTheInstance().Modbus_dir_write_samca = (int)DecimalUpDown_modbus_dir_wr_samca.Value;
+
+            Globals.GetTheInstance().Refresh_scada_interval = (int)DecimalUpDown_refresh_scada.Value;
 
             //RECORD
             Globals.GetTheInstance().Record_scs_normal_interval = (int)DecimalUpDown_record_scs_normal.Value;

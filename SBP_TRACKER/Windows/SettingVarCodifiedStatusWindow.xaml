@@ -6,7 +6,7 @@
     xmlns:cntrlLib="clr-namespace:NumericUpDownLib;assembly=NumericUpDownLib"
     mc:Ignorable="d"
     Title="MainWindow" 
-    Height="340" Width="370"
+    Height="440" Width="390"
     WindowStyle="None"  
     WindowStartupLocation="CenterScreen"
     AllowsTransparency="True"  
@@ -41,18 +41,18 @@
                 </WrapPanel>
 
                 <WrapPanel Orientation="Horizontal" Margin="5" Width="360">
-                    <Label Content="NAME"  Style="{StaticResource Label_setting}" Width="110"/>
+                    <Label Content="NAME"  Style="{StaticResource Label_setting}" Width="120"/>
                     <TextBox x:Name="Textbox_var_name" Style="{StaticResource Textbox_setting}"  Width="230"/>
                 </WrapPanel>
 
 
                 <WrapPanel  Orientation="Horizontal" Margin="5"  Width="360">
-                    <Label Content="@ MODBUS"  Style="{StaticResource Label_setting}" Width="110"/>
+                    <Label Content="@ MODBUS"  Style="{StaticResource Label_setting}" Width="120"/>
                     <cntrlLib:DecimalUpDown x:Name="DecimalUpDown_dir_modbus" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="8" MinValue="0" MaxValue="1000000"  Value="0" IsReadOnly="False" Width="230" />
                 </WrapPanel>
 
                 <WrapPanel  Orientation="Horizontal" Margin="5"  Width="360">
-                    <Label Content="TYPE VAR"  Style="{StaticResource Label_setting}" Width="110"/>
+                    <Label Content="TYPE VAR"  Style="{StaticResource Label_setting}" Width="120"/>
                     <ComboBox x:Name="Combobox_var_type"   Width="230" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top"   Style="{StaticResource Combobox_style}" >
                         <ComboBoxItem Content="signed 16"></ComboBoxItem>
                         <ComboBoxItem Content="signed 32"></ComboBoxItem>
@@ -63,18 +63,23 @@
                     
                 </WrapPanel>
 
+                <WrapPanel  Orientation="Horizontal" Margin="5"  Width="490">
+                    <Label Content="FACTOR"  Style="{StaticResource Label_setting}" Width="120"/>
+                    <cntrlLib:DecimalUpDown x:Name="DecimalUpDown_factor" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="12" MinValue="-1000000" MaxValue="1000000"  Value="0.000" StepSize="0.001" IsReadOnly="False" Width="160" />
+                </WrapPanel>
+
                 <WrapPanel Orientation="Horizontal" Margin="5" Width="360">
-                    <Label Content="UNIT"  Style="{StaticResource Label_setting}" Width="110"/>
+                    <Label Content="UNIT"  Style="{StaticResource Label_setting}" Width="120"/>
                     <TextBox x:Name="Textbox_unit" Style="{StaticResource Textbox_setting}"  Width="230"/>
                 </WrapPanel>
 
                 <WrapPanel Orientation="Horizontal" Margin="5" Width="360">
-                    <Label Content="LINK TO GRAPHIC"  Style="{StaticResource Label_setting}" Width="110"/>
+                    <Label Content="LINK TO GRAPHIC"  Style="{StaticResource Label_setting}" Width="120"/>
                     <ComboBox x:Name="Combobox_link_to_grahic" Style="{StaticResource Combobox_style}"  Width="230"/>
                 </WrapPanel>
 
                 <WrapPanel Orientation="Horizontal" Margin="5" Width="360">
-                    <Label Content="STATUS MASK"  Style="{StaticResource Label_setting}" Width="110"/>
+                    <Label Content="BIT MASK"  Style="{StaticResource Label_setting}" Width="120"/>
                     <CheckBox x:Name="Checkbox_status_mask" Style="{StaticResource Checkbox_setting}"  Width="70"/>
 
                     <Button x:Name="Button_define_mask" Style="{StaticResource Button_rounded}" Width="160" Height="30" 
@@ -83,12 +88,24 @@
                             Click="Button_define_mask_Click"/>
                 </WrapPanel>
 
-                <WrapPanel Orientation="Horizontal" Margin="5" Width="360">
-                    <Label Content="SCS RECORD"  Style="{StaticResource Label_setting}" Width="110"/>
-                    <CheckBox x:Name="Checkbox_scs_record" Style="{StaticResource Checkbox_setting}"  Width="230"/>
+                <WrapPanel Orientation="Horizontal" Margin="0,5,0,5">
+                    <WrapPanel Orientation="Horizontal" Margin="5" Width="140">
+                        <Label Content="TCU RECORD"  Style="{StaticResource Label_setting}" Width="120"/>
+                        <CheckBox x:Name="Checkbox_tcu_record" Style="{StaticResource Checkbox_setting}"  Width="20"/>
+                    </WrapPanel>
+
+                    <WrapPanel Orientation="Horizontal" Margin="50,5,5,5" Width="140">
+                        <Label Content="SCS RECORD"  Style="{StaticResource Label_setting}" Width="120"/>
+                        <CheckBox x:Name="Checkbox_scs_record" Style="{StaticResource Checkbox_setting}"  Width="20"/>
+                    </WrapPanel>
                 </WrapPanel>
 
-                <Button x:Name="Button_save_state" Style="{StaticResource Button_rounded}" Content="SAVE" Margin="10" Height="25"  Width="330" Click="Button_save_state_Click" />
+                <WrapPanel  Orientation="Horizontal" Margin="5">
+                    <Label Content="WRITE SAMCA POS"  Style="{StaticResource Label_setting}" Width="120"/>
+                    <cntrlLib:DecimalUpDown x:Name="DecimalUpDown_send_to_samca_pos" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="12" MinValue="-1" MaxValue="100"  Value="0" StepSize="1" IsReadOnly="False" Width="160" />
+                </WrapPanel>
+
+                <Button x:Name="Button_save_state" Style="{StaticResource Button_rounded}" Content="SAVE" Margin="10" Height="35"  Width="350" Click="Button_save_state_Click" />
 
             </WrapPanel>
 

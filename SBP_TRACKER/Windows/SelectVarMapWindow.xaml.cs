@@ -28,9 +28,9 @@ namespace SBP_TRACKER
         {
             Label_selected_var.Content = Selected_var;
 
-            Globals.GetTheInstance().List_modbus_slave_entry.ForEach(modbus_slave_entry =>
+            Globals.GetTheInstance().List_slave_entry.ForEach(slave_entry =>
             {
-                modbus_slave_entry.List_modbus_var.ForEach(modbus_slave_var => m_list_var_map_schema.Add(modbus_slave_var.Name));
+                slave_entry.List_var_entry.ForEach(var_entry => m_list_var_map_schema.Add(var_entry.Name));
             });
 
             Listview_schema_var_map.ItemsSource = m_list_var_map_schema;

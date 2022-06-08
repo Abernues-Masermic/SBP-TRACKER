@@ -28,7 +28,11 @@ namespace SBP_TRACKER
 
         public bool Field_safety_enable { get; set; }
 
-        public List<TCPModbusVarEntry> List_modbus_var {get; set;}
+        public bool Reconnect { get; set; }
+
+        public int Num_communication_error { get; set; }
+
+        public List<TCPModbusVarEntry> List_var_entry {get; set;}
     }
 
 
@@ -45,6 +49,8 @@ namespace SBP_TRACKER
         public void Adjust_columns()
         {
             Map(m => m.Connected).Ignore();
+            Map(m => m.Reconnect).Ignore();
+            Map(m => m.Num_communication_error).Ignore();
             Map(m => m.Field_safety_enable).Ignore();
         }
     }

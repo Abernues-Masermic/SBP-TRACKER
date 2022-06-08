@@ -1,11 +1,11 @@
-﻿<Window x:Class="SBP_TRACKER.BitStatusWindow"
+﻿<Window x:Class="SBP_TRACKER.BitMaskWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:cntrlLib="clr-namespace:NumericUpDownLib;assembly=NumericUpDownLib"
-    Title="BIT STATUS"
-    Height="660" Width="500"
+    Title="BIT MASK"
+    Height="660" Width="400"
     WindowStyle="None"       
     ShowInTaskbar="False"
     WindowStartupLocation="CenterOwner"
@@ -25,7 +25,7 @@
                         <Label x:Name="Label_var_name"  Style="{StaticResource Label_title}" Content="Caption" Margin="5"/>
                     </Border>
 
-                    <WrapPanel DockPanel.Dock="Top">
+                    <WrapPanel DockPanel.Dock="Top" HorizontalAlignment="Center">
                         <Label Style="{StaticResource Label_setting}" Content="@ MODBUS" Width="80"/>
                         <Label x:Name="Label_dir_modbus" Style="{StaticResource Label_info}"  Width="100" Content="1700"/>
 

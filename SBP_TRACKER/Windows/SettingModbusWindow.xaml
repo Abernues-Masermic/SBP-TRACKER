@@ -150,7 +150,7 @@
                                         
                                         <WrapPanel Orientation="Horizontal">
 
-                                            <WrapPanel  Orientation="Horizontal" Margin="2">
+                                            <WrapPanel  Orientation="Horizontal" Margin="2,5,2,5">
                                                 <Label Content="FAST MODE"  Style="{StaticResource Label_setting}" Width="85"/>
                                                 <CheckBox x:Name="Checkbox_fast_mode" Style="{StaticResource Checkbox_setting}"/>
                                             </WrapPanel>
@@ -238,6 +238,18 @@
                                                             </DataTemplate>
                                                         </GridViewColumn.CellTemplate>
                                                     </GridViewColumn>
+
+                                                    <GridViewColumn x:Name="Gridview_samca_record" Width="85"  Header="SAMCA REC" HeaderContainerStyle="{StaticResource Gridview_header_style}">
+                                                        <GridViewColumn.CellTemplate>
+                                                            <DataTemplate>
+                                                                <Canvas  Margin="30,0,0,0" Height="15" Width="15" >
+                                                                    <Ellipse  Height="14" Width="14" Fill="{Binding Path=SAMCA_record, Converter={StaticResource BooleanToColorConverterCheck }}" />
+                                                                </Canvas>
+                                                            </DataTemplate>
+                                                        </GridViewColumn.CellTemplate>
+                                                    </GridViewColumn>
+
+                                                    <GridViewColumn x:Name="Gridview_send_to_samca_pos" Width="100"  Header="WR SAMCA POS"  DisplayMemberBinding="{Binding Send_to_samca_pos}"  HeaderContainerStyle="{StaticResource Gridview_header_style}"/>
 
 
                                                 </GridView>

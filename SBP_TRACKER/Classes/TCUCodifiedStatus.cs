@@ -12,13 +12,19 @@ namespace SBP_TRACKER
 
         public TypeCode TypeVar { get; set; }
 
+        public double Factor { get; set; }
+
         public string Unit { get; set; }
+
+        public bool TCU_record { get; set; }
 
         public bool SCS_record { get; set; }
 
         public bool Status_mask_enable { get; set; }
 
         public int Link_to_graphic { get; set; }
+
+        public string Send_to_samca_pos { get; set; }
 
         public List<string> List_status_mask { get; set; }
 

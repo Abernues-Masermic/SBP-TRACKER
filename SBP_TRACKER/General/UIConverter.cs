@@ -131,7 +131,7 @@ namespace SBP_TRACKER.UIConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            return Enum.GetName(typeof(LINK_TO_GRAPHIC), value);
+            return Enum.GetName(typeof(LINK_TO_GRAPHIC_TCU), value);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
@@ -184,4 +184,6 @@ namespace SBP_TRACKER.UIConverter
                 return MODBUS_FUNCION.UNKNOWN;
         }
     }
+
+
 }

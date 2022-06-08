@@ -73,7 +73,7 @@
 
     <Style x:Key="Border_graphic_big_style"  TargetType="{x:Type Border}" BasedOn="{StaticResource Border_graphic_style}" >
         <Setter Property="Height" Value="22"/>
-        <Setter Property="Width" Value="90"/>
+        <Setter Property="Width" Value="85"/>
     </Style>
 
 </ResourceDictionary>

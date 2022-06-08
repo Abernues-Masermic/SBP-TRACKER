@@ -10,13 +10,13 @@ using System.Windows.Shapes;
 namespace SBP_TRACKER
 {
 
-    public partial class BitStatusWindow : Window
+    public partial class BitMaskWindow : Window
     {
         public TCUCodifiedStatusEntry? TCU_codified_status_entry { get; set; }
 
         #region Constructor
 
-        public BitStatusWindow()
+        public BitMaskWindow()
         {
             InitializeComponent();
         }

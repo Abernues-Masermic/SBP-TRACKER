@@ -38,7 +38,7 @@
 
                     <DockPanel  >
 
-                        <Border  x:Name="Border_modbus" DockPanel.Dock="Left" Style="{StaticResource Border_shadow}" Margin="5" Height="410" VerticalAlignment="Top">
+                        <Border  x:Name="Border_modbus" DockPanel.Dock="Left" Style="{StaticResource Border_shadow}" Margin="5" Height="570" VerticalAlignment="Top">
 
                             <WrapPanel Orientation="Vertical">
 
@@ -64,7 +64,7 @@
                                     <Label Content="ms"  Style="{StaticResource Label_setting}" Width="30"/>
                                 </WrapPanel>
 
-                                <WrapPanel Orientation="Horizontal" Margin="2">
+                                <WrapPanel Orientation="Horizontal" Margin="2, 10,2,2">
                                     <Label Content="Write TCU watchdog"  Style="{StaticResource Label_setting}" Width="120"/>
                                     <cntrl:DecimalUpDown x:Name="DecimalUpDown_modbus_write_tcu_watchdog" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="5" Margin="10,1,0,1" MinValue="10" MaxValue="120000" Value="1000" IsReadOnly="False"  />
                                     <Label Content="ms"  Style="{StaticResource Label_setting}" Width="30"/>
@@ -82,7 +82,7 @@
                                     <Label Content="ms"  Style="{StaticResource Label_setting}" Width="30"/>
                                 </WrapPanel>
 
-                                <WrapPanel Orientation="Horizontal" Margin="2">
+                                <WrapPanel Orientation="Horizontal" Margin="2,10,2,2">
                                     <Label Content="CONN TIMEOUT"  Style="{StaticResource Label_setting}" Width="120"/>
                                     <cntrl:DecimalUpDown x:Name="DecimalUpDown_modbus_conn_timeout" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="5" Margin="10,1,0,1" MinValue="10" MaxValue="120000" Value="1000" IsReadOnly="False"  />
                                     <Label Content="ms"  Style="{StaticResource Label_setting}" Width="30"/>
@@ -100,9 +100,16 @@
                                     <Label Content="ms"  Style="{StaticResource Label_setting}" Width="30"/>
                                 </WrapPanel>
 
-                                <WrapPanel Orientation="Horizontal" Margin="2">
-                                    <Label Content="@ SCS COMMAND"  Style="{StaticResource Label_setting}" Width="120"/>
-                                    <cntrl:DecimalUpDown x:Name="DecimalUpDown_modbus_dir_scs_command" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="5" Margin="10,1,0,1" MinValue="1" MaxValue="120000" Value="1000" IsReadOnly="False"  />
+                                <WrapPanel Orientation="Horizontal" Margin="2,10,2,2">
+                                    <Label Content="Refresh SCADA"  Style="{StaticResource Label_setting}" Width="120"/>
+                                    <cntrl:DecimalUpDown x:Name="DecimalUpDown_refresh_scada" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="5" Margin="10,1,0,1" MinValue="10" MaxValue="120000" Value="1000" IsReadOnly="False"  />
+                                    <Label Content="ms"  Style="{StaticResource Label_setting}" Width="30"/>
+                                </WrapPanel>
+
+
+                                <WrapPanel Orientation="Horizontal" Margin="2, 10,2,2">
+                                    <Label Content="@ TCU COMMAND"  Style="{StaticResource Label_setting}" Width="120"/>
+                                    <cntrl:DecimalUpDown x:Name="DecimalUpDown_modbus_dir_tcu_command" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="5" Margin="10,1,0,1" MinValue="1" MaxValue="120000" Value="1000" IsReadOnly="False"  />
                                     <Label Content=""  Style="{StaticResource Label_setting}" Width="30"/>
                                 </WrapPanel>
 
@@ -112,10 +119,16 @@
                                     <Label Content=""  Style="{StaticResource Label_setting}" Width="30"/>
                                 </WrapPanel>
 
+                                <WrapPanel Orientation="Horizontal" Margin="2">
+                                    <Label Content="@ WRITE SAMCA"  Style="{StaticResource Label_setting}" Width="120"/>
+                                    <cntrl:DecimalUpDown x:Name="DecimalUpDown_modbus_dir_wr_samca" Style="{StaticResource DecimalUpDownStyle}" DisplayLength="5" Margin="10,1,0,1" MinValue="1" MaxValue="120000" Value="2000" IsReadOnly="False"  />
+                                    <Label Content=""  Style="{StaticResource Label_setting}" Width="30"/>
+                                </WrapPanel>
+
                             </WrapPanel>
                         </Border>
 
-                        <Border  x:Name="Border_report" DockPanel.Dock="Left" Style="{StaticResource Border_shadow}" Margin="5" Height="410" VerticalAlignment="Top">
+                        <Border  x:Name="Border_report" DockPanel.Dock="Left" Style="{StaticResource Border_shadow}" Margin="5" Height="570" VerticalAlignment="Top">
 
                             <WrapPanel Orientation="Vertical" Margin="0,0,5,0">
 

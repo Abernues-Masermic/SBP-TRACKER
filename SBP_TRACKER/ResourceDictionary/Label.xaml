@@ -52,7 +52,7 @@
     <Style x:Key="Label_info_big"  TargetType="{x:Type Label}" BasedOn="{StaticResource Label_info}" >
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="Height" Value="22"/>
-        <Setter Property="Width" Value="120"/>
+        <Setter Property="Width" Value="100"/>
     </Style>
 
 

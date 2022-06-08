@@ -21,62 +21,84 @@ namespace SBP_TRACKER
         #endregion
 
 
-
         #region Read from array
 
-        public static string Read_from_array(int[] read_values, int start_pos, TypeCode var_Type)
+        public static Tuple<string, string> Read_from_array(int[] read_values, int dir_mb, TypeCode var_type, double factor )
         {
-            string s_value = string.Empty;
+            string s_value_received = string.Empty;
+            double factor_data = 0;
 
-            switch (var_Type)
+            switch (var_type)
             {
                 case TypeCode.Int16:
+                    {
+                        byte[] array_data = BitConverter.GetBytes(read_values[dir_mb]);
 
-                    byte[] array_data = BitConverter.GetBytes(read_values[start_pos]);
-                    short i16_data = BitConverter.ToInt16(array_data, 0);
-                    s_value = i16_data.ToString();
-
-                    break;
+                        Int16 i16_data = BitConverter.ToInt16(array_data, 0);
+                        s_value_received = i16_data.ToString();
+                        factor_data = i16_data * factor;
+                    
+                        break;
+                    }
 
                 case TypeCode.Int32:
-                    byte[] array_data_1 = BitConverter.GetBytes(read_values[start_pos]);
-                    byte[] array_data_2 = BitConverter.GetBytes(read_values[start_pos + 1]);
-
-                    array_data = array_data_1.SubArray(0, 2).Concat(array_data_2.SubArray(0, 2)).ToArray();
-                    int i32_data = BitConverter.ToInt32(array_data, 0);
-                    s_value = i32_data.ToString();
+                    {
+                        byte[] array_data_1 = BitConverter.GetBytes(read_values[dir_mb]);
+                        byte[] array_data_2 = BitConverter.GetBytes(read_values[dir_mb + 1]);
+                        byte[] array_data = array_data_1.SubArray(0, 2).Concat(array_data_2.SubArray(0, 2)).ToArray();
+                       
+                        Int32 i32_data = BitConverter.ToInt32(array_data, 0);
+                        s_value_received = i32_data.ToString();
+                        factor_data = i32_data * factor;
+                    }
 
                     break;
 
                 case TypeCode.UInt16:
-                    array_data = BitConverter.GetBytes(read_values[start_pos]);
-                    ushort ui16_data = BitConverter.ToUInt16(array_data, 0);
-                    s_value = ui16_data.ToString();
+                    {
+                        byte[] array_data = BitConverter.GetBytes(read_values[dir_mb]);
 
-                    break;
+                        ushort ui16_data = BitConverter.ToUInt16(array_data, 0);
+                        s_value_received = ui16_data.ToString();
+                        factor_data = ui16_data * factor;
+
+                        break;
+                    }
 
                 case TypeCode.UInt32:
-                    array_data_1 = BitConverter.GetBytes(read_values[start_pos]);
-                    array_data_2 = BitConverter.GetBytes(read_values[start_pos + 1]);
+                    {
+                        byte[] array_data_1 = BitConverter.GetBytes(read_values[dir_mb]);
+                        byte[] array_data_2 = BitConverter.GetBytes(read_values[dir_mb + 1]);
+                        byte[] array_data = array_data_1.SubArray(0, 2).Concat(array_data_2.SubArray(0, 2)).ToArray();
 
-                    array_data = array_data_1.SubArray(0, 2).Concat(array_data_2.SubArray(0, 2)).ToArray();
-                    uint ui32_data = BitConverter.ToUInt32(array_data, 0);
-                    s_value = ui32_data.ToString();
+                        UInt32 ui32_data = BitConverter.ToUInt32(array_data, 0);
+                        s_value_received = ui32_data.ToString();
+                        factor_data = ui32_data * factor;
 
-                    break;
+                        break;
+                    }
 
                 case TypeCode.Single:
-                    array_data_1 = BitConverter.GetBytes(read_values[start_pos]);
-                    array_data_2 = BitConverter.GetBytes(read_values[start_pos + 1]);
+                    {
+                        byte[] array_data_1 = BitConverter.GetBytes(read_values[dir_mb]);
+                        byte[] array_data_2 = BitConverter.GetBytes(read_values[dir_mb + 1]);
+                        byte[] array_data = array_data_1.SubArray(0, 2).Concat(array_data_2.SubArray(0, 2)).ToArray();
 
-                    array_data = array_data_1.SubArray(0, 2).Concat(array_data_2.SubArray(0, 2)).ToArray();
-                    float single_data = BitConverter.ToSingle(array_data, 0);
-                    s_value = single_data.ToString("0.00", Globals.GetTheInstance().nfi);
+                        float single_data = BitConverter.ToSingle(array_data, 0);
+                        s_value_received = single_data.ToString("0.00", Globals.GetTheInstance().nfi);
+                        factor_data = single_data * factor;
 
-                    break;
+                        break;
+                    }
             }
 
-            return s_value;
+            string s_value_scaled =  
+                var_type == TypeCode.Single ? factor_data.ToString("0.00", Globals.GetTheInstance().nfi) :
+                factor == 1 ? factor_data.ToString() : 
+                factor_data.ToString("0.00", Globals.GetTheInstance().nfi);
+
+            Tuple<string, string> tuple_values = new(s_value_received, s_value_scaled);
+            return tuple_values;
         }
 
         #endregion
@@ -84,18 +106,19 @@ namespace SBP_TRACKER
 
         #region Read from array and convert value
 
-        public static string Read_from_array_convert_scale(int[] read_values, int dir_mb, string var_name, TypeCode var_type, double value_min, double scale_min, double scale_factor)
+        public static Tuple<string, string> Read_from_array_convert_scale_offset(int[] read_values, int dir_mb, string var_name, TypeCode var_type, double value_min, double scale_min, double scale_factor, double offset)
         {
-            string s_value = string.Empty;
+            string s_value_received = string.Empty;
 
+            double d_value = 0;
             switch (var_type)
             {
                 case TypeCode.Int16:
                     {
                         byte[] array_data = BitConverter.GetBytes(read_values[dir_mb]);
                         Int16 i16_data = BitConverter.ToInt16(array_data, 0);
-                        double d_value = scale_min + ((i16_data - value_min) * scale_factor);
-                        s_value = d_value.ToString("0.00", Globals.GetTheInstance().nfi);
+                        s_value_received = i16_data.ToString();
+                        d_value = scale_min + ((i16_data - value_min) * scale_factor);
 
                         break;
                     }
@@ -107,8 +130,8 @@ namespace SBP_TRACKER
 
                         byte[] array_data = array_data_1.SubArray(0, 2).Concat(array_data_2.SubArray(0, 2)).ToArray();
                         Int32 i32_data = BitConverter.ToInt32(array_data, 0);
-                        double d_value = scale_min + ((i32_data - value_min) * scale_factor);
-                        s_value = d_value.ToString("0.00", Globals.GetTheInstance().nfi);
+                        s_value_received = i32_data.ToString();
+                        d_value = scale_min + ((i32_data - value_min) * scale_factor);
 
                         break;
                     }
@@ -117,24 +140,8 @@ namespace SBP_TRACKER
                     {
                         byte[] array_data = BitConverter.GetBytes(read_values[dir_mb]);
                         UInt16 ui16_data = BitConverter.ToUInt16(array_data, 0);
-                        double d_value = scale_min + ((ui16_data - value_min) * scale_factor);
-                        s_value = d_value.ToString("0.00", Globals.GetTheInstance().nfi);
-
-                        if (Globals.GetTheInstance().Depur_enable == BIT_STATE.ON)
-                        {
-                            string s_values = string.Empty;
-                            read_values.ToList().ForEach(x =>
-                            {
-
-                                byte[] byte_check = BitConverter.GetBytes(x);
-                                UInt16 ui16_check = BitConverter.ToUInt16(byte_check, 0);
-
-                                s_values += $"0x{ui16_check:X2} ";
-                            });
-
-                            string s_log = $"READ VALUES : {s_values} / NAME : {var_name} / POS : {dir_mb} / value : {ui16_data} / scale factor : { scale_factor.ToString("0.00000", Globals.GetTheInstance().nfi)} / conversion : {s_value}";
-                            Manage_logs.SaveDepurValue(s_log);
-                        }
+                        s_value_received = ui16_data.ToString();
+                        d_value = scale_min + ((ui16_data - value_min) * scale_factor);
 
                         break;
                     }
@@ -146,8 +153,9 @@ namespace SBP_TRACKER
 
                         byte[] array_data = array_data_1.SubArray(0, 2).Concat(array_data_2.SubArray(0, 2)).ToArray();
                         UInt32 ui32_data = BitConverter.ToUInt32(array_data, 0);
-                        double d_value = scale_min + ((ui32_data - value_min) * scale_factor);
-                        s_value = d_value.ToString("0.00", Globals.GetTheInstance().nfi);
+                        s_value_received = ui32_data.ToString();
+                        d_value = scale_min + ((ui32_data - value_min) * scale_factor);
+
 
                         break;
                     }
@@ -159,15 +167,18 @@ namespace SBP_TRACKER
 
                         byte[] array_data = array_data_1.SubArray(0, 2).Concat(array_data_2.SubArray(0, 2)).ToArray();
                         float single_data = BitConverter.ToSingle(array_data, 0);
-                        double d_value = scale_min + ((single_data - value_min) * scale_factor);
-                        s_value = d_value.ToString("0.00", Globals.GetTheInstance().nfi);
+                        s_value_received = single_data.ToString("0.00", Globals.GetTheInstance().nfi);
+                        d_value = scale_min + ((single_data - value_min) * scale_factor);
 
                         break;
                     }
             }
 
+            d_value += offset;
+            string s_value_scaled = d_value.ToString("0.00", Globals.GetTheInstance().nfi);
 
-            return s_value;
+            Tuple<string, string> tuple_values = new(s_value_received, s_value_scaled);
+            return tuple_values;
         }
 
         #endregion
@@ -190,64 +201,50 @@ namespace SBP_TRACKER
 
         #region Redefine send mail instant
 
-        public static int Redefine_send_mail_instant()
+        public static Tuple<bool,double> Redefine_send_mail_instant()
         {
-            int interval_ms = 24 * 60 * 60 * 1000;
-
+            bool redef_ok = false;
+            double interval_ms = 24 * 60 * 60 * 1000;
             try
             {
-                #region Hours
+                TimeSpan time_current;
+                TimeSpan time_def;
+                redef_ok = TimeSpan.TryParse($"{DateTime.Now.Hour:00}:{DateTime.Now.Minute:00}", out time_current);
+                redef_ok = TimeSpan.TryParse(Globals.GetTheInstance().Mail_instant, out time_def);
 
-                int current_hour = DateTime.Now.Hour;
-                int send_hour = int.Parse(Globals.GetTheInstance().Mail_instant[..2]);
+                if (redef_ok)
+                {
+                    if (time_def > time_current)
+                        interval_ms = time_def.Subtract(time_current).TotalMilliseconds;
+                    else
+                    {
+                        TimeSpan time_midnight= new(23,59,59);
+                        interval_ms = time_midnight.Subtract(time_current).TotalMilliseconds + time_def.TotalMilliseconds;
+                    }
 
-                int diff_hour;
-                if (send_hour >= current_hour)
-                    diff_hour = send_hour - current_hour;
-                else
-                    diff_hour = 24 - send_hour + current_hour;
+                    double minutes = interval_ms / 60000;
+                    double hours = minutes / 60;
 
-                int hour_milliseconds = diff_hour * 60 * 60 * 1000;
-
-                #endregion
-
-                #region Minutes
-
-                int current_min = DateTime.Now.Minute;
-                int send_min = int.Parse(Globals.GetTheInstance().Mail_instant.Substring(3, 2));
-
-                int diff_min;
-                if (send_min >= current_min)
-                    diff_min = send_min - current_min;
-                else
-                    diff_min = 60 - send_min + current_min;
-
-                int min_milliseconds = diff_min * 60 * 1000;
-
-                #endregion
-
-                //Check if instant is the same as current time
-                interval_ms = hour_milliseconds + min_milliseconds;
-                if (interval_ms == 0)
-                    interval_ms = 24 * 60 * 60 * 1000;
-
-                string s_log = "REDEFINE SEND MAIL INSTANT. HOUR : " + Globals.GetTheInstance().Mail_instant + " / MILLISECONDS : " + interval_ms;
-                Manage_logs.SaveLogValue(s_log);
+                    string s_log = $"REDEFINE SEND MAIL INSTANT. CONFIG TIME : {Globals.GetTheInstance().Mail_instant} / CALCULATE DATETIME : {DateTime.Now.AddMilliseconds(interval_ms)} / MINUTES : {minutes:0.0} / HOURS : {hours:0.0}" ;
+                    Manage_logs.SaveLogValue(s_log);
+                }
             }
             catch (Exception ex)
             {
-                Manage_logs.SaveErrorValue(typeof(Manage_file).Name + " ->  " + nameof(Redefine_send_mail_instant) + " -> " + ex.Message.ToString());
+                Manage_logs.SaveErrorValue($"{typeof(Manage_file).Name}  ->  {nameof(Redefine_send_mail_instant)} -> {ex.Message}");
             }
 
-            return interval_ms;
+            Tuple<bool, double> tuple_mail = new Tuple<bool, double>(redef_ok, interval_ms);
+
+            return tuple_mail;
         }
 
         #endregion
 
 
-        #region Send mail
+        #region Send record mail
 
-        public static Tuple<bool, List<string>> Send_record_mail()
+        public static Tuple<bool, List<string>> Send_record_mail(List<string> list_record_file)
         {
             bool b_send = true;
             List<string> list_files = new();
@@ -275,10 +272,9 @@ namespace SBP_TRACKER
 
                 s_log += " / FILES : ";
 
-                List<string> list_record_file = new() { Constants.Record_scs1, Constants.Record_scs2 };
                 list_record_file.ForEach(record_file =>
                 {
-                    string s_file = AppDomain.CurrentDomain.BaseDirectory + Constants.Compress_dir + @"\" + record_file + DateTime.Now.Year.ToString("0000") + DateTime.Now.Month.ToString("00") + DateTime.Now.AddDays(-1).Day.ToString("00") + ".zip";
+                    string s_file = AppDomain.CurrentDomain.BaseDirectory + Constants.Compress_dir + @"\" + record_file + DateTime.Now.Year.ToString("0000") + DateTime.Now.Month.ToString("00") + DateTime.Now.AddDays(-1).Day.ToString("00") + Constants.Compress_extension;
                     if (File.Exists(s_file))
                     {
                         msg.Attachments.Add(new Attachment(s_file));
@@ -290,6 +286,9 @@ namespace SBP_TRACKER
 
                 SmtpClient cliente_smtp = new(Globals.GetTheInstance().Mail_smtp_client)
                 {
+                    EnableSsl = true,
+                    UseDefaultCredentials = false,
+                    DeliveryMethod = SmtpDeliveryMethod.Network,
                     Credentials = new NetworkCredential(Globals.GetTheInstance().Mail_user, Globals.GetTheInstance().Mail_pass)
                 };
 
@@ -308,7 +307,8 @@ namespace SBP_TRACKER
 
         #endregion
 
-        #region Send alarm main
+
+        #region Send alarm mail
 
         public static bool Send_alarm_mail(string s_subject, string s_body)
         {
@@ -316,38 +316,41 @@ namespace SBP_TRACKER
 
             try
             {
-                Manage_logs.SaveLogValue($"Send alarm mail. SUBJECT : {s_subject} / MESSAGE : {s_body}");
-
-                string s_log = "SEND RECORD MAIL -> ";
-
-                using MailMessage msg = new();
-
-                s_log += "FROM : " + Globals.GetTheInstance().Mail_from;
-
-                msg.From = new MailAddress(Globals.GetTheInstance().Mail_from);
-
-                s_log += " / TO : ";
-
-                Globals.GetTheInstance().List_mail_to.ForEach(mailto =>
+                if (Globals.GetTheInstance().Mail_alarm_on == BIT_STATE.ON)
                 {
-                    msg.To.Add(new MailAddress(mailto));
-                    s_log += mailto + "; ";
-                });
+                    Manage_logs.SaveLogValue($"Send alarm mail. SUBJECT : {s_subject} / MESSAGE : {s_body}");
 
-                msg.Subject = s_subject;
-                msg.Body = s_body;
-                msg.Priority = MailPriority.High;
+                    string s_log = "SEND RECORD MAIL -> ";
 
-                SmtpClient cliente_smtp = new(Globals.GetTheInstance().Mail_smtp_client)
-                {
-                    Credentials = new NetworkCredential(Globals.GetTheInstance().Mail_user, Globals.GetTheInstance().Mail_pass)
-                };
+                    using MailMessage msg = new();
 
-                cliente_smtp.Send(msg);
+                    s_log += "FROM : " + Globals.GetTheInstance().Mail_from;
+
+                    msg.From = new MailAddress(Globals.GetTheInstance().Mail_from);
+
+                    s_log += " / TO : ";
+
+                    Globals.GetTheInstance().List_mail_to.ForEach(mailto =>
+                    {
+                        msg.To.Add(new MailAddress(mailto));
+                        s_log += mailto + "; ";
+                    });
+
+                    msg.Subject = s_subject;
+                    msg.Body = s_body;
+                    msg.Priority = MailPriority.High;
+
+                    SmtpClient cliente_smtp = new(Globals.GetTheInstance().Mail_smtp_client)
+                    {
+                        Credentials = new NetworkCredential(Globals.GetTheInstance().Mail_user, Globals.GetTheInstance().Mail_pass)
+                    };
+
+                    cliente_smtp.Send(msg);
+                }
             }
             catch (Exception ex)
             {
-                Manage_logs.SaveErrorValue($"{typeof(Manage_file).Name} -> {nameof(Send_alarm_mail)} -> {ex.Message}");
+                Manage_logs.SaveErrorValue($"{typeof(Manage_file).Name}  ->  {nameof(Send_alarm_mail)} -> {ex.Message}");
                 b_send = false;
             }
 
@@ -403,7 +406,6 @@ namespace SBP_TRACKER
         }
 
         #endregion
-
 
 
         #region Set check bits

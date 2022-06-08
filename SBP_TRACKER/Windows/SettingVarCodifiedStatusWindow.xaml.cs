@@ -20,7 +20,7 @@ namespace SBP_TRACKER
         {
             InitializeComponent();
 
-            Combobox_link_to_grahic.ItemsSource = Enum.GetNames(typeof(LINK_TO_GRAPHIC));
+            Combobox_link_to_grahic.ItemsSource = Enum.GetNames(typeof(LINK_TO_GRAPHIC_TCU));
         }
 
         #endregion
@@ -33,13 +33,16 @@ namespace SBP_TRACKER
             Textbox_var_name.Text = TCU_codified_status_entry.Name;
             DecimalUpDown_dir_modbus.Value = TCU_codified_status_entry.DirModbus;
             Combobox_var_type.Text = DataConverter.Type_code_to_string( TCU_codified_status_entry.TypeVar);
+            DecimalUpDown_factor.Value = (Decimal)TCU_codified_status_entry.Factor;
             Textbox_unit.Text = TCU_codified_status_entry.Unit;
             Checkbox_status_mask.IsChecked = TCU_codified_status_entry.Status_mask_enable;
+            Checkbox_tcu_record.IsChecked = TCU_codified_status_entry.TCU_record;
             Checkbox_scs_record.IsChecked = TCU_codified_status_entry.SCS_record;
+            DecimalUpDown_send_to_samca_pos.Value = TCU_codified_status_entry.Send_to_samca_pos == String.Empty ? Constants.index_no_selected : decimal.Parse(TCU_codified_status_entry.Send_to_samca_pos);
 
             m_list_bit_mask_value = TCU_codified_status_entry.List_status_mask;
 
-            Combobox_link_to_grahic.SelectedValue = Enum.GetName(typeof(LINK_TO_GRAPHIC), TCU_codified_status_entry.Link_to_graphic);
+            Combobox_link_to_grahic.SelectedValue = Enum.GetName(typeof(LINK_TO_GRAPHIC_TCU), TCU_codified_status_entry.Link_to_graphic);
         }
 
         #endregion
@@ -113,11 +116,10 @@ namespace SBP_TRACKER
 
                 if (name_duplicated)
                 {
-                    MessageBox.Show("TCU encode var name is already defined in other var.", "Error save", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+                    MessageBox.Show("TCU codified status var name is already defined in other var.", "Error save", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
                     continue_save = false;
                 }
             }
-
             if (continue_save)
             {
                 if (Slave_entry != null)
@@ -129,12 +131,11 @@ namespace SBP_TRACKER
                     }
                 }
             }
-
             if (continue_save)
             {
                 if (Slave_entry != null)
                 {
-                    if (Slave_entry.List_modbus_var.Exists(modbus_var => (modbus_var.DirModbus == (int)DecimalUpDown_dir_modbus.Value) && (TCU_codified_status_entry.DirModbus != (int)DecimalUpDown_dir_modbus.Value)))
+                    if (Slave_entry.List_var_entry.Exists(modbus_var => (modbus_var.DirModbus == (int)DecimalUpDown_dir_modbus.Value) && (TCU_codified_status_entry.DirModbus != (int)DecimalUpDown_dir_modbus.Value)))
                     {
                         continue_save = false;
                         MessageBox.Show("@ Modbus already selected in other var associated with slave  ", "Error save", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
@@ -149,23 +150,46 @@ namespace SBP_TRACKER
                     MessageBox.Show("@ Modbus cannot be less than 0", "Error save", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
                 }
             }
+            if (continue_save)
+            {
+                if (DecimalUpDown_send_to_samca_pos.Value != Constants.index_no_selected)
+                {
+                    List<TCPModbusVarEntry> list_all_var_entry = new();
+                    Globals.GetTheInstance().List_slave_entry.ForEach(slave_entry => list_all_var_entry.AddRange(slave_entry.List_var_entry));
 
+                    if (list_all_var_entry.Exists(var_entry => var_entry.Send_to_samca_pos == DecimalUpDown_send_to_samca_pos.Value.ToString()))
+                    {
+                        continue_save = false;
+                        MessageBox.Show("SEND TO SAMCA @ modbus already selected in other var entry", "Error save", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+                    }
+
+                    if (Globals.GetTheInstance().List_tcu_codified_status.Exists(codified_status => (codified_status.Send_to_samca_pos == DecimalUpDown_send_to_samca_pos.Value.ToString()) && (codified_status.DirModbus != TCU_codified_status_entry.DirModbus)))
+                    {
+                        continue_save = false;
+                        MessageBox.Show("SEND TO SAMCA @ modbus already selected in other codified status var", "Error save", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+                    }
+                }
+            }
 
             if (continue_save)
             {
                 TCU_codified_status_entry.Name = Textbox_var_name.Text;
                 TCU_codified_status_entry.DirModbus = (int)DecimalUpDown_dir_modbus.Value;
                 TCU_codified_status_entry.TypeVar = DataConverter.String_to_type_code(Combobox_var_type.Text);
+                TCU_codified_status_entry.Factor = (double)DecimalUpDown_factor.Value;
                 TCU_codified_status_entry.Unit = Textbox_unit.Text;
                 TCU_codified_status_entry.Status_mask_enable = (bool)Checkbox_status_mask.IsChecked;
 
                 TCU_codified_status_entry.List_status_mask = TCU_codified_status_entry.Status_mask_enable ? m_list_bit_mask_value : new List<string>();
 
-                LINK_TO_GRAPHIC link_to_graphic = LINK_TO_GRAPHIC.NONE;
+                LINK_TO_GRAPHIC_TCU link_to_graphic = LINK_TO_GRAPHIC_TCU.NONE;
                 if (Enum.TryParse(Combobox_link_to_grahic.SelectedValue.ToString(), out link_to_graphic))
                     TCU_codified_status_entry.Link_to_graphic = (int)link_to_graphic;
 
+                TCU_codified_status_entry.TCU_record = (bool)Checkbox_tcu_record.IsChecked;
                 TCU_codified_status_entry.SCS_record = (bool)Checkbox_scs_record.IsChecked;
+
+                TCU_codified_status_entry.Send_to_samca_pos = DecimalUpDown_send_to_samca_pos.Value == Constants.index_no_selected ? String.Empty : DecimalUpDown_send_to_samca_pos.Value.ToString();
 
                 this.DialogResult = true;
                 this.Close();

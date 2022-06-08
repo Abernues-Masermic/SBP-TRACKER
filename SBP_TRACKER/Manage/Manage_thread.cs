@@ -18,6 +18,8 @@ namespace SBP_TRACKER
         public bool Check_start_conn { get; set; }
 
         private bool m_recovery_mode;
+        private bool m_read_flag { get; set; }
+        private bool m_write_flag { get; set; }
 
 
         public Manage_thread() { 
@@ -36,31 +38,78 @@ namespace SBP_TRACKER
         }
 
         private void Start_tcp_com_thread() {
-            if (ManageTCP.Connect(TCP_modbus_slave_entry, m_recovery_mode))
-                Manage_logs.SaveLogValue($"START SLAVE -> {TCP_modbus_slave_entry.Name} / {TCP_modbus_slave_entry.IP_primary} / {TCP_modbus_slave_entry.Port} / {TCP_modbus_slave_entry.UnitId} /{TCP_modbus_slave_entry.Dir_ini} /  {TCP_modbus_slave_entry.Modbus_function} /  {TCP_modbus_slave_entry.Read_reg}");   
+
+            if (!TCP_modbus_slave_entry.Reconnect)
+                Manage_logs.SaveCommunicationValue($"START SLAVE -> {TCP_modbus_slave_entry.Name} / {TCP_modbus_slave_entry.IP_primary} / {TCP_modbus_slave_entry.Port} / {TCP_modbus_slave_entry.UnitId} /{TCP_modbus_slave_entry.Dir_ini} /  {TCP_modbus_slave_entry.Modbus_function} /  {TCP_modbus_slave_entry.Read_reg}");
+
+            m_read_flag = false;
+            m_write_flag = false;
+            ManageTCP.Connect(TCP_modbus_slave_entry, m_recovery_mode);
         }
+
+                
 
         public void Stop_tcp_com_thread()
         {
             ManageTCP.Disconnect();
-            Manage_logs.SaveLogValue($"STOP SLAVE -> {TCP_modbus_slave_entry.Name}");
+
+            if (!TCP_modbus_slave_entry.Reconnect)
+                Manage_logs.SaveCommunicationValue($"STOP SLAVE -> {TCP_modbus_slave_entry.Name}");
         }
+
 
 
         public Tuple<READ_STATE, int[]> Read_holding_registers_int32()
         {
-            return ManageTCP.Read_holding_registers_int32(TCP_modbus_slave_entry.Dir_ini, TCP_modbus_slave_entry.Read_reg);
+            Tuple<READ_STATE, int[]> result = new(READ_STATE.ERROR, Array.Empty<int>());
+            if (!m_read_flag)
+            {
+                m_read_flag = true;
+                result = ManageTCP.Read_holding_registers_int32(TCP_modbus_slave_entry.Dir_ini, TCP_modbus_slave_entry.Read_reg);
+                m_read_flag = false;
+            }
+            else if (Globals.GetTheInstance().Depur_enable == BIT_STATE.ON)
+            {
+                Manage_logs.SaveDepurValue($"READ HOLDING REGISTER FLAG ERROR : { TCP_modbus_slave_entry.Name }");
+            }
+
+
+            return result;
         }
 
         public Tuple<READ_STATE, int[]> Read_input_registers_int32()
         {
-            return ManageTCP.Read_input_registers_int32(TCP_modbus_slave_entry.Dir_ini, TCP_modbus_slave_entry.Read_reg);
+            Tuple<READ_STATE, int[]> result = new(READ_STATE.ERROR, Array.Empty<int>());
+            if (!m_read_flag)
+            {
+                m_read_flag = true;
+                result = ManageTCP.Read_input_registers_int32(TCP_modbus_slave_entry.Dir_ini, TCP_modbus_slave_entry.Read_reg);
+                m_read_flag = false;
+            }
+            else if (Globals.GetTheInstance().Depur_enable == BIT_STATE.ON)
+            {
+                Manage_logs.SaveDepurValue($"READ INPUT REGISTER FLAG ERROR : { TCP_modbus_slave_entry.Name }");
+            }
+            
+            return result;
         }
 
 
         public bool Write_multiple_registers(int start_address, int[] values)
         {
-            return ManageTCP.Write_multiple_registers(start_address, values);
+            bool write_ok = false;
+            if (!m_write_flag)
+            {
+                m_write_flag = true;
+                write_ok = ManageTCP.Write_multiple_registers(start_address, values);
+                m_write_flag = false;
+            }
+            else if (Globals.GetTheInstance().Depur_enable == BIT_STATE.ON)
+            {
+                Manage_logs.SaveDepurValue($"WRITE MULTIPLE REGISTER FLAG ERROR : { TCP_modbus_slave_entry.Name }");
+            }
+
+            return write_ok;
         }
 
     }

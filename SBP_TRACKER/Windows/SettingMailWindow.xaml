@@ -40,7 +40,9 @@
                             <WrapPanel Orientation="Vertical" HorizontalAlignment="Center">
 
 
-                                <CheckBox x:Name="Check_mail_enable" Content="ENABLE MAIL" Style="{StaticResource Checkbox_setting}" Margin="5,10,5,5" VerticalContentAlignment="Center" />
+                                <CheckBox x:Name="Check_mail_data_enable" Content="ENABLE MAIL DATA" Style="{StaticResource Checkbox_setting}" Margin="5,10,5,5" VerticalContentAlignment="Center" />
+
+                                <CheckBox x:Name="Check_mail_alarm_enable" Content="ENABLE MAIL ALARM" Style="{StaticResource Checkbox_setting}" Margin="5,10,5,5" VerticalContentAlignment="Center" />
 
                                 <WrapPanel Orientation="Horizontal" Margin="5">
                                     <Label Content="SEND MAIL INSTANT"  Style="{StaticResource Label_setting}" Width="150"/>
@@ -70,7 +72,7 @@
                                 </WrapPanel>
 
 
-                                <GroupBox Name="GroupboxTo" Header="TO"   Style="{StaticResource Groupbox_style}"   Height="170"  Width="330"  Margin="5"  VerticalAlignment="Top" >
+                                <GroupBox Name="GroupboxTo" Header="TO"   Style="{StaticResource Groupbox_style}" Background="#FF013C7B" BorderBrush="#FF013C7B" Height="170"  Width="330"  Margin="5"  VerticalAlignment="Top" >
                                     <Grid  Margin="5,10,0,0">
 
                                         <ListBox Name="ListboxTo"  SelectionMode="Single"  Margin ="0,0,0,10" Width="260" HorizontalAlignment="Left" />
@@ -101,7 +103,7 @@
                                         <Image Source="/Images/visualizar.png"></Image>
                                     </Button>
                                     <TextBox x:Name="Textbox_zip"  Text=""  Style="{StaticResource ResourceKey=Textbox_setting}" Width="250" />
-                                    <Button  Content="ZIP" Style="{StaticResource Button_rounded}" Margin="5,0,5,0"  Width="60" Height="25" Click="Button_zip_Click"/>
+                                    <Button  Content="RAR" Style="{StaticResource Button_rounded}" Margin="5,0,5,0"  Width="60" Height="25" Click="Button_zip_Click"/>
                                 </WrapPanel>
 
                                 <WrapPanel Orientation="Horizontal"  Margin="5">

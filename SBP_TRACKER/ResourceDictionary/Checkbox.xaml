@@ -164,7 +164,7 @@
                             </BulletDecorator.Bullet>
 
                             <!--Text element-->
-                            <TextBlock Margin="8,0,0,0" Foreground="Black"  FontWeight="Bold" FontFamily="Arial" FontSize="12">
+                            <TextBlock Margin="8,0,0,0" Foreground="Black"  FontWeight="Bold" FontFamily="Cambria" FontSize="12">
                             <ContentPresenter />
                             </TextBlock>
 

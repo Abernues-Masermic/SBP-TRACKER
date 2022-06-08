@@ -21,7 +21,7 @@ namespace SBP_TRACKER
         #region Loaded
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-
+            Label_input.Content = Input_info;
         }
 
         #endregion

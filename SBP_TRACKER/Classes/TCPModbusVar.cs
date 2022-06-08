@@ -41,6 +41,10 @@ namespace SBP_TRACKER
 
         public bool Fast_mode_record { get; set; }
 
+        public bool SAMCA_record { get; set; }
+
+        public string Send_to_samca_pos { get; set; }
+
 
         #region NOT SAVE FIELDS
 

@@ -45,7 +45,7 @@ namespace SBP_TRACKER
             Wrap_edit_tcp_slave.IsEnabled = false;
             Border_mapped.IsEnabled = false;
 
-            Listview_tcp_slave.ItemsSource = Globals.GetTheInstance().List_modbus_slave_entry.OrderBy(modbus_slave => modbus_slave.Name);
+            Listview_tcp_slave.ItemsSource = Globals.GetTheInstance().List_slave_entry.OrderBy(slave_entry => slave_entry.Name);
             Listview_tcp_slave.Items.Refresh();
         }
 
@@ -86,7 +86,7 @@ namespace SBP_TRACKER
             {
                 if (Listview_tcp_slave.SelectedItem is TCPModbusSlaveEntry mySelectedItem)
                 {
-                    m_current_slave_entry = Globals.GetTheInstance().List_modbus_slave_entry.First(slave_entry => slave_entry.Name.Equals(mySelectedItem.Name));
+                    m_current_slave_entry = Globals.GetTheInstance().List_slave_entry.First(slave_entry => slave_entry.Name.Equals(mySelectedItem.Name));
                     Textbox_tcp_slave_name.Text = m_current_slave_entry.Name;
 
 
@@ -132,7 +132,7 @@ namespace SBP_TRACKER
                     #region Var map list
 
                     m_collection_var_entry.Clear();
-                    m_current_slave_entry.List_modbus_var.ForEach(var_map => m_collection_var_entry.Add(var_map));
+                    m_current_slave_entry.List_var_entry.ForEach(var_entry => m_collection_var_entry.Add(var_entry));
                 
                     m_collection_var_entry = new ObservableCollection<TCPModbusVarEntry>(m_collection_var_entry.OrderBy(modbus_var => modbus_var.DirModbus));
                     Listview_var_map.ItemsSource = m_collection_var_entry;
@@ -157,7 +157,7 @@ namespace SBP_TRACKER
                 #region Bind data to list var map
 
                 m_collection_var_entry.Clear();
-                m_current_slave_entry.List_modbus_var.ForEach(modbus_var => m_collection_var_entry.Add(modbus_var));
+                m_current_slave_entry.List_var_entry.ForEach(var_entry => m_collection_var_entry.Add(var_entry));
 
                 m_collection_var_entry = new ObservableCollection<TCPModbusVarEntry>(m_collection_var_entry.OrderBy(modbus_var => modbus_var.DirModbus));
                 Listview_var_map.ItemsSource = m_collection_var_entry;
@@ -209,7 +209,7 @@ namespace SBP_TRACKER
             m_action = FORM_ACTION.REMOVE;
             if (m_current_slave_entry != null)
             {
-                Globals.GetTheInstance().List_modbus_slave_entry.Remove(m_current_slave_entry);
+                Globals.GetTheInstance().List_slave_entry.Remove(m_current_slave_entry);
 
                 bool save_slave_ok =  Manage_file.Save_modbus_slave_entries();
                 bool save_var_map_ok = Manage_file.Save_var_map_entries();
@@ -218,7 +218,7 @@ namespace SBP_TRACKER
                 
                 else
                 {
-                    Listview_tcp_slave.ItemsSource = Globals.GetTheInstance().List_modbus_slave_entry.OrderBy(modbus_slave => modbus_slave.Name);
+                    Listview_tcp_slave.ItemsSource = Globals.GetTheInstance().List_slave_entry.OrderBy(slave_entry => slave_entry.Name);
                     Listview_tcp_slave.Items.Refresh();
                     MessageBox.Show("Slave deleted", "Save ok", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
                 }
@@ -254,12 +254,12 @@ namespace SBP_TRACKER
 
             if (save)
             {
-                if ((bool)Radiobutton_TCU.IsChecked == true && m_current_slave_entry.Slave_type != SLAVE_TYPE.TCU  && Globals.GetTheInstance().List_modbus_slave_entry.Exists(modbus_slave => modbus_slave.Slave_type == SLAVE_TYPE.TCU))
+                if ((bool)Radiobutton_TCU.IsChecked == true && m_current_slave_entry.Slave_type != SLAVE_TYPE.TCU  && Globals.GetTheInstance().List_slave_entry.Exists(slave_entry => slave_entry.Slave_type == SLAVE_TYPE.TCU))
                 {
                     MessageBox.Show("There is already modbus slav  configured as TCU in the system", "Error save", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
                 }
 
-                if ((bool)Radiobutton_Samca.IsChecked == true && m_current_slave_entry.Slave_type != SLAVE_TYPE.SAMCA && Globals.GetTheInstance().List_modbus_slave_entry.Exists(modbus_slave => modbus_slave.Slave_type == SLAVE_TYPE.SAMCA))
+                if ((bool)Radiobutton_Samca.IsChecked == true && m_current_slave_entry.Slave_type != SLAVE_TYPE.SAMCA && Globals.GetTheInstance().List_slave_entry.Exists(slave_entry => slave_entry.Slave_type == SLAVE_TYPE.SAMCA))
                 {
                     MessageBox.Show("There is already modbus slave configured as SAMCA in the system", "Error save", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
                 }
@@ -282,14 +282,14 @@ namespace SBP_TRACKER
                     m_current_slave_entry.Modbus_function = (MODBUS_FUNCION) Combobox_mb_function.SelectedIndex;
                     m_current_slave_entry.Slave_type = Radiobutton_General.IsChecked == true ? SLAVE_TYPE.GENERAL : Radiobutton_TCU.IsChecked == true ? SLAVE_TYPE.TCU : SLAVE_TYPE.SAMCA; 
                     m_current_slave_entry.Fast_mode = (bool)Checkbox_fast_mode.IsChecked;
-                    m_current_slave_entry.List_modbus_var = new List<TCPModbusVarEntry>();
+                    m_current_slave_entry.List_var_entry = new List<TCPModbusVarEntry>();
 
-                    Globals.GetTheInstance().List_modbus_slave_entry.Add(m_current_slave_entry);
+                    Globals.GetTheInstance().List_slave_entry.Add(m_current_slave_entry);
                 }
 
                 else if (m_action == FORM_ACTION.UPDATE)
                 {
-                    Globals.GetTheInstance().List_modbus_slave_entry.Where(slave_entry => slave_entry.Name == m_current_slave_entry.Name).Select(slave_entry =>
+                    Globals.GetTheInstance().List_slave_entry.Where(slave_entry => slave_entry.Name == m_current_slave_entry.Name).Select(slave_entry =>
                     {
                         slave_entry.Name = Textbox_tcp_slave_name.Text;
                         slave_entry.IP_primary = Textbox_tcp_slave_ip_primary.firstBox.Text + "." + Textbox_tcp_slave_ip_primary.secondBox.Text + "." + Textbox_tcp_slave_ip_primary.thirdBox.Text + "." + Textbox_tcp_slave_ip_primary.fourthBox.Text;
@@ -311,7 +311,7 @@ namespace SBP_TRACKER
                 else
                 {
                     Clear_controls(FORM_ACTION.UPDATE);
-                    Listview_tcp_slave.ItemsSource = Globals.GetTheInstance().List_modbus_slave_entry.OrderBy(modbus_slave => modbus_slave.Name);
+                    Listview_tcp_slave.ItemsSource = Globals.GetTheInstance().List_slave_entry.OrderBy(slave_entry => slave_entry.Name);
                     Listview_tcp_slave.Items.Refresh();
                 }
             }
@@ -369,7 +369,7 @@ namespace SBP_TRACKER
                 if (Listview_var_map.SelectedItem is TCPModbusVarEntry)
                 {
                     TCPModbusVarEntry selected_var_map = Listview_var_map.SelectedItem as TCPModbusVarEntry;
-                    m_current_var_entry = m_current_slave_entry.List_modbus_var.First(x => x.Name.Equals(selected_var_map.Name));
+                    m_current_var_entry = m_current_slave_entry.List_var_entry.First(var_entry => var_entry.Name.Equals(selected_var_map.Name));
                 }
             }
         }
@@ -401,7 +401,7 @@ namespace SBP_TRACKER
                     else
                     {
                         m_collection_var_entry.Clear();
-                        m_current_slave_entry.List_modbus_var.ForEach(var_map => m_collection_var_entry.Add(var_map));
+                        m_current_slave_entry.List_var_entry.ForEach(var_entry => m_collection_var_entry.Add(var_entry));
 
                         m_collection_var_entry = new ObservableCollection<TCPModbusVarEntry>(m_collection_var_entry.OrderBy(modbus_var => modbus_var.DirModbus));
                         Listview_var_map.ItemsSource = m_collection_var_entry;
@@ -431,6 +431,7 @@ namespace SBP_TRACKER
                         Slave = m_current_slave_entry.Name,
                         Graphic_pos = Constants.index_no_selected,
                         DirModbus = Constants.index_no_selected,
+                        Send_to_samca_pos = Constants.index_no_selected.ToString(),
                         Link_to_send_tcu = (int) LINK_TO_SEND_TCU.NONE,
                         Link_to_avg = (int)LINK_TO_AVG.NONE,
                         SCS_record = true,
@@ -439,7 +440,7 @@ namespace SBP_TRACKER
 
                     if (varMapWindow.ShowDialog() == true)
                     {
-                        m_current_slave_entry.List_modbus_var.Add(varMapWindow.Var_entry);
+                        m_current_slave_entry.List_var_entry.Add(varMapWindow.Var_entry);
                         bool save_ok = Manage_file.Save_var_map_entries();
                         if (!save_ok)
                         {
@@ -466,7 +467,7 @@ namespace SBP_TRACKER
         {
             if (m_current_slave_entry != null && m_current_var_entry != null)
             {
-                m_current_slave_entry.List_modbus_var.Remove(m_current_var_entry);
+                m_current_slave_entry.List_var_entry.Remove(m_current_var_entry);
                 bool save_ok = Manage_file.Save_var_map_entries();
                 if (!save_ok)
                 {

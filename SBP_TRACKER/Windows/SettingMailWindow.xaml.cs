@@ -1,12 +1,13 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Windows;
 using System.Windows.Input;
+using Ionic.Zip;
+
 
 
 
@@ -33,7 +34,8 @@ namespace SBP_TRACKER
         {
             try
             {
-                Check_mail_enable.IsChecked = Globals.GetTheInstance().Mail_on == BIT_STATE.ON ? true : false;
+                Check_mail_data_enable.IsChecked = Globals.GetTheInstance().Mail_data_on == BIT_STATE.ON ? true : false;
+                Check_mail_alarm_enable.IsChecked = Globals.GetTheInstance().Mail_alarm_on == BIT_STATE.ON ? true : false;
                 Time_sendMail.Text = Globals.GetTheInstance().Mail_instant;
                 Textbox_from.Text = Globals.GetTheInstance().Mail_from;
                 Textbox_username.Text = Globals.GetTheInstance().Mail_user;
@@ -122,7 +124,8 @@ namespace SBP_TRACKER
 
         private void Button_save_Click(object sender, RoutedEventArgs e)
         {
-            Globals.GetTheInstance().Mail_on = Check_mail_enable.IsChecked == true ? BIT_STATE.ON : BIT_STATE.OFF;
+            Globals.GetTheInstance().Mail_data_on = Check_mail_data_enable.IsChecked == true ? BIT_STATE.ON : BIT_STATE.OFF;
+            Globals.GetTheInstance().Mail_alarm_on = Check_mail_alarm_enable.IsChecked == true ? BIT_STATE.ON : BIT_STATE.OFF;
             Globals.GetTheInstance().Mail_instant = Time_sendMail.Text;
             Globals.GetTheInstance().Mail_from = Textbox_from.Text;
             Globals.GetTheInstance().Mail_user = Textbox_username.Text;
@@ -152,7 +155,7 @@ namespace SBP_TRACKER
 
         private void Button_zip_file_Click(object sender, RoutedEventArgs e)
         {
-            string s_initial_dir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            string? s_initial_dir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
             if (File.Exists(Textbox_zip.Text))
                 s_initial_dir = Path.GetDirectoryName(Textbox_zip.Text);
@@ -178,7 +181,7 @@ namespace SBP_TRACKER
 
         private void Button_send_file_Click(object sender, RoutedEventArgs e)
         {
-            string s_initial_dir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            string? s_initial_dir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             
             if (File.Exists(Textbox_send_mail.Text))
                 s_initial_dir = Path.GetDirectoryName(Textbox_send_mail.Text);
@@ -190,7 +193,7 @@ namespace SBP_TRACKER
             var fileDialog = new OpenFileDialog
             {
                 InitialDirectory = s_initial_dir,
-                Filter = "zip files (*.zip)|*.zip|All files (*.*)|*.*"
+                Filter = "rar files (*.rar)|*.rar|All files (*.*)|*.*"
             };
 
             if (fileDialog.ShowDialog() == true)
@@ -210,14 +213,18 @@ namespace SBP_TRACKER
             {
                 try
                 {
-                    string s_zip_file = Path.GetFileNameWithoutExtension(Textbox_zip.Text) + ".zip";
+                    string s_zip_file = Path.GetFileNameWithoutExtension(Textbox_zip.Text) + Constants.Compress_extension;
                     string path_zip_file = Constants.Compress_dir + @"\" + s_zip_file;
 
                     if (File.Exists(path_zip_file))
                         File.Delete(path_zip_file);
 
-                    using ZipArchive zip = ZipFile.Open(path_zip_file, ZipArchiveMode.Create);
-                    zip.CreateEntryFromFile(Textbox_zip.Text, Path.GetFileName(Textbox_zip.Text));
+                    using (ZipFile zip = new ())
+                    {
+                        //zip.Password = "SBPTRACKER"; 
+                        zip.AddFile(Textbox_zip.Text, Path.GetFileNameWithoutExtension(Textbox_zip.Text));
+                        zip.Save(path_zip_file);
+                    }
 
                     MessageBox.Show("Compressing file completed", "INFO", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
                 }
@@ -254,6 +261,9 @@ namespace SBP_TRACKER
 
                     SmtpClient cliente_smtp = new(Globals.GetTheInstance().Mail_smtp_client)
                     {
+                        EnableSsl = true,
+                        UseDefaultCredentials = false,
+                        DeliveryMethod = SmtpDeliveryMethod.Network,
                         Credentials = new NetworkCredential(Globals.GetTheInstance().Mail_user, Globals.GetTheInstance().Mail_pass)
                     };
 

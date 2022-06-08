@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace SBP_TRACKER
 {
@@ -23,7 +24,7 @@ namespace SBP_TRACKER
 
         public List<Manage_thread> List_manage_thread { get; set; }
 
-        public List<TCPModbusSlaveEntry> List_modbus_slave_entry { get; set; }
+        public List<TCPModbusSlaveEntry> List_slave_entry { get; set; }
 
         public List<TCUCodifiedStatusEntry> List_tcu_codified_status { get; set; }
 
@@ -32,9 +33,12 @@ namespace SBP_TRACKER
         public ConcurrentDictionary<double, double> Dictionary_slope_correction { get; set; }
         public List<double> List_slope_correction_alphaTT { get; set; }
 
+
         #region General
 
         public BIT_STATE Depur_enable { get; set; }
+        public BIT_STATE TCU_depur { get; set; }
+        public int Refresh_scada_interval { get; set; }
 
         #endregion
 
@@ -49,9 +53,9 @@ namespace SBP_TRACKER
         public int Modbus_conn_timeout { get; set; }
         public int Modbus_comm_timeout { get; set; }
         public int Modbus_reconnect_interval { get; set; }
-        public int Modbus_dir_scs_command { get; set; }
-
+        public int Modbus_dir_tcu_command { get; set; }
         public int Modbus_dir_tcu_datetime { get; set; }
+        public int Modbus_dir_write_samca { get; set; }
 
         #endregion
 
@@ -97,8 +101,6 @@ namespace SBP_TRACKER
 
         #endregion
 
-
-
         #region DYN config
 
         public int SBPT_dyn_avg_interval { get; set; }
@@ -111,17 +113,36 @@ namespace SBP_TRACKER
 
         #endregion
 
-
         #region Mail
 
-        public BIT_STATE Mail_on { get; set; }
-        public String Mail_instant { get; set; }
-        public String Mail_user { get; set; }
-        public String Mail_from { get; set; }
-        public String Mail_smtp_client { get; set; }
-        public String Mail_pass { get; set; }
+        public BIT_STATE Mail_data_on { get; set; }
+        public BIT_STATE Mail_alarm_on { get; set; }
+        public string Mail_instant { get; set; }
+        public string Mail_user { get; set; }
+        public string Mail_from { get; set; }
+        public string Mail_smtp_client { get; set; }
+        public string Mail_pass { get; set; }
 
         public List<string> List_mail_to { get; set; }
+
+        #endregion
+
+
+        #region WEB API
+
+        public Manage_web_api ManageWebAPI { get; set; }
+
+        public BIT_STATE Enable_web_api { get; set; }
+        public decimal Tracker_ID { get; set; }
+        public string Tracker_name { get; set; }
+        public string API_root { get; set; }
+        public string Data_controller_route { get; set; }
+        public string State_controller_route { get; set; }
+        public decimal Send_state_interval_web_API { get; set; }
+        public decimal Send_data_interval_web_API { get; set; }
+        public decimal Wait_error_conn_interval_web_API { get; set; }
+
+        public decimal HTTP_timeout { get; set; }
 
         #endregion
 
