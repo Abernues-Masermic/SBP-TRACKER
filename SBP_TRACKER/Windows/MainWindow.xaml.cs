@@ -1893,297 +1893,304 @@ namespace SBP_TRACKER
                                         {
                                             if (var_entry.DirModbus < manage_thread.TCP_modbus_slave_entry.Read_reg)
                                             {
-                                                Tuple<string, string> tuple_values = Functions.Read_from_array_convert_scale_offset(tuple_read.Item2, var_entry.DirModbus, var_entry.Name, var_entry.TypeVar, var_entry.Read_range_min, var_entry.Scaled_range_min, var_entry.Scale_factor, var_entry.Offset);
-
-                                                var_entry.Value = tuple_values.Item2;
-
-                                            #region Save into the array to send to SAMCA SLAVE
-
-                                            if (!string.IsNullOrEmpty(var_entry.Send_to_samca_pos))
-                                                    if (int.Parse(var_entry.Send_to_samca_pos) != Constants.index_no_selected)
-                                                        if (UInt16.TryParse(tuple_values.Item1, out UInt16 received_value))
-                                                            m_array_write_samca_values[int.Parse(var_entry.Send_to_samca_pos)] = received_value;
-
-                                            #endregion
-
-                                            #region AVG CALC
-
-                                            //WIND AVG VALUES
-                                            if ((LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.WIND_AVG_SBPT || (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.WIND_AVG_SAMCA)
+                                                try
                                                 {
-                                                    Tuple<DateTime, double> read_value = new Tuple<DateTime, double>(DateTime.Now, double.Parse(var_entry.Value, Globals.GetTheInstance().nfi));
+                                                    Tuple<string, string> tuple_values = Functions.Read_from_array_convert_scale_offset(tuple_read.Item2, var_entry.DirModbus, var_entry.Name, var_entry.TypeVar, var_entry.Read_range_min, var_entry.Scaled_range_min, var_entry.Scale_factor, var_entry.Offset);
 
-                                                    switch ((LINK_TO_AVG)var_entry.Link_to_avg)
+                                                    var_entry.Value = tuple_values.Item2;
+
+                                                    #region Save into the array to send to SAMCA SLAVE
+
+                                                    if (!string.IsNullOrEmpty(var_entry.Send_to_samca_pos))
+                                                        if (int.Parse(var_entry.Send_to_samca_pos) != Constants.index_no_selected)
+                                                            if (UInt16.TryParse(tuple_values.Item1, out UInt16 received_value))
+                                                                m_array_write_samca_values[int.Parse(var_entry.Send_to_samca_pos)] = received_value;
+
+                                                    #endregion
+
+                                                    #region AVG CALC
+
+                                                    //WIND AVG VALUES
+                                                    if ((LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.WIND_AVG_SBPT || (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.WIND_AVG_SAMCA)
                                                     {
-                                                        case LINK_TO_AVG.WIND_AVG_SBPT:
-                                                            {
-                                                                m_list_wind_read_values[(int)WIND_AVG_POSITION.SBPT_3SEC].Add(read_value);
-                                                                m_list_wind_read_values[(int)WIND_AVG_POSITION.SBPT_10MIN].Add(read_value);
+                                                        Tuple<DateTime, double> read_value = new Tuple<DateTime, double>(DateTime.Now, double.Parse(var_entry.Value, Globals.GetTheInstance().nfi));
 
-                                                                m_list_wind_read_values[(int)WIND_AVG_POSITION.SBPT_3SEC] = m_list_wind_read_values[(int)WIND_AVG_POSITION.SBPT_3SEC].Where(p => DateTime.Now.Subtract(p.Item1) < TimeSpan.FromSeconds((int)WIND_AVG_INTERVAL.SHORT_SEC)).ToList();
-                                                                m_list_wind_read_values[(int)WIND_AVG_POSITION.SBPT_10MIN] = m_list_wind_read_values[(int)WIND_AVG_POSITION.SBPT_10MIN].Where(p => DateTime.Now.Subtract(p.Item1) < TimeSpan.FromMinutes((int)WIND_AVG_INTERVAL.LONG_MIN)).ToList();
-
-                                                                m_array_wind_avg_values[(int)WIND_AVG_POSITION.SBPT_3SEC] = m_list_wind_read_values[(int)WIND_AVG_POSITION.SBPT_3SEC].Select(p => p.Item2).Average();
-                                                                m_array_wind_avg_values[(int)WIND_AVG_POSITION.SBPT_10MIN] = m_list_wind_read_values[(int)WIND_AVG_POSITION.SBPT_10MIN].Select(p => p.Item2).Average();
-
-                                                                break;
-                                                            }
-
-                                                        case LINK_TO_AVG.WIND_AVG_SAMCA:
-                                                            {
-                                                                m_list_wind_read_values[(int)WIND_AVG_POSITION.SAMCA_3SEC].Add(read_value);
-                                                                m_list_wind_read_values[(int)WIND_AVG_POSITION.SAMCA_10MIN].Add(read_value);
-
-                                                                m_list_wind_read_values[(int)WIND_AVG_POSITION.SAMCA_3SEC] = m_list_wind_read_values[(int)WIND_AVG_POSITION.SAMCA_3SEC].Where(p => DateTime.Now.Subtract(p.Item1) < TimeSpan.FromSeconds((int)WIND_AVG_INTERVAL.SHORT_SEC)).ToList();
-                                                                m_list_wind_read_values[(int)WIND_AVG_POSITION.SAMCA_10MIN] = m_list_wind_read_values[(int)WIND_AVG_POSITION.SAMCA_10MIN].Where(p => DateTime.Now.Subtract(p.Item1) < TimeSpan.FromMinutes((int)WIND_AVG_INTERVAL.LONG_MIN)).ToList();
-
-                                                                m_array_wind_avg_values[(int)WIND_AVG_POSITION.SAMCA_3SEC] = m_list_wind_read_values[(int)WIND_AVG_POSITION.SAMCA_3SEC].Select(p => p.Item2).Average();
-                                                                m_array_wind_avg_values[(int)WIND_AVG_POSITION.SAMCA_10MIN] = m_list_wind_read_values[(int)WIND_AVG_POSITION.SAMCA_10MIN].Select(p => p.Item2).Average();
-
-                                                                break;
-                                                            }
-                                                    }
-                                                }
-
-
-                                            //CHECK WIND MAX VALUES
-                                            Dispatcher.Invoke(() =>
-                                                {
-                                                    if (manage_thread.ManageTCP.Is_connected())
-                                                    {
-                                                        m_array_label_wind_avg_value
-                                                        .Select((value, index) => new { Container = value, Position = index }).ToList()
-                                                        .ForEach(label =>
+                                                        switch ((LINK_TO_AVG)var_entry.Link_to_avg)
                                                         {
-                                                            if (m_array_label_wind_avg_value[label.Position].Content != null)
-                                                            {
-                                                            //No se ha superado el valor máximo -> Analizar si se supera
-                                                            if (m_array_wind_max_break_in_range[label.Position])
+                                                            case LINK_TO_AVG.WIND_AVG_SBPT:
                                                                 {
-                                                                    bool check_wind = double.Parse(m_array_label_wind_avg_max[label.Position].Content.ToString(), NumberStyles.Any, Globals.GetTheInstance().nfi) != 0; //Valor MAX deshabilitado
-                                                                if (check_wind)
+                                                                    m_list_wind_read_values[(int)WIND_AVG_POSITION.SBPT_3SEC].Add(read_value);
+                                                                    m_list_wind_read_values[(int)WIND_AVG_POSITION.SBPT_10MIN].Add(read_value);
+
+                                                                    m_list_wind_read_values[(int)WIND_AVG_POSITION.SBPT_3SEC] = m_list_wind_read_values[(int)WIND_AVG_POSITION.SBPT_3SEC].Where(p => DateTime.Now.Subtract(p.Item1) < TimeSpan.FromSeconds((int)WIND_AVG_INTERVAL.SHORT_SEC)).ToList();
+                                                                    m_list_wind_read_values[(int)WIND_AVG_POSITION.SBPT_10MIN] = m_list_wind_read_values[(int)WIND_AVG_POSITION.SBPT_10MIN].Where(p => DateTime.Now.Subtract(p.Item1) < TimeSpan.FromMinutes((int)WIND_AVG_INTERVAL.LONG_MIN)).ToList();
+
+                                                                    m_array_wind_avg_values[(int)WIND_AVG_POSITION.SBPT_3SEC] = m_list_wind_read_values[(int)WIND_AVG_POSITION.SBPT_3SEC].Select(p => p.Item2).Average();
+                                                                    m_array_wind_avg_values[(int)WIND_AVG_POSITION.SBPT_10MIN] = m_list_wind_read_values[(int)WIND_AVG_POSITION.SBPT_10MIN].Select(p => p.Item2).Average();
+
+                                                                    break;
+                                                                }
+
+                                                            case LINK_TO_AVG.WIND_AVG_SAMCA:
+                                                                {
+                                                                    m_list_wind_read_values[(int)WIND_AVG_POSITION.SAMCA_3SEC].Add(read_value);
+                                                                    m_list_wind_read_values[(int)WIND_AVG_POSITION.SAMCA_10MIN].Add(read_value);
+
+                                                                    m_list_wind_read_values[(int)WIND_AVG_POSITION.SAMCA_3SEC] = m_list_wind_read_values[(int)WIND_AVG_POSITION.SAMCA_3SEC].Where(p => DateTime.Now.Subtract(p.Item1) < TimeSpan.FromSeconds((int)WIND_AVG_INTERVAL.SHORT_SEC)).ToList();
+                                                                    m_list_wind_read_values[(int)WIND_AVG_POSITION.SAMCA_10MIN] = m_list_wind_read_values[(int)WIND_AVG_POSITION.SAMCA_10MIN].Where(p => DateTime.Now.Subtract(p.Item1) < TimeSpan.FromMinutes((int)WIND_AVG_INTERVAL.LONG_MIN)).ToList();
+
+                                                                    m_array_wind_avg_values[(int)WIND_AVG_POSITION.SAMCA_3SEC] = m_list_wind_read_values[(int)WIND_AVG_POSITION.SAMCA_3SEC].Select(p => p.Item2).Average();
+                                                                    m_array_wind_avg_values[(int)WIND_AVG_POSITION.SAMCA_10MIN] = m_list_wind_read_values[(int)WIND_AVG_POSITION.SAMCA_10MIN].Select(p => p.Item2).Average();
+
+                                                                    break;
+                                                                }
+                                                        }
+                                                    }
+
+
+                                                    //CHECK WIND MAX VALUES
+                                                    Dispatcher.Invoke(() =>
+                                                        {
+                                                            if (manage_thread.ManageTCP.Is_connected())
+                                                            {
+                                                                m_array_label_wind_avg_value
+                                                                .Select((value, index) => new { Container = value, Position = index }).ToList()
+                                                                .ForEach(label =>
+                                                                {
+                                                                    if (m_array_label_wind_avg_value[label.Position].Content != null)
                                                                     {
-                                                                        if (
-                                                                        double.TryParse(m_array_label_wind_avg_value[label.Position].Content.ToString(), NumberStyles.Any, Globals.GetTheInstance().nfi, out double result_var) &&
-                                                                        double.TryParse(m_array_label_wind_avg_max[label.Position].Content.ToString(), NumberStyles.Any, Globals.GetTheInstance().nfi, out double result_max))
+                                                                    //No se ha superado el valor máximo -> Analizar si se supera
+                                                                    if (m_array_wind_max_break_in_range[label.Position])
                                                                         {
-                                                                            m_array_wind_max_break_in_range[label.Position] = result_var <= result_max;
-
-                                                                            if (!m_array_wind_max_break_in_range[label.Position])
+                                                                            bool check_wind = double.Parse(m_array_label_wind_avg_max[label.Position].Content.ToString(), NumberStyles.Any, Globals.GetTheInstance().nfi) != 0; //Valor MAX deshabilitado
+                                                                        if (check_wind)
                                                                             {
-                                                                                Manage_logs.SaveLogValue($"SE HA SUPERADO LA WIND MAX VEL PERMITIDA PARA LA MEDIA ->  {(WIND_AVG_POSITION)label.Position} / " +
-                                                                                    $"VELOCIDAD MEDIA REG -> { m_array_wind_avg_values[label.Position] } / " +
-                                                                                    $"VELOCIDAD MAX PERMITIDA -> {m_array_label_wind_avg_max[label.Position].Content.ToString()}");
+                                                                                if (
+                                                                                double.TryParse(m_array_label_wind_avg_value[label.Position].Content.ToString(), NumberStyles.Any, Globals.GetTheInstance().nfi, out double result_var) &&
+                                                                                double.TryParse(m_array_label_wind_avg_max[label.Position].Content.ToString(), NumberStyles.Any, Globals.GetTheInstance().nfi, out double result_max))
+                                                                                {
+                                                                                    m_array_wind_max_break_in_range[label.Position] = result_var <= result_max;
 
-                                                                                m_array_border_wind_avg_value[label.Position].BorderBrush = Brushes.Red;
-                                                                                m_array_label_wind_avg_value[label.Position].Foreground = Brushes.Red;
+                                                                                    if (!m_array_wind_max_break_in_range[label.Position])
+                                                                                    {
+                                                                                        Manage_logs.SaveLogValue($"SE HA SUPERADO LA WIND MAX VEL PERMITIDA PARA LA MEDIA ->  {(WIND_AVG_POSITION)label.Position} / " +
+                                                                                            $"VELOCIDAD MEDIA REG -> { m_array_wind_avg_values[label.Position] } / " +
+                                                                                            $"VELOCIDAD MAX PERMITIDA -> {m_array_label_wind_avg_max[label.Position].Content.ToString()}");
+
+                                                                                        m_array_border_wind_avg_value[label.Position].BorderBrush = Brushes.Red;
+                                                                                        m_array_label_wind_avg_value[label.Position].Foreground = Brushes.Red;
 
 
-                                                                                if (label.Position == (int)WIND_AVG_POSITION.SBPT_3SEC)
-                                                                                    m_array_date_trigger_start_3sec[(int)WIND_DATE_TRIGGER_3SEC.SBPT_3SEC] = DateTime.Now;
+                                                                                        if (label.Position == (int)WIND_AVG_POSITION.SBPT_3SEC)
+                                                                                            m_array_date_trigger_start_3sec[(int)WIND_DATE_TRIGGER_3SEC.SBPT_3SEC] = DateTime.Now;
 
-                                                                                if (label.Position == (int)WIND_AVG_POSITION.SAMCA_3SEC)
-                                                                                    m_array_date_trigger_start_3sec[(int)WIND_DATE_TRIGGER_3SEC.SAMCA_3SEC] = DateTime.Now;
+                                                                                        if (label.Position == (int)WIND_AVG_POSITION.SAMCA_3SEC)
+                                                                                            m_array_date_trigger_start_3sec[(int)WIND_DATE_TRIGGER_3SEC.SAMCA_3SEC] = DateTime.Now;
+                                                                                    }
+                                                                                }
                                                                             }
                                                                         }
                                                                     }
+                                                                });
+                                                            }
+                                                        });
+
+
+                                                    //CHECK TRIGGER DELAY or LOW HISTERESIS
+                                                    if (manage_thread.ManageTCP.Is_connected())
+                                                    {
+                                                        m_array_wind_max_break_in_range.Select((value, index) => new { Value = value, Position = index }).ToList()
+                                                        .ForEach(wind_break_in_range =>
+                                                        {
+                                                        //Se habia superado valor máximo -> analizar vuelta a la normalidad
+                                                        if (!wind_break_in_range.Value)
+                                                            {
+                                                                string s_add_info = string.Empty;
+                                                                switch ((WIND_AVG_POSITION)wind_break_in_range.Position)
+                                                                {
+                                                                    case WIND_AVG_POSITION.SBPT_3SEC:
+                                                                        {
+                                                                            if (m_array_wind_avg_values[wind_break_in_range.Position] < Globals.GetTheInstance().SBPT_trigger_3sec)
+                                                                                b_wind_ok = DateTime.Now.Subtract(m_array_date_trigger_start_3sec[(int)WIND_DATE_TRIGGER_3SEC.SBPT_3SEC]) > TimeSpan.FromMinutes(Globals.GetTheInstance().SBPT_wind_delay_time_3sec);
+
+                                                                            else
+                                                                                m_array_date_trigger_start_3sec[(int)WIND_DATE_TRIGGER_3SEC.SBPT_3SEC] = DateTime.Now;
+
+                                                                            break;
+                                                                        }
+
+                                                                    case WIND_AVG_POSITION.SAMCA_3SEC:
+                                                                        {
+                                                                            if (m_array_wind_avg_values[wind_break_in_range.Position] < Globals.GetTheInstance().SAMCA_trigger_3sec)
+                                                                                b_wind_ok = DateTime.Now.Subtract(m_array_date_trigger_start_3sec[(int)WIND_DATE_TRIGGER_3SEC.SAMCA_3SEC]) > TimeSpan.FromMinutes(Globals.GetTheInstance().SAMCA_wind_delay_time_3sec);
+
+                                                                            else
+                                                                                m_array_date_trigger_start_3sec[(int)WIND_DATE_TRIGGER_3SEC.SAMCA_3SEC] = DateTime.Now;
+
+                                                                            break;
+                                                                        }
+
+                                                                    case WIND_AVG_POSITION.SBPT_10MIN:
+                                                                        {
+                                                                            b_wind_ok = m_array_wind_avg_values[wind_break_in_range.Position] < m_array_low_histeresis_10min[(int)WIND_LOW_HIST_10MIN.SBPT_10MIN];
+
+                                                                            break;
+                                                                        }
+
+                                                                    case WIND_AVG_POSITION.SAMCA_10MIN:
+                                                                        {
+                                                                            b_wind_ok = m_array_wind_avg_values[wind_break_in_range.Position] < m_array_low_histeresis_10min[(int)WIND_LOW_HIST_10MIN.SAMCA_10MIN];
+
+                                                                            break;
+                                                                        }
                                                                 }
                                                             }
                                                         });
                                                     }
-                                                });
 
 
-                                            //CHECK TRIGGER DELAY or LOW HISTERESIS
-                                            if (manage_thread.ManageTCP.Is_connected())
-                                                {
-                                                    m_array_wind_max_break_in_range.Select((value, index) => new { Value = value, Position = index }).ToList()
-                                                    .ForEach(wind_break_in_range =>
+                                                    //INCLINOMETER AVG VALUES
+                                                    if ((LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.INC1_SLOPE_LAT_AVG_SBPT ||
+                                                            (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.INC2_SLOPE_LAT_AVG_SBPT ||
+                                                            (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.INC3_SLOPE_LAT_AVG_SBPT ||
+                                                            (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.INC4_SLOPE_LAT_AVG_SBPT ||
+                                                            (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.INC5_SLOPE_LAT_AVG_SBPT)
                                                     {
-                                                    //Se habia superado valor máximo -> analizar vuelta a la normalidad
-                                                    if (!wind_break_in_range.Value)
+                                                        if (!fast_mode)
                                                         {
-                                                            string s_add_info = string.Empty;
-                                                            switch ((WIND_AVG_POSITION)wind_break_in_range.Position)
+                                                            Tuple<DateTime, double> read_value = new(DateTime.Now, double.Parse(var_entry.Value, Globals.GetTheInstance().nfi));
+
+                                                            INC_LABEL_AVG_POSITION inc_label_pos =
+                                                            (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.INC1_SLOPE_LAT_AVG_SBPT ? INC_LABEL_AVG_POSITION.INC1 :
+                                                            (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.INC2_SLOPE_LAT_AVG_SBPT ? INC_LABEL_AVG_POSITION.INC2 :
+                                                            (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.INC3_SLOPE_LAT_AVG_SBPT ? INC_LABEL_AVG_POSITION.INC3 :
+                                                            (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.INC4_SLOPE_LAT_AVG_SBPT ? INC_LABEL_AVG_POSITION.INC4 :
+                                                            INC_LABEL_AVG_POSITION.INC5;
+
+                                                            m_list_inc_slope_read_values[(int)inc_label_pos].Add(read_value);
+                                                            m_list_inc_slope_read_values[(int)inc_label_pos] = m_list_inc_slope_read_values[(int)inc_label_pos].Where(p => DateTime.Now.Subtract(p.Item1) < TimeSpan.FromSeconds(Globals.GetTheInstance().SBPT_inc_avg_interval)).ToList();
+                                                            m_array_inc_slope_avg_values[(int)inc_label_pos] = m_list_inc_slope_read_values[(int)inc_label_pos].Select(p => p.Item2).Average();
+
+                                                            var_entry.Value = m_array_inc_slope_avg_values[(int)inc_label_pos].ToString("0.00", Globals.GetTheInstance().nfi);
+
+                                                            //Compare with TCU INC VALUE and change inrange arrays
+                                                            if (m_list_inc_slope_read_values[(int)INC_LABEL_AVG_POSITION.TCU].Count >= 0 && !m_list_inc_slope_read_values.Exists(x => x.Count == 0))
                                                             {
-                                                                case WIND_AVG_POSITION.SBPT_3SEC:
-                                                                    {
-                                                                        if (m_array_wind_avg_values[wind_break_in_range.Position] < Globals.GetTheInstance().SBPT_trigger_3sec)
-                                                                            b_wind_ok = DateTime.Now.Subtract(m_array_date_trigger_start_3sec[(int)WIND_DATE_TRIGGER_3SEC.SBPT_3SEC]) > TimeSpan.FromMinutes(Globals.GetTheInstance().SBPT_wind_delay_time_3sec);
-
-                                                                        else
-                                                                            m_array_date_trigger_start_3sec[(int)WIND_DATE_TRIGGER_3SEC.SBPT_3SEC] = DateTime.Now;
-
-                                                                        break;
-                                                                    }
-
-                                                                case WIND_AVG_POSITION.SAMCA_3SEC:
-                                                                    {
-                                                                        if (m_array_wind_avg_values[wind_break_in_range.Position] < Globals.GetTheInstance().SAMCA_trigger_3sec)
-                                                                            b_wind_ok = DateTime.Now.Subtract(m_array_date_trigger_start_3sec[(int)WIND_DATE_TRIGGER_3SEC.SAMCA_3SEC]) > TimeSpan.FromMinutes(Globals.GetTheInstance().SAMCA_wind_delay_time_3sec);
-
-                                                                        else
-                                                                            m_array_date_trigger_start_3sec[(int)WIND_DATE_TRIGGER_3SEC.SAMCA_3SEC] = DateTime.Now;
-
-                                                                        break;
-                                                                    }
-
-                                                                case WIND_AVG_POSITION.SBPT_10MIN:
-                                                                    {
-                                                                        b_wind_ok = m_array_wind_avg_values[wind_break_in_range.Position] < m_array_low_histeresis_10min[(int)WIND_LOW_HIST_10MIN.SBPT_10MIN];
-
-                                                                        break;
-                                                                    }
-
-                                                                case WIND_AVG_POSITION.SAMCA_10MIN:
-                                                                    {
-                                                                        b_wind_ok = m_array_wind_avg_values[wind_break_in_range.Position] < m_array_low_histeresis_10min[(int)WIND_LOW_HIST_10MIN.SAMCA_10MIN];
-
-                                                                        break;
-                                                                    }
+                                                                m_array_inc_slope_emerg_stow_in_range[(int)inc_label_pos] = (Globals.GetTheInstance().Max_diff_tcu_inc_emergency_stow == 0) || (Math.Abs(m_array_inc_slope_avg_values[(int)inc_label_pos] - m_array_inc_slope_avg_values[(int)INC_LABEL_AVG_POSITION.TCU]) < Globals.GetTheInstance().Max_diff_tcu_inc_emergency_stow);
+                                                                m_array_inc_slope_alarm_in_range[(int)inc_label_pos] = (Globals.GetTheInstance().Max_diff_tcu_inc_alarm == 0) || (Math.Abs(m_array_inc_slope_avg_values[(int)inc_label_pos] - m_array_inc_slope_avg_values[(int)INC_LABEL_AVG_POSITION.TCU]) < Globals.GetTheInstance().Max_diff_tcu_inc_alarm);
                                                             }
                                                         }
-                                                    });
-                                                }
+                                                    }
 
 
-                                            //INCLINOMETER AVG VALUES
-                                            if ((LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.INC1_SLOPE_LAT_AVG_SBPT ||
-                                                    (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.INC2_SLOPE_LAT_AVG_SBPT ||
-                                                    (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.INC3_SLOPE_LAT_AVG_SBPT ||
-                                                    (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.INC4_SLOPE_LAT_AVG_SBPT ||
-                                                    (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.INC5_SLOPE_LAT_AVG_SBPT)
-                                                {
-                                                    if (!fast_mode)
+                                                    //CORRECTION LOAD PIN -> CHECK INC2 -> FACTORIZE DYN VALUES (este cálculo después de INC AVG y antes de DYN AVG )
+                                                    if (var_entry.Correction_load_pin)
                                                     {
-                                                        Tuple<DateTime, double> read_value = new(DateTime.Now, double.Parse(var_entry.Value, Globals.GetTheInstance().nfi));
+                                                        //Calcular el factor sobre INC2_MAINDRIVE_SLOPE_LAT_Y
+                                                        TCPModbusVarEntry? correction_load_pin_alphatt_var = Globals.GetTheInstance().List_slave_entry
+                                                               .SelectMany(slave_entry => slave_entry.List_var_entry)
+                                                               .FirstOrDefault(var_entry => (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.INC2_SLOPE_LAT_AVG_SBPT);
 
-                                                        INC_LABEL_AVG_POSITION inc_label_pos =
-                                                        (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.INC1_SLOPE_LAT_AVG_SBPT ? INC_LABEL_AVG_POSITION.INC1 :
-                                                        (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.INC2_SLOPE_LAT_AVG_SBPT ? INC_LABEL_AVG_POSITION.INC2 :
-                                                        (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.INC3_SLOPE_LAT_AVG_SBPT ? INC_LABEL_AVG_POSITION.INC3 :
-                                                        (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.INC4_SLOPE_LAT_AVG_SBPT ? INC_LABEL_AVG_POSITION.INC4 :
-                                                        INC_LABEL_AVG_POSITION.INC5;
-
-                                                        m_list_inc_slope_read_values[(int)inc_label_pos].Add(read_value);
-                                                        m_list_inc_slope_read_values[(int)inc_label_pos] = m_list_inc_slope_read_values[(int)inc_label_pos].Where(p => DateTime.Now.Subtract(p.Item1) < TimeSpan.FromSeconds(Globals.GetTheInstance().SBPT_inc_avg_interval)).ToList();
-                                                        m_array_inc_slope_avg_values[(int)inc_label_pos] = m_list_inc_slope_read_values[(int)inc_label_pos].Select(p => p.Item2).Average();
-
-                                                        var_entry.Value = m_array_inc_slope_avg_values[(int)inc_label_pos].ToString("0.00", Globals.GetTheInstance().nfi);
-
-                                                    //Compare with TCU INC VALUE and change inrange arrays
-                                                    if (m_list_inc_slope_read_values[(int)INC_LABEL_AVG_POSITION.TCU].Count >= 0 && !m_list_inc_slope_read_values.Exists(x => x.Count == 0))
+                                                        if (correction_load_pin_alphatt_var != null)
                                                         {
-                                                            m_array_inc_slope_emerg_stow_in_range[(int)inc_label_pos] = (Globals.GetTheInstance().Max_diff_tcu_inc_emergency_stow == 0) || (Math.Abs(m_array_inc_slope_avg_values[(int)inc_label_pos] - m_array_inc_slope_avg_values[(int)INC_LABEL_AVG_POSITION.TCU]) < Globals.GetTheInstance().Max_diff_tcu_inc_emergency_stow);
-                                                            m_array_inc_slope_alarm_in_range[(int)inc_label_pos] = (Globals.GetTheInstance().Max_diff_tcu_inc_alarm == 0) || (Math.Abs(m_array_inc_slope_avg_values[(int)inc_label_pos] - m_array_inc_slope_avg_values[(int)INC_LABEL_AVG_POSITION.TCU]) < Globals.GetTheInstance().Max_diff_tcu_inc_alarm);
+                                                            if (!string.IsNullOrEmpty(correction_load_pin_alphatt_var.Value))
+                                                            {
+                                                                double key_value_second = Globals.GetTheInstance().List_slope_correction_alphaTT.FirstOrDefault(x => x >= double.Parse(correction_load_pin_alphatt_var.Value, Globals.GetTheInstance().nfi));
+                                                                int index_second = Globals.GetTheInstance().List_slope_correction_alphaTT.FindIndex(x => x == key_value_second);
+                                                                double key_value_first = index_second == 0 ? key_value_second : Globals.GetTheInstance().List_slope_correction_alphaTT[index_second - 1];
+
+                                                                m_correction_load_pin_factor =
+                                                                    Globals.GetTheInstance().Dictionary_slope_correction[key_value_first] +
+                                                                    ((Globals.GetTheInstance().Dictionary_slope_correction[key_value_second] - Globals.GetTheInstance().Dictionary_slope_correction[key_value_first]) /
+                                                                    (key_value_second - key_value_first)) *
+                                                                    (double.Parse(correction_load_pin_alphatt_var.Value, Globals.GetTheInstance().nfi) - key_value_first);
+
+                                                                //Para enviar a field safety window
+                                                                DYN_LABEL_AVG_POSITION dyn_pos = (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.DYN2_AVG_SBPT ? DYN_LABEL_AVG_POSITION.DYN2 : DYN_LABEL_AVG_POSITION.DYN3;
+                                                                m_list_dyn_values[(int)dyn_pos] = double.Parse(var_entry.Value, Globals.GetTheInstance().nfi);
+
+                                                                var_entry.Value = Math.Round(double.Parse(var_entry.Value, Globals.GetTheInstance().nfi) / m_correction_load_pin_factor, 6).ToString("0.00", Globals.GetTheInstance().nfi);
+                                                            }
                                                         }
                                                     }
-                                                }
 
 
-                                            //CORRECTION LOAD PIN -> CHECK INC2 -> FACTORIZE DYN VALUES (este cálculo después de INC AVG y antes de DYN AVG )
-                                            if (var_entry.Correction_load_pin)
-                                                {
-                                                //Calcular el factor sobre INC2_MAINDRIVE_SLOPE_LAT_Y
-                                                TCPModbusVarEntry? correction_load_pin_alphatt_var = Globals.GetTheInstance().List_slave_entry
-                                                       .SelectMany(slave_entry => slave_entry.List_var_entry)
-                                                       .FirstOrDefault(var_entry => (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.INC2_SLOPE_LAT_AVG_SBPT);
-
-                                                    if (correction_load_pin_alphatt_var != null)
+                                                    //DYNANOMETER AVG VALUES
+                                                    if ((LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.DYN1_AVG_SBPT ||
+                                                          (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.DYN2_AVG_SBPT ||
+                                                          (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.DYN3_AVG_SBPT)
                                                     {
-                                                        if (!string.IsNullOrEmpty(correction_load_pin_alphatt_var.Value))
-                                                        {
-                                                            double key_value_second = Globals.GetTheInstance().List_slope_correction_alphaTT.FirstOrDefault(x => x >= double.Parse(correction_load_pin_alphatt_var.Value, Globals.GetTheInstance().nfi));
-                                                            int index_second = Globals.GetTheInstance().List_slope_correction_alphaTT.FindIndex(x => x == key_value_second);
-                                                            double key_value_first = index_second == 0 ? key_value_second : Globals.GetTheInstance().List_slope_correction_alphaTT[index_second - 1];
-
-                                                            m_correction_load_pin_factor =
-                                                                Globals.GetTheInstance().Dictionary_slope_correction[key_value_first] +
-                                                                ((Globals.GetTheInstance().Dictionary_slope_correction[key_value_second] - Globals.GetTheInstance().Dictionary_slope_correction[key_value_first]) /
-                                                                (key_value_second - key_value_first)) *
-                                                                (double.Parse(correction_load_pin_alphatt_var.Value, Globals.GetTheInstance().nfi) - key_value_first);
+                                                        double d_value = double.Parse(var_entry.Value, Globals.GetTheInstance().nfi);
 
                                                         //Para enviar a field safety window
-                                                        DYN_LABEL_AVG_POSITION dyn_pos = (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.DYN2_AVG_SBPT ? DYN_LABEL_AVG_POSITION.DYN2 : DYN_LABEL_AVG_POSITION.DYN3;
-                                                            m_list_dyn_values[(int)dyn_pos] = double.Parse(var_entry.Value, Globals.GetTheInstance().nfi);
-
-                                                            var_entry.Value = Math.Round(double.Parse(var_entry.Value, Globals.GetTheInstance().nfi) / m_correction_load_pin_factor, 6).ToString("0.00", Globals.GetTheInstance().nfi);
-                                                        }
-                                                    }
-                                                }
+                                                        if ((LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.DYN1_AVG_SBPT)
+                                                            m_list_dyn_values[(int)DYN_LABEL_AVG_POSITION.DYN1] = d_value;
 
 
-                                            //DYNANOMETER AVG VALUES
-                                            if ((LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.DYN1_AVG_SBPT ||
-                                                  (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.DYN2_AVG_SBPT ||
-                                                  (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.DYN3_AVG_SBPT)
-                                                {
-                                                    double d_value = double.Parse(var_entry.Value, Globals.GetTheInstance().nfi);
+                                                        Tuple<DateTime, double> read_value = new(DateTime.Now, d_value);
 
-                                                //Para enviar a field safety window
-                                                if ((LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.DYN1_AVG_SBPT)
-                                                        m_list_dyn_values[(int)DYN_LABEL_AVG_POSITION.DYN1] = d_value;
+                                                        DYN_LABEL_AVG_POSITION dyn_label_pos =
+                                                           (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.DYN1_AVG_SBPT ? DYN_LABEL_AVG_POSITION.DYN1 :
+                                                           (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.DYN2_AVG_SBPT ? DYN_LABEL_AVG_POSITION.DYN2 :
+                                                           DYN_LABEL_AVG_POSITION.DYN3;
 
+                                                        m_list_dyn_read_values[(int)dyn_label_pos].Add(read_value);
+                                                        m_list_dyn_read_values[(int)dyn_label_pos] = m_list_dyn_read_values[(int)dyn_label_pos].Where(p => DateTime.Now.Subtract(p.Item1) < TimeSpan.FromSeconds(Globals.GetTheInstance().SBPT_dyn_avg_interval)).ToList();
+                                                        m_array_dyn_avg_values[(int)dyn_label_pos] = m_list_dyn_read_values[(int)dyn_label_pos].Select(p => p.Item2).Average();
 
-                                                    Tuple<DateTime, double> read_value = new(DateTime.Now, d_value);
-
-                                                    DYN_LABEL_AVG_POSITION dyn_label_pos =
-                                                       (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.DYN1_AVG_SBPT ? DYN_LABEL_AVG_POSITION.DYN1 :
-                                                       (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.DYN2_AVG_SBPT ? DYN_LABEL_AVG_POSITION.DYN2 :
-                                                       DYN_LABEL_AVG_POSITION.DYN3;
-
-                                                    m_list_dyn_read_values[(int)dyn_label_pos].Add(read_value);
-                                                    m_list_dyn_read_values[(int)dyn_label_pos] = m_list_dyn_read_values[(int)dyn_label_pos].Where(p => DateTime.Now.Subtract(p.Item1) < TimeSpan.FromSeconds(Globals.GetTheInstance().SBPT_dyn_avg_interval)).ToList();
-                                                    m_array_dyn_avg_values[(int)dyn_label_pos] = m_list_dyn_read_values[(int)dyn_label_pos].Select(p => p.Item2).Average();
-
-                                                    var_entry.Value = m_array_dyn_avg_values[(int)dyn_label_pos].ToString("0.00", Globals.GetTheInstance().nfi);
+                                                        var_entry.Value = m_array_dyn_avg_values[(int)dyn_label_pos].ToString("0.00", Globals.GetTheInstance().nfi);
 
 
-                                                //Compare with limits and change inrange arrays
-                                                if (!m_list_dyn_read_values.Exists(x => x.Count == 0))
-                                                    {
-                                                        bool TCU_MOVING = true; //Todavia no se puede leer del TCU
-
-                                                    if (TCU_MOVING && m_tracker_state != TRACKER_STATE.NONE)
-                                                            m_array_dyn_excesive_force_emerg_stow_in_range[(int)dyn_label_pos] = (Globals.GetTheInstance().SBPT_dyn_max_mov_emerg_stow == 0) || (m_array_dyn_avg_values[(int)dyn_label_pos] < Globals.GetTheInstance().SBPT_dyn_max_mov_emerg_stow);
-
-                                                        if (TCU_MOVING && m_tracker_state == TRACKER_STATE.STOW || m_tracker_state == TRACKER_STATE.EMERG_CMD_POS_OS_STOW || m_tracker_state == TRACKER_STATE.EMERG_AUTO_POS_OS_STOW)
+                                                        //Compare with limits and change inrange arrays
+                                                        if (!m_list_dyn_read_values.Exists(x => x.Count == 0))
                                                         {
-                                                            bool excesive_force_alarm_moving_in_range = (Globals.GetTheInstance().SBPT_dyn_max_mov_alarm == 0) || (m_array_dyn_avg_values[(int)dyn_label_pos] < Globals.GetTheInstance().SBPT_dyn_max_mov_alarm);
-                                                            bool excesive_force_alarm_static_in_range = (Globals.GetTheInstance().SBPT_dyn_max_static_alarm == 0) || (m_array_dyn_avg_values[(int)dyn_label_pos] < Globals.GetTheInstance().SBPT_dyn_max_static_alarm);
+                                                            bool TCU_MOVING = true; //Todavia no se puede leer del TCU
 
-                                                            m_array_dyn_excesive_force_alarm_in_range[(int)dyn_label_pos] = excesive_force_alarm_moving_in_range && excesive_force_alarm_static_in_range;
+                                                            if (TCU_MOVING && m_tracker_state != TRACKER_STATE.NONE)
+                                                                m_array_dyn_excesive_force_emerg_stow_in_range[(int)dyn_label_pos] = (Globals.GetTheInstance().SBPT_dyn_max_mov_emerg_stow == 0) || (m_array_dyn_avg_values[(int)dyn_label_pos] < Globals.GetTheInstance().SBPT_dyn_max_mov_emerg_stow);
+
+                                                            if (TCU_MOVING && m_tracker_state == TRACKER_STATE.STOW || m_tracker_state == TRACKER_STATE.EMERG_CMD_POS_OS_STOW || m_tracker_state == TRACKER_STATE.EMERG_AUTO_POS_OS_STOW)
+                                                            {
+                                                                bool excesive_force_alarm_moving_in_range = (Globals.GetTheInstance().SBPT_dyn_max_mov_alarm == 0) || (m_array_dyn_avg_values[(int)dyn_label_pos] < Globals.GetTheInstance().SBPT_dyn_max_mov_alarm);
+                                                                bool excesive_force_alarm_static_in_range = (Globals.GetTheInstance().SBPT_dyn_max_static_alarm == 0) || (m_array_dyn_avg_values[(int)dyn_label_pos] < Globals.GetTheInstance().SBPT_dyn_max_static_alarm);
+
+                                                                m_array_dyn_excesive_force_alarm_in_range[(int)dyn_label_pos] = excesive_force_alarm_moving_in_range && excesive_force_alarm_static_in_range;
+                                                            }
                                                         }
+
                                                     }
 
-                                                }
+                                                    #endregion
 
-                                            #endregion
+                                                    #region LINK TO SEND TO TCU
 
-                                            #region LINK TO SEND TO TCU
-
-                                            if ((LINK_TO_SEND_TCU)var_entry.Link_to_send_tcu != LINK_TO_SEND_TCU.NONE)
-                                                {
-                                                    LinkToSendTCUClass? link_to_send_tcu_class = m_list_link_to_send_tcu.FirstOrDefault(link => link.Link_to_send_tcu == (LINK_TO_SEND_TCU)var_entry.Link_to_send_tcu);
-                                                    if (link_to_send_tcu_class != null)
+                                                    if ((LINK_TO_SEND_TCU)var_entry.Link_to_send_tcu != LINK_TO_SEND_TCU.NONE)
                                                     {
-                                                        link_to_send_tcu_class.Value = Math.Round(double.Parse(var_entry.Value, Globals.GetTheInstance().nfi), 2);
-
-                                                        if ((LINK_TO_SEND_TCU)var_entry.Link_to_send_tcu == LINK_TO_SEND_TCU.WIN_SPEED)
+                                                        LinkToSendTCUClass? link_to_send_tcu_class = m_list_link_to_send_tcu.FirstOrDefault(link => link.Link_to_send_tcu == (LINK_TO_SEND_TCU)var_entry.Link_to_send_tcu);
+                                                        if (link_to_send_tcu_class != null)
                                                         {
-                                                            KeyValuePair<string, double>? tuple_slave_var = m_dictionary_wind_speed_slave_value.FirstOrDefault(tuple => tuple.Key == var_entry.Slave);
-                                                            if (tuple_slave_var == null)
-                                                                m_dictionary_wind_speed_slave_value.Add(var_entry.Slave, link_to_send_tcu_class.Value);
-                                                            else
-                                                                m_dictionary_wind_speed_slave_value[var_entry.Slave] = link_to_send_tcu_class.Value;
+                                                            link_to_send_tcu_class.Value = Math.Round(double.Parse(var_entry.Value, Globals.GetTheInstance().nfi), 2);
 
-                                                            link_to_send_tcu_class.Value = m_dictionary_wind_speed_slave_value.Values.Max();
+                                                            if ((LINK_TO_SEND_TCU)var_entry.Link_to_send_tcu == LINK_TO_SEND_TCU.WIN_SPEED)
+                                                            {
+                                                                KeyValuePair<string, double>? tuple_slave_var = m_dictionary_wind_speed_slave_value.FirstOrDefault(tuple => tuple.Key == var_entry.Slave);
+                                                                if (tuple_slave_var == null)
+                                                                    m_dictionary_wind_speed_slave_value.Add(var_entry.Slave, link_to_send_tcu_class.Value);
+                                                                else
+                                                                    m_dictionary_wind_speed_slave_value[var_entry.Slave] = link_to_send_tcu_class.Value;
+
+                                                                link_to_send_tcu_class.Value = m_dictionary_wind_speed_slave_value.Values.Max();
+                                                            }
                                                         }
                                                     }
-                                                }
 
-                                            #endregion
-                                        }
+                                                    #endregion
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    Manage_logs.SaveErrorValue($"{GetType().Name} -> {nameof(Read_scs_modbus)} -> list var entry foreach -> {var_entry.Name} / {var_entry.Value}  ->  { ex.Message}");
+                                                }
+                                            }
                                         });
                                     }
                                 }
