@@ -4,7 +4,7 @@ namespace SBP_TRACKER
 {
     public static class Constants
     {
-        public const string version = "1.5.8";
+        public const string version = "1.7.0";
 
         public const int index_no_selected = -1;
 
@@ -23,8 +23,8 @@ namespace SBP_TRACKER
 
         public const string Record_scs1 = "SBPT_record_normal_";
         public const string Record_scs2 = "SBPT_record_fast_";
-        public const string Record_tcu = "SBPT_record_tcu_";
         public const string Record_samca = "SBPT_record_samca_";
+        public const string Record_tcu = "SBPT_record_tcu_";
 
 
         public const int depur_disable_height = 720;
@@ -36,7 +36,7 @@ namespace SBP_TRACKER
         public const int MAX_DYN_AVG = 3;
         public const int MAX_SCADA_WD = 9999;
 
-        public const int WR_SAMCA_REG_SIZE = 30;
+        public const int WR_SAMCA_REG_SIZE = 16;
 
         public const int Error_code = -9999;
 

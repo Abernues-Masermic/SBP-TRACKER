@@ -11,6 +11,8 @@
 ==========================================================================
 History
 Date				Ver			Author	
+27/06/2022			1.7.0			Ander Bernues
+14/06/2022			1.6.0			Ander Bernues
 11/05/2022			1.5.4			Ander Bernues
 27/04/2022			1.5.0			Ander Bernues
 07/04/2022			1.4.0			Ander Bernues
@@ -19,6 +21,27 @@ Date				Ver			Author
 04/03/2022			1.1.0			Ander Bernues
 22/02/2022			1.0.0			Ander Bernues
 
+
+
+-------------------------
+
+ver 1.7.0
+
+	IDE: Visual Studio 2022
+	Framework:  .NET 6.0.
+	Incidence: Change data share way using cloud
+	Proyects / classes: SettingMailWindow.cs, MainWindow.cs
+	Detail: Automatically upload data registers into the cloud
+
+-------------------------
+
+ver 1.6.0
+
+	IDE: Visual Studio 2022
+	Framework:  .NET 6.0.
+	Incidence: Continuosly ping request. Change Modbus TCP libray (NModbus)
+	Proyects / classes: ManageModbus.cs, Manage_thread.cs
+	Detail: Use another library for modbus communications
 
 -------------------------
 

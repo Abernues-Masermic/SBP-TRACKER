@@ -124,6 +124,7 @@ namespace SBP_TRACKER
 
                     Combobox_mb_function.SelectedIndex = (int)m_current_slave_entry.Modbus_function;
                     Checkbox_fast_mode.IsChecked = m_current_slave_entry.Fast_mode;
+                    Checkbox_enable.IsChecked = m_current_slave_entry.Enable_communication;
 
                     Radiobutton_General.IsChecked = m_current_slave_entry.Slave_type == SLAVE_TYPE.GENERAL;
                     Radiobutton_TCU.IsChecked = m_current_slave_entry.Slave_type == SLAVE_TYPE.TCU;
@@ -277,11 +278,12 @@ namespace SBP_TRACKER
                     m_current_slave_entry.IP_primary = Textbox_tcp_slave_ip_primary.firstBox.Text + "." + Textbox_tcp_slave_ip_primary.secondBox.Text + "." + Textbox_tcp_slave_ip_primary.thirdBox.Text + "." + Textbox_tcp_slave_ip_primary.fourthBox.Text;
                     m_current_slave_entry.Port = (int)DecimalUpDown_port.Value;
                     m_current_slave_entry.UnitId = (byte)DecimalUpDown_UnitId.Value;
-                    m_current_slave_entry.Dir_ini = (int)DecimalUpDown_dir_ini.Value;
-                    m_current_slave_entry.Read_reg = (int)DecimalUpDown_read_reg.Value;
+                    m_current_slave_entry.Dir_ini = (ushort)DecimalUpDown_dir_ini.Value;
+                    m_current_slave_entry.Read_reg = (ushort)DecimalUpDown_read_reg.Value;
                     m_current_slave_entry.Modbus_function = (MODBUS_FUNCION) Combobox_mb_function.SelectedIndex;
                     m_current_slave_entry.Slave_type = Radiobutton_General.IsChecked == true ? SLAVE_TYPE.GENERAL : Radiobutton_TCU.IsChecked == true ? SLAVE_TYPE.TCU : SLAVE_TYPE.SAMCA; 
                     m_current_slave_entry.Fast_mode = (bool)Checkbox_fast_mode.IsChecked;
+                    m_current_slave_entry.Enable_communication = (bool)Checkbox_enable.IsChecked;
                     m_current_slave_entry.List_var_entry = new List<TCPModbusVarEntry>();
 
                     Globals.GetTheInstance().List_slave_entry.Add(m_current_slave_entry);
@@ -289,19 +291,20 @@ namespace SBP_TRACKER
 
                 else if (m_action == FORM_ACTION.UPDATE)
                 {
-                    Globals.GetTheInstance().List_slave_entry.Where(slave_entry => slave_entry.Name == m_current_slave_entry.Name).Select(slave_entry =>
-                    {
-                        slave_entry.Name = Textbox_tcp_slave_name.Text;
-                        slave_entry.IP_primary = Textbox_tcp_slave_ip_primary.firstBox.Text + "." + Textbox_tcp_slave_ip_primary.secondBox.Text + "." + Textbox_tcp_slave_ip_primary.thirdBox.Text + "." + Textbox_tcp_slave_ip_primary.fourthBox.Text;
-                        slave_entry.Port = (int)DecimalUpDown_port.Value;
-                        slave_entry.UnitId = (byte)DecimalUpDown_UnitId.Value;
-                        slave_entry.Dir_ini = (int)DecimalUpDown_dir_ini.Value;
-                        slave_entry.Read_reg = (int)DecimalUpDown_read_reg.Value;
-                        slave_entry.Modbus_function = (MODBUS_FUNCION) Combobox_mb_function.SelectedIndex;
-                        slave_entry.Slave_type = Radiobutton_General.IsChecked == true ? SLAVE_TYPE.GENERAL : Radiobutton_TCU.IsChecked == true ? SLAVE_TYPE.TCU : SLAVE_TYPE.SAMCA;
-                        slave_entry.Fast_mode = (bool)Checkbox_fast_mode.IsChecked;
-                        return slave_entry;
-                    }).ToList();
+                    _ = Globals.GetTheInstance().List_slave_entry.Where(slave_entry => slave_entry.Name == m_current_slave_entry.Name).Select(slave_entry =>
+                      {
+                          slave_entry.Name = Textbox_tcp_slave_name.Text;
+                          slave_entry.IP_primary = Textbox_tcp_slave_ip_primary.firstBox.Text + "." + Textbox_tcp_slave_ip_primary.secondBox.Text + "." + Textbox_tcp_slave_ip_primary.thirdBox.Text + "." + Textbox_tcp_slave_ip_primary.fourthBox.Text;
+                          slave_entry.Port = (int)DecimalUpDown_port.Value;
+                          slave_entry.UnitId = (byte)DecimalUpDown_UnitId.Value;
+                          slave_entry.Dir_ini = (ushort)DecimalUpDown_dir_ini.Value;
+                          slave_entry.Read_reg = (ushort)DecimalUpDown_read_reg.Value;
+                          slave_entry.Modbus_function = (MODBUS_FUNCION)Combobox_mb_function.SelectedIndex;
+                          slave_entry.Slave_type = Radiobutton_General.IsChecked == true ? SLAVE_TYPE.GENERAL : Radiobutton_TCU.IsChecked == true ? SLAVE_TYPE.TCU : SLAVE_TYPE.SAMCA;
+                          slave_entry.Fast_mode = (bool)Checkbox_fast_mode.IsChecked;
+                          slave_entry.Enable_communication = (bool)Checkbox_enable.IsChecked;
+                          return slave_entry;
+                      }).ToList();
                 }
  
                 bool save_slave_ok = Manage_file.Save_modbus_slave_entries();

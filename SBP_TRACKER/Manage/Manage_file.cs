@@ -32,7 +32,7 @@ namespace SBP_TRACKER
             catch (Exception ex)
             {
                 create_ok = false;
-                Manage_logs.SaveErrorValue(typeof(Manage_file).Name + " ->  " + nameof(Create_directories) + " -> " + ex.Message.ToString());
+                Manage_logs.SaveErrorValue($"{typeof(Manage_file).Name} -> {nameof(Create_directories)} -> {ex.Message}");
             }
 
             return create_ok;
@@ -115,9 +115,13 @@ namespace SBP_TRACKER
                 Globals.GetTheInstance().Modbus_conn_timeout = int.Parse(profile.GetValue("Modbus", "Conn_timeout", 1000).ToString());
                 Globals.GetTheInstance().Modbus_comm_timeout = int.Parse(profile.GetValue("Modbus", "Comm_timeout", 10000).ToString());
                 Globals.GetTheInstance().Modbus_reconnect_interval = int.Parse(profile.GetValue("Modbus", "Reconnect_interval", 10000).ToString());
-                Globals.GetTheInstance().Modbus_dir_tcu_command = int.Parse(profile.GetValue("Modbus", "Dir_tcu_command", 3100).ToString());
-                Globals.GetTheInstance().Modbus_dir_tcu_datetime = int.Parse(profile.GetValue("Modbus", "Dir_tcu_datetime", 3300).ToString());
-                Globals.GetTheInstance().Modbus_dir_write_samca = int.Parse(profile.GetValue("Modbus", "Dir_write_samca", 2000).ToString());
+                Globals.GetTheInstance().Modbus_dir_tcu_command = ushort.Parse(profile.GetValue("Modbus", "Dir_tcu_command", 3100).ToString());
+                Globals.GetTheInstance().Modbus_dir_tcu_datetime = ushort.Parse(profile.GetValue("Modbus", "Dir_tcu_datetime", 3300).ToString());
+                Globals.GetTheInstance().Modbus_dir_write_samca = ushort.Parse(profile.GetValue("Modbus", "Dir_write_samca", 2000).ToString());
+
+                Globals.GetTheInstance().Enable_write_tcu = (BIT_STATE)int.Parse(profile.GetValue("Modbus", "Enable_write_tcu", 1).ToString());
+                Globals.GetTheInstance().Enable_write_samca = (BIT_STATE)int.Parse(profile.GetValue("Modbus", "Enable_write_samca", 1).ToString());
+
 
                 Globals.GetTheInstance().Record_scs_normal_interval = int.Parse(profile.GetValue("Record", "Record_scs_normal_interval", 1000).ToString());
                 Globals.GetTheInstance().Record_scs_fast_interval = int.Parse(profile.GetValue("Record", "Record_scs_fast_interval", 250).ToString());
@@ -157,8 +161,13 @@ namespace SBP_TRACKER
                 Globals.GetTheInstance().Mail_pass = profile.GetValue("Mail", "Mail_pass", "").ToString();
                 Globals.GetTheInstance().Mail_smtp_client = profile.GetValue("Mail", "Mail_smtp_client", "").ToString();
 
+                Globals.GetTheInstance().Load_cloud_on = (BIT_STATE)profile.GetValue("Cloud", "Load_cloud_enable", 0);
+                Globals.GetTheInstance().Cloud_check_interval = int.Parse(profile.GetValue("Cloud", "Cloud_check_interval", 60).ToString());
+                Globals.GetTheInstance().Python_path = profile.GetValue("Cloud", "Python_path", "");
+                Globals.GetTheInstance().Cloud_script = profile.GetValue("Cloud", "Cloud_script", "CloudDataLoad.py");
+
                 Globals.GetTheInstance().Enable_web_api = (BIT_STATE)profile.GetValue("WebApi", "WebApiEnable", 0);
-                Globals.GetTheInstance().Tracker_ID = int.Parse(profile.GetValue("WebApi", "TrackerID", 1).ToString());
+                Globals.GetTheInstance().Tracker_ID = decimal.Parse(profile.GetValue("WebApi", "TrackerID", 1).ToString());
                 Globals.GetTheInstance().Tracker_name = profile.GetValue("WebApi", "TrackerName", "DEFAULT").ToString();
                 Globals.GetTheInstance().API_root = profile.GetValue("WebApi", "API_root", "").ToString();
                 Globals.GetTheInstance().Data_controller_route = profile.GetValue("WebApi", "Data_controller_route", "").ToString();
@@ -205,6 +214,10 @@ namespace SBP_TRACKER
                 profile.SetValue("Modbus", "Dir_tcu_datetime", Globals.GetTheInstance().Modbus_dir_tcu_datetime);
                 profile.SetValue("Modbus", "Dir_write_samca", Globals.GetTheInstance().Modbus_dir_write_samca);
 
+                profile.SetValue("Modbus", "Enable_write_tcu", (int)Globals.GetTheInstance().Enable_write_tcu);
+                profile.SetValue("Modbus", "Enable_write_samca", (int)Globals.GetTheInstance().Enable_write_samca);
+
+
                 profile.SetValue("Record", "Record_scs_normal_interval", Globals.GetTheInstance().Record_scs_normal_interval);
                 profile.SetValue("Record", "Record_scs_fast_interval", Globals.GetTheInstance().Record_scs_fast_interval);
                 profile.SetValue("Record", "Record_tcu_interval", Globals.GetTheInstance().Record_tcu_interval);
@@ -241,6 +254,11 @@ namespace SBP_TRACKER
                 profile.SetValue("Mail", "Mail_username", Globals.GetTheInstance().Mail_user);
                 profile.SetValue("Mail", "Mail_pass", Globals.GetTheInstance().Mail_pass);
                 profile.SetValue("Mail", "Mail_smtp_client", Globals.GetTheInstance().Mail_smtp_client);
+
+                profile.SetValue("Cloud", "Load_cloud_enable", (int)Globals.GetTheInstance().Load_cloud_on);
+                profile.SetValue("Cloud", "Cloud_check_interval", Globals.GetTheInstance().Cloud_check_interval);
+                profile.SetValue("Cloud", "Python_path", Globals.GetTheInstance().Python_path);
+                profile.SetValue("Cloud", "Cloud_script", Globals.GetTheInstance().Cloud_script);
 
                 profile.SetValue("WebApi", "WebApiEnable", (int)Globals.GetTheInstance().Enable_web_api);
                 profile.SetValue("WebApi", "TrackerID", Globals.GetTheInstance().Tracker_ID);
@@ -342,14 +360,13 @@ namespace SBP_TRACKER
                 {
                     slave_entry.Connected = false;
                     slave_entry.Num_communication_error = 0;
-                    slave_entry.Field_safety_enable = true;
                     slave_entry.List_var_entry = new List<TCPModbusVarEntry>();
                 });
             }
             catch (Exception ex)
             {
                 read_ok = false;
-                Manage_logs.SaveErrorValue(typeof(Manage_file).Name + " ->  " + nameof(Load_modbus_slave_entries) + " -> " + ex.Message.ToString());
+                Manage_logs.SaveErrorValue($"{typeof(Manage_file).Name} ->  {nameof(Load_modbus_slave_entries)} -> {ex.Message}");
             }
 
             return read_ok;
@@ -414,8 +431,9 @@ namespace SBP_TRACKER
                     slave_entry.List_var_entry = list_var_entry.Where(var_entry => var_entry.Slave.Equals(slave_entry.Name)).ToList();
                     slave_entry.List_var_entry.ForEach(var_entry =>
                     {
+                        var_entry.Value = Constants.Error_code.ToString();
                         var_entry.Read_range_grid = var_entry.Read_range_min.ToString() + "  -  " + var_entry.Read_range_max.ToString();
-                        var_entry.Scaled_range_grid = var_entry.Scaled_range_min.ToString("0.00", Globals.GetTheInstance().nfi) + "  -  " + var_entry.Scaled_range_max.ToString("0.00", Globals.GetTheInstance().nfi);
+                        var_entry.Scaled_range_grid = $"{var_entry.Scaled_range_min.ToString("0.00", Globals.GetTheInstance().nfi)} - {var_entry.Scaled_range_max.ToString("0.00", Globals.GetTheInstance().nfi)}";
                         var_entry.Scale_factor = Functions.Calculate_scale_factor(var_entry);
 
                         s_log += $"SLAVE : {var_entry.Slave} / VAR : {var_entry.Name} / @MB : {var_entry.DirModbus} / READ RANGE : {var_entry.Read_range_grid } / SCALED RANGE : {var_entry.Scaled_range_grid } / SCALED FACTOR : {var_entry.Scale_factor.ToString("0.00000", Globals.GetTheInstance().nfi)} \r\n";
@@ -497,7 +515,10 @@ namespace SBP_TRACKER
                 Globals.GetTheInstance().List_tcu_codified_status = records.ToList();
                 Globals.GetTheInstance().List_tcu_codified_status = Globals.GetTheInstance().List_tcu_codified_status.ToList().OrderBy(x => x.DirModbus).ToList();
 
-                Globals.GetTheInstance().List_tcu_codified_status.ForEach(codified_status => codified_status.List_status_mask = new List<string>());
+                Globals.GetTheInstance().List_tcu_codified_status.ForEach(codified_status => {
+                    codified_status.List_status_mask = new List<string>();
+                    codified_status.Value = Constants.Error_code.ToString();
+                });
 
                 #endregion
 
@@ -559,7 +580,7 @@ namespace SBP_TRACKER
             catch (Exception ex)
             {
                 read_ok = false;
-                Manage_logs.SaveErrorValue(typeof(Manage_file).Name + " ->  " + nameof(Load_tcu_codified_status) + " -> " + ex.Message.ToString());
+                Manage_logs.SaveErrorValue($"{typeof(Manage_file).Name} -> {nameof(Load_tcu_codified_status)} -> {ex.Message}");
             }
 
             return read_ok;

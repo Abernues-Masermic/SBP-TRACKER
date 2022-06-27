@@ -53,9 +53,13 @@ namespace SBP_TRACKER
         public int Modbus_conn_timeout { get; set; }
         public int Modbus_comm_timeout { get; set; }
         public int Modbus_reconnect_interval { get; set; }
-        public int Modbus_dir_tcu_command { get; set; }
-        public int Modbus_dir_tcu_datetime { get; set; }
-        public int Modbus_dir_write_samca { get; set; }
+        public ushort Modbus_dir_tcu_command { get; set; }
+        public ushort Modbus_dir_tcu_datetime { get; set; }
+        public ushort Modbus_dir_write_samca { get; set; }
+
+
+        public BIT_STATE Enable_write_tcu { get; set; }
+        public BIT_STATE Enable_write_samca { get; set; }
 
         #endregion
 
@@ -113,7 +117,8 @@ namespace SBP_TRACKER
 
         #endregion
 
-        #region Mail
+
+        #region Mail / Cloud
 
         public BIT_STATE Mail_data_on { get; set; }
         public BIT_STATE Mail_alarm_on { get; set; }
@@ -124,6 +129,13 @@ namespace SBP_TRACKER
         public string Mail_pass { get; set; }
 
         public List<string> List_mail_to { get; set; }
+
+
+        public BIT_STATE Load_cloud_on { get; set; }
+        public int Cloud_check_interval { get; set; }
+        public string Cloud_script { get; set; }
+
+        public string Python_path { get; set; }
 
         #endregion
 

@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -86,7 +88,7 @@ namespace SBP_TRACKER
             {
                 var tracker_item = new TrackerState
                 {
-                    ID = 1,
+                    ID =(int)Globals.GetTheInstance().Tracker_ID,
                     Name = Globals.GetTheInstance().Tracker_name,
                     StateUpdated = true,
                 };
@@ -201,11 +203,25 @@ namespace SBP_TRACKER
                     slave_entry.List_var_entry.ForEach(var_entry => {
                         if (!string.IsNullOrEmpty(var_entry.Value))
                         {
-                            if (double.TryParse(var_entry.Value, out double val))
+                            if (double.TryParse(var_entry.Value, NumberStyles.Any, Globals.GetTheInstance().nfi, out double val))
                                 current_list_var.Add(new TrackerVar { Slave = var_entry.Slave, Name = var_entry.Name, Value = val, Unit= var_entry.Unit });
                         }
                     });
                 });
+
+                TCPModbusSlaveEntry? slave_entry = Globals.GetTheInstance().List_slave_entry.FirstOrDefault(slave_entry => slave_entry.Slave_type == SLAVE_TYPE.TCU);
+                if (slave_entry != null)
+                {
+                    Globals.GetTheInstance().List_tcu_codified_status.ForEach(codified_status =>
+                    {
+                        if (!string.IsNullOrEmpty(codified_status.Value))
+                        {
+                            if (double.TryParse(codified_status.Value, NumberStyles.Any, Globals.GetTheInstance().nfi, out double val))
+                                current_list_var.Add(new TrackerVar { Slave = slave_entry.Name, Name = codified_status.Name, Value = val, Unit = codified_status.Unit });
+                        }
+                    });
+                }
+
 
                 var update_item = new TrackerData
                 {

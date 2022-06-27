@@ -94,7 +94,7 @@
                                 </Ellipse.BitmapEffect>
                             </Ellipse>
 
-                            <Popup  Name="PopUpSlaves"  Height="25" Width="200"  Margin="0,0,0,0" IsOpen="False" Placement="Mouse" AllowsTransparency="True">
+                            <Popup  Name="PopUpSlaves"  Height="25" Width="220"  Margin="0,0,0,0" IsOpen="False" Placement="Mouse" AllowsTransparency="True">
                                 <Border CornerRadius="5" BorderBrush="Black" BorderThickness="1,1,2,2" Background="{StaticResource Tabcontrol_Background_gradient}" >
                                     <TextBlock Name="TextblockPopUpSlave" Style="{StaticResource Textblock_schema}"  />
                                 </Border>
@@ -194,6 +194,17 @@
                                                                 <DataTemplate>
                                                                     <Canvas  Margin="30,0,0,0" Height="15" Width="15" >
                                                                         <Ellipse  Height="14" Width="14" Fill="{Binding Path=Fast_mode, Converter={StaticResource BooleanToColorConverterCheck }}" />
+                                                                    </Canvas>
+                                                                </DataTemplate>
+                                                            </GridViewColumn.CellTemplate>
+                                                        </GridViewColumn>
+
+
+                                                        <GridViewColumn x:Name="Gridview_enable_slave" Width="100"  Header="ENABLE" HeaderContainerStyle="{StaticResource Gridview_header_style}">
+                                                            <GridViewColumn.CellTemplate>
+                                                                <DataTemplate>
+                                                                    <Canvas  Margin="30,0,0,0" Height="15" Width="15" >
+                                                                        <Ellipse  Height="14" Width="14" Fill="{Binding Path=Enable_communication, Converter={StaticResource BooleanToColorConverterCheck }}" />
                                                                     </Canvas>
                                                                 </DataTemplate>
                                                             </GridViewColumn.CellTemplate>
@@ -1054,7 +1065,7 @@
 
                                                 <WrapPanel x:Name="Wrappanel_wd" Orientation="Horizontal" Margin="0,2,0,2" Height="22">
                                                     <Border  Style="{StaticResource Border_graphic_style}" Width="220"  Height="21">
-                                                        <WrapPanel   VerticalAlignment="Center">
+                                                        <WrapPanel   VerticalAlignment="Center" Margin="4,0,0,0">
                                                             <Label x:Name="Label_TCU_wd_title"  Style="{StaticResource Label_graphic}" Content="WATCHDOG /"  />
 
                                                             <Label x:Name="Label_TCU_wd_scs_title"  Style="{StaticResource Label_graphic}" Content="SCS : " Margin="5,0,0,0" />

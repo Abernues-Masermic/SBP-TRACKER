@@ -75,10 +75,10 @@ namespace SBP_TRACKER
         private TCUCommand? m_selected_command = null;
 
 
-        private Queue<List<int>> m_queue_commands = new();
+        private Queue<List<ushort>> m_queue_commands = new();
         private Queue<string> m_queue_reconnect_slave = new();
 
-        public int[] m_array_write_samca_values;
+        public ushort[] m_array_write_samca_values;
 
         #region WIND AVG
 
@@ -135,8 +135,9 @@ namespace SBP_TRACKER
         private List<Label> m_array_label_dyn_avg_value = new();
 
         private List<KeyValuePair<LINK_TO_GRAPHIC_TCU, Label>> m_keyValuePair_codified_status_value = new();
-        private List<LINK_TO_GRAPHIC_TCU> m_list_extract_retract = new() { 
-            LINK_TO_GRAPHIC_TCU.LOCK1_CURRENT_EXTRACT, 
+        private List<LINK_TO_GRAPHIC_TCU> m_list_extract_retract = new()
+        {
+            LINK_TO_GRAPHIC_TCU.LOCK1_CURRENT_EXTRACT,
             LINK_TO_GRAPHIC_TCU.LOCK1_CURRENT_RETRACT,
             LINK_TO_GRAPHIC_TCU.LOCK2_CURRENT_EXTRACT,
             LINK_TO_GRAPHIC_TCU.LOCK2_CURRENT_RETRACT,
@@ -526,7 +527,7 @@ namespace SBP_TRACKER
             for (int index = 0; index < Enum.GetNames(typeof(READ_WRITE_STATE)).Length; index++)
                 m_list_read_write_state.Add(false);
 
-            m_array_write_samca_values = new int[Constants.WR_SAMCA_REG_SIZE];
+            m_array_write_samca_values = new ushort[Constants.WR_SAMCA_REG_SIZE];
 
 
             #region Timer
@@ -636,6 +637,9 @@ namespace SBP_TRACKER
                 Globals.GetTheInstance().ManageWebAPI.Start_timer_modbus_API_state(BIT_STATE.ON, (int)Globals.GetTheInstance().Send_state_interval_web_API);
                 Globals.GetTheInstance().ManageWebAPI.Start_timer_modbus_API_data(BIT_STATE.ON, (int)Globals.GetTheInstance().Send_data_interval_web_API);
             }
+
+
+            Functions.Cloud_upload_start(Globals.GetTheInstance().Cloud_check_interval, 1);
         }
 
         #endregion
@@ -725,6 +729,7 @@ namespace SBP_TRACKER
 
                     this.Height = Globals.GetTheInstance().Depur_enable == BIT_STATE.ON ? Constants.depur_enable_height : Constants.depur_disable_height;
                     Button_record.Visibility = Globals.GetTheInstance().Depur_enable == BIT_STATE.OFF ? Visibility.Collapsed : Visibility.Visible;
+                    Button_setting_advanced.Visibility = Globals.GetTheInstance().Depur_enable == BIT_STATE.OFF ? Visibility.Collapsed : Visibility.Visible;
                 }
                 else
                     MessageBox.Show("ERROR ENABLING DEPU MODE", "INFO", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
@@ -763,11 +768,7 @@ namespace SBP_TRACKER
                             slave_entry.Connected = true;
                             slave_entry.Reconnect = false;
 
-                            Dispatcher.Invoke(() =>
-                            {
-                                KeyValuePair<string, System.Windows.Shapes.Ellipse> ellipse_slave = m_array_ellipse_slave.Find(key => key.Key == args.Slave_name);
-                                ellipse_slave.Value.Fill = slave_entry.Field_safety_enable ? Brushes.Green : Brushes.CadetBlue;
-                            });
+                            Dispatcher.Invoke(() => m_array_ellipse_slave.Find(key => key.Key == args.Slave_name).Value.Fill = Brushes.Green);
 
                             if (slave_entry.Slave_type == SLAVE_TYPE.TCU)
                             {
@@ -895,7 +896,7 @@ namespace SBP_TRACKER
                                     Dispatcher.Invoke(() => Listview_read_var_entry.Items.Refresh());
                                 }
 
-                                Dispatcher.Invoke(() => m_array_ellipse_slave.Find(key_value => key_value.Key == args.Slave_name).Value.Fill = slave_entry.Field_safety_enable ? Brushes.Red : Brushes.Blue);
+                                Dispatcher.Invoke(() => m_array_ellipse_slave.Find(key_value => key_value.Key == args.Slave_name).Value.Fill = slave_entry.Enable_communication ? Brushes.Red : Brushes.Blue);
 
                             }
                             catch (Exception ex)
@@ -914,11 +915,7 @@ namespace SBP_TRACKER
                         TCPModbusSlaveEntry? slave_entry = Globals.GetTheInstance().List_slave_entry.FirstOrDefault(slave_entry => slave_entry.Name == args.Slave_name);
                         if (slave_entry != null)
                         {
-                            Dispatcher.Invoke(() =>
-                            {
-                                KeyValuePair<string, System.Windows.Shapes.Ellipse> ellipse_slave = m_array_ellipse_slave.Find(key => key.Key == args.Slave_name);
-                                ellipse_slave.Value.Fill = slave_entry.Field_safety_enable ? Brushes.Green : Brushes.CadetBlue;
-                            });
+                            Dispatcher.Invoke(() => m_array_ellipse_slave.Find(key => key.Key == args.Slave_name).Value.Fill = Brushes.Green);
                         }
 
                         break;
@@ -926,7 +923,7 @@ namespace SBP_TRACKER
 
                 case TCP_ACTION.ERROR_CONNECT:
                     {
-                        Manage_logs.SaveCommunicationValue("ERROR CONNECT MODBUS SLAVE -> " + args.Slave_name);
+                        Manage_logs.SaveCommunicationValue($"ERROR CONNECT MODBUS SLAVE -> {args.Slave_name}");
 
                         TCPModbusSlaveEntry? slave_entry = Globals.GetTheInstance().List_slave_entry.FirstOrDefault(slave_entry => slave_entry.Name == args.Slave_name);
                         if (slave_entry != null)
@@ -977,7 +974,7 @@ namespace SBP_TRACKER
                             else
                                 s_log += "ERROR RECONNECT";
 
-                            Dispatcher.Invoke(() => m_array_ellipse_slave.Find(x => x.Key == args.Slave_name).Value.Fill = slave_entry.Field_safety_enable ? Brushes.Red : Brushes.Blue);
+                            Dispatcher.Invoke(() => m_array_ellipse_slave.Find(x => x.Key == args.Slave_name).Value.Fill = slave_entry.Enable_communication ? Brushes.Red : Brushes.Blue);
 
                             Globals.GetTheInstance().List_manage_thread.Find(x => x.TCP_modbus_slave_entry.Name == args.Slave_name).Stop_tcp_com_thread();
 
@@ -1155,7 +1152,7 @@ namespace SBP_TRACKER
 
         private void Button_stow_Click(object sender, RoutedEventArgs e)
         {
-            List<int> list_command_fields = new();
+            List<ushort> list_command_fields = new();
             list_command_fields.Add((int)GRAPHIC_SCADA_COMMANDS.STOW);
             Manage_logs.SaveLogValue($"ENQUEUE GRAPHIC COMMAND (STOW)");
             m_queue_commands.Enqueue(list_command_fields);
@@ -1163,7 +1160,7 @@ namespace SBP_TRACKER
 
         private void Button_offline_Click(object sender, RoutedEventArgs e)
         {
-            List<int> list_command_fields = new();
+            List<ushort> list_command_fields = new();
             list_command_fields.Add((int)GRAPHIC_SCADA_COMMANDS.OFFLINE);
             Manage_logs.SaveLogValue($"ENQUEUE GRAPHIC COMMAND (OFFLINE)");
             m_queue_commands.Enqueue(list_command_fields);
@@ -1171,7 +1168,7 @@ namespace SBP_TRACKER
 
         private void Button_online_Click(object sender, RoutedEventArgs e)
         {
-            List<int> list_command_fields = new();
+            List<ushort> list_command_fields = new();
             list_command_fields.Add((int)GRAPHIC_SCADA_COMMANDS.ONLINE);
             Manage_logs.SaveLogValue($"ENQUEUE GRAPHIC COMMNAD (ONLINE)");
             m_queue_commands.Enqueue(list_command_fields);
@@ -1179,7 +1176,7 @@ namespace SBP_TRACKER
 
         private void Button_tracking_Click(object sender, RoutedEventArgs e)
         {
-            List<int> list_command_fields = new();
+            List<ushort> list_command_fields = new();
             list_command_fields.Add((int)GRAPHIC_SCADA_COMMANDS.TRACKING);
             Manage_logs.SaveLogValue($"ENQUEUE GRAPHIC COMMNAD (TRACKING)");
             m_queue_commands.Enqueue(list_command_fields);
@@ -1274,7 +1271,7 @@ namespace SBP_TRACKER
             var item = (sender as ListView).SelectedItem;
             if (item != null)
             {
-                TCUCodifiedStatusEntry selected_tcu_encode = item as TCUCodifiedStatusEntry;
+                TCUCodifiedStatusEntry? selected_tcu_encode = item as TCUCodifiedStatusEntry;
                 TCPModbusSlaveEntry? modbus_slave_entry = m_collection_slave_entry.FirstOrDefault(modbus_slave => modbus_slave.Slave_type == SLAVE_TYPE.TCU);
 
                 SettingVarCodifiedStatusWindow codified_window = new();
@@ -1335,14 +1332,13 @@ namespace SBP_TRACKER
 
             if (item != null)
             {
-                TCUCodifiedStatusEntry encode_state_entry = item as TCUCodifiedStatusEntry;
+                TCUCodifiedStatusEntry codified_status_entry = item as TCUCodifiedStatusEntry;
 
-                Globals.GetTheInstance().List_tcu_codified_status.Remove(encode_state_entry);
+                Globals.GetTheInstance().List_tcu_codified_status.Remove(codified_status_entry);
                 bool save_ok = Manage_file.Save_tcu_decodified_entries();
                 if (!save_ok)
-                {
                     MessageBox.Show("Error deleting selected encode entry", "INFO", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
-                }
+                
                 else
                 {
                     Listview_tcu_codified_status.ItemsSource = Globals.GetTheInstance().List_tcu_codified_status.OrderBy(tcu_encode => tcu_encode.DirModbus);
@@ -1453,8 +1449,8 @@ namespace SBP_TRACKER
         {
             if (m_selected_command != null)
             {
-                List<int> list_command_fields = new();
-                list_command_fields.Add(m_selected_command.Index);
+                List<ushort> list_command_fields = new();
+                list_command_fields.Add((ushort)m_selected_command.Index);
 
                 list_command_fields.Add(0); //Field watchdog
 
@@ -1468,7 +1464,7 @@ namespace SBP_TRACKER
                             case TypeCode.Int16:
                             case TypeCode.UInt16:
                                 {
-                                    list_command_fields.Add((int)m_array_decimal_tcu_command_param[index].Value);
+                                    list_command_fields.Add((ushort)m_array_decimal_tcu_command_param[index].Value);
                                     break;
                                 }
 
@@ -1479,8 +1475,8 @@ namespace SBP_TRACKER
                                     byte[] byte_send_parameter = BitConverter.GetBytes(param_value);
                                     ushort first_send_parameter = BitConverter.ToUInt16(byte_send_parameter, 0);
                                     ushort second_send_parameter = BitConverter.ToUInt16(byte_send_parameter, 2);
-                                    list_command_fields.Add((int)first_send_parameter);
-                                    list_command_fields.Add((int)second_send_parameter);
+                                    list_command_fields.Add((ushort)first_send_parameter);
+                                    list_command_fields.Add((ushort)second_send_parameter);
 
                                     break;
                                 }
@@ -1511,15 +1507,15 @@ namespace SBP_TRACKER
         {
             bool load_modbus_ok = true;
 
-            bool read_slave_ok = Manage_file.Load_modbus_slave_entries();
-            string s_log = read_slave_ok ? "Read modbus slave entries OK" : "Error reading modbus slave entries";
+            bool load_slave_ok = Manage_file.Load_modbus_slave_entries();
+            string s_log = load_slave_ok ? "Read modbus slave entries OK" : "Error reading modbus slave entries";
             Manage_logs.SaveLogValue(s_log);
 
             bool read_var_map_ok = Manage_file.Load_var_map_entries();
-            s_log = read_slave_ok ? "Read var map entries OK" : "Error reading var map entries";
+            s_log = load_slave_ok ? "Read var map entries OK" : "Error reading var map entries";
             Manage_logs.SaveLogValue(s_log);
 
-            load_modbus_ok = read_slave_ok && read_var_map_ok;
+            load_modbus_ok = load_slave_ok && read_var_map_ok;
 
             try
             {
@@ -1527,7 +1523,7 @@ namespace SBP_TRACKER
                 {
                     #region Slave - Var map
 
-                    string s_slave_var_log = "SLAVE - VAR CONFIG " + "\r\n" + "-----------------------" + "\r\n";
+                    string s_slave_var_log = $"SLAVE - VAR CONFIG \r\n-----------------------\r\n";
 
                     m_collection_slave_entry = new ObservableCollection<TCPModbusSlaveEntry>();
                     m_collection_var_entry = new ObservableCollection<TCPModbusVarEntry>();
@@ -1541,7 +1537,8 @@ namespace SBP_TRACKER
                     Globals.GetTheInstance().List_slave_entry.ForEach(slave_entry =>
                     {
                         m_collection_slave_entry.Add(slave_entry);
-                        s_slave_var_log += slave_entry.Name + "\r\n" + "-----------------------" + "\r\n";
+
+                        s_slave_var_log += $"{slave_entry.Name} \r\n-----------------------\r\n";
 
                         slave_entry.List_var_entry.ForEach(var_entry =>
                         {
@@ -1562,7 +1559,7 @@ namespace SBP_TRACKER
 
                         });
 
-                        s_slave_var_log += "------------------------------" + "\r\n";
+                        s_slave_var_log += $"------------------------------\r\n";
                     });
 
                     Manage_logs.SaveLogValue(s_slave_var_log);
@@ -1585,11 +1582,11 @@ namespace SBP_TRACKER
 
                     #endregion
 
-                    #region Slave_controls into Graphic mode
+                    #region Slave communication control
 
                     Wrap_slave_state.Children.Clear();
                     m_array_ellipse_slave.Clear();
-                    m_collection_slave_entry.ToList().ForEach(slave =>
+                    m_collection_slave_entry.ToList().ForEach(slave_entry =>
                     {
                         System.Windows.Shapes.Ellipse ellipse_slave = new();
                         ellipse_slave.Margin = new Thickness(5, 0, 5, 0);
@@ -1598,16 +1595,13 @@ namespace SBP_TRACKER
                         ellipse_slave.Stroke = Brushes.Black;
                         ellipse_slave.StrokeThickness = 1;
                         ellipse_slave.VerticalAlignment = VerticalAlignment.Center;
-                        ellipse_slave.Fill = Brushes.Red;
-                        ellipse_slave.Cursor = Cursors.Hand;
+                        ellipse_slave.Fill = slave_entry.Enable_communication ? Brushes.Red : Brushes.Blue;
                         ellipse_slave.MouseEnter += new MouseEventHandler(EllipseOnMouseEnter);
                         ellipse_slave.MouseLeave += new MouseEventHandler(EllipseOnMouseLeave);
-                        ellipse_slave.MouseDown += new MouseButtonEventHandler(EllipseOnMouseDown);
 
                         Wrap_slave_state.Children.Add(ellipse_slave);
-                        m_array_ellipse_slave.Add(new KeyValuePair<string, System.Windows.Shapes.Ellipse>(slave.Name, ellipse_slave));
+                        m_array_ellipse_slave.Add(new KeyValuePair<string, System.Windows.Shapes.Ellipse>(slave_entry.Name, ellipse_slave));
                     });
-
 
                     #endregion
 
@@ -1642,7 +1636,7 @@ namespace SBP_TRACKER
         {
             string slave_name = m_array_ellipse_slave.First(x => x.Value == (System.Windows.Shapes.Ellipse)sender).Key;
             string error_comm = Globals.GetTheInstance().List_slave_entry.First(x => x.Name.Equals(slave_name)).Num_communication_error.ToString();
-            TextblockPopUpSlave.Text = $"{slave_name} / MB ERROR: {error_comm}";
+            TextblockPopUpSlave.Text = $"{slave_name} / MB ERR COUNT: {error_comm}";
             PopUpSlaves.IsOpen = true;
         }
 
@@ -1651,35 +1645,6 @@ namespace SBP_TRACKER
             PopUpSlaves.IsOpen = false;
         }
 
-        private void EllipseOnMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            string slave_name = m_array_ellipse_slave.First(x => x.Value == (System.Windows.Shapes.Ellipse)sender).Key;
-            System.Windows.Shapes.Ellipse slave_ellipse = (System.Windows.Shapes.Ellipse)sender;
-
-            TCPModbusSlaveEntry slave_entry = Globals.GetTheInstance().List_slave_entry.First(slave_entry => slave_entry.Name == slave_name);
-
-            if (!slave_entry.Connected)
-            {
-                if (slave_entry.Field_safety_enable)
-                {
-                    MessageBoxResult result = MessageBox.Show("¿Deshabilitar Slave para BIT FIELD SAFETY?", "INFO", MessageBoxButton.YesNo, MessageBoxImage.Information, MessageBoxResult.No, MessageBoxOptions.DefaultDesktopOnly);
-                    if (result == MessageBoxResult.Yes)
-                    {
-                        slave_entry.Field_safety_enable = false;
-                        slave_ellipse.Fill = Brushes.Blue;
-                    }
-                }
-                else
-                {
-                    MessageBoxResult result = MessageBox.Show("¿Habilitar Slave para BIT FIELD SAFETY?", "INFO", MessageBoxButton.YesNo, MessageBoxImage.Information, MessageBoxResult.No, MessageBoxOptions.DefaultDesktopOnly);
-                    if (result == MessageBoxResult.Yes)
-                    {
-                        slave_entry.Field_safety_enable = true;
-                        slave_ellipse.Fill = Brushes.Red;
-                    }
-                }
-            }
-        }
         #endregion
 
 
@@ -1697,7 +1662,11 @@ namespace SBP_TRACKER
                 if (!b_individual_start_stop)
                 {
                     m_list_manage_thread_in_start_process.Clear();
-                    Globals.GetTheInstance().List_manage_thread.ForEach(manage_thread => m_list_manage_thread_in_start_process.Add(manage_thread));
+                    Globals.GetTheInstance().List_manage_thread.ForEach(manage_thread =>
+                    {
+                        if (manage_thread.TCP_modbus_slave_entry.Enable_communication)
+                            m_list_manage_thread_in_start_process.Add(manage_thread);
+                    });
 
                     Border_wait.Visibility = Visibility.Visible;
                     m_timer_start_tcp.Start();
@@ -1735,7 +1704,7 @@ namespace SBP_TRACKER
                 b_individual_start_stop = true;
 
                 Manage_thread manageThread = Globals.GetTheInstance().List_manage_thread.First(manage_thread => manage_thread.TCP_modbus_slave_entry.Name == slaveEntry.Name);
-                if (!manageThread.ManageTCP.Is_connected())
+                if (!manageThread.ManageModbus.Is_connected())
                 {
                     m_list_manage_thread_in_start_process.Clear();
                     m_list_manage_thread_in_start_process.Add(manageThread);
@@ -1760,7 +1729,8 @@ namespace SBP_TRACKER
             m_timer_start_tcp.Stop();
             m_timer_wait_connect.Start();
 
-            m_list_manage_thread_in_start_process.ForEach(manage => manage.Start_tcp_com(false));
+            for (int i = m_list_manage_thread_in_start_process.Count - 1; i >= 0; i--)
+                m_list_manage_thread_in_start_process[i].Start_tcp_com(false);
         }
 
         #endregion
@@ -1872,15 +1842,15 @@ namespace SBP_TRACKER
 
                     list_read_thread.ForEach(manage_thread =>
                     {
-                        if (manage_thread.ManageTCP.Is_connected())
+                        if (manage_thread.ManageModbus.Is_connected())
                         {
                             if (manage_thread.TCP_modbus_slave_entry.Fast_mode == fast_mode)
                             {
-                                Tuple<READ_STATE, int[]> tuple_read = null;
+                                Tuple<READ_STATE, ushort[]> tuple_read = null;
                                 if (manage_thread.TCP_modbus_slave_entry.Modbus_function == MODBUS_FUNCION.READ_HOLDING_REG)
-                                    tuple_read = manage_thread.Read_holding_registers_int32();
+                                    tuple_read = manage_thread.Read_holding_registers();
                                 else
-                                    tuple_read = manage_thread.Read_input_registers_int32();
+                                    tuple_read = manage_thread.Read_input_registers();
 
 
                                 if (tuple_read.Item1 == READ_STATE.OK)
@@ -1895,7 +1865,7 @@ namespace SBP_TRACKER
                                             {
                                                 try
                                                 {
-                                                    Tuple<string, string> tuple_values = Functions.Read_from_array_convert_scale_offset(tuple_read.Item2, var_entry.DirModbus, var_entry.Name, var_entry.TypeVar, var_entry.Read_range_min, var_entry.Scaled_range_min, var_entry.Scale_factor, var_entry.Offset);
+                                                    Tuple<string, string> tuple_values = Functions.Read_from_array_convert_scale_offset(tuple_read.Item2, var_entry.DirModbus, var_entry.TypeVar, var_entry.Read_range_min, var_entry.Scaled_range_min, var_entry.Scale_factor, var_entry.Offset);
 
                                                     var_entry.Value = tuple_values.Item2;
 
@@ -1903,7 +1873,7 @@ namespace SBP_TRACKER
 
                                                     if (!string.IsNullOrEmpty(var_entry.Send_to_samca_pos))
                                                         if (int.Parse(var_entry.Send_to_samca_pos) != Constants.index_no_selected)
-                                                            if (UInt16.TryParse(tuple_values.Item1, out UInt16 received_value))
+                                                            if (ushort.TryParse(tuple_values.Item1, out ushort received_value))
                                                                 m_array_write_samca_values[int.Parse(var_entry.Send_to_samca_pos)] = received_value;
 
                                                     #endregion
@@ -1913,7 +1883,7 @@ namespace SBP_TRACKER
                                                     //WIND AVG VALUES
                                                     if ((LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.WIND_AVG_SBPT || (LINK_TO_AVG)var_entry.Link_to_avg == LINK_TO_AVG.WIND_AVG_SAMCA)
                                                     {
-                                                        Tuple<DateTime, double> read_value = new Tuple<DateTime, double>(DateTime.Now, double.Parse(var_entry.Value, Globals.GetTheInstance().nfi));
+                                                        Tuple<DateTime, double> read_value = new(DateTime.Now, double.Parse(var_entry.Value, Globals.GetTheInstance().nfi));
 
                                                         switch ((LINK_TO_AVG)var_entry.Link_to_avg)
                                                         {
@@ -1950,60 +1920,60 @@ namespace SBP_TRACKER
 
                                                     //CHECK WIND MAX VALUES
                                                     Dispatcher.Invoke(() =>
+                                                    {
+                                                        if (manage_thread.ManageModbus.Is_connected())
                                                         {
-                                                            if (manage_thread.ManageTCP.Is_connected())
+                                                            m_array_label_wind_avg_value
+                                                            .Select((value, index) => new { Container = value, Position = index }).ToList()
+                                                            .ForEach(label =>
                                                             {
-                                                                m_array_label_wind_avg_value
-                                                                .Select((value, index) => new { Container = value, Position = index }).ToList()
-                                                                .ForEach(label =>
+                                                                if (m_array_label_wind_avg_value[label.Position].Content != null)
                                                                 {
-                                                                    if (m_array_label_wind_avg_value[label.Position].Content != null)
-                                                                    {
                                                                     //No se ha superado el valor máximo -> Analizar si se supera
                                                                     if (m_array_wind_max_break_in_range[label.Position])
-                                                                        {
-                                                                            bool check_wind = double.Parse(m_array_label_wind_avg_max[label.Position].Content.ToString(), NumberStyles.Any, Globals.GetTheInstance().nfi) != 0; //Valor MAX deshabilitado
+                                                                    {
+                                                                        bool check_wind = double.Parse(m_array_label_wind_avg_max[label.Position].Content.ToString(), NumberStyles.Any, Globals.GetTheInstance().nfi) != 0; //Valor MAX deshabilitado
                                                                         if (check_wind)
+                                                                        {
+                                                                            if (
+                                                                            double.TryParse(m_array_label_wind_avg_value[label.Position].Content.ToString(), NumberStyles.Any, Globals.GetTheInstance().nfi, out double result_var) &&
+                                                                            double.TryParse(m_array_label_wind_avg_max[label.Position].Content.ToString(), NumberStyles.Any, Globals.GetTheInstance().nfi, out double result_max))
                                                                             {
-                                                                                if (
-                                                                                double.TryParse(m_array_label_wind_avg_value[label.Position].Content.ToString(), NumberStyles.Any, Globals.GetTheInstance().nfi, out double result_var) &&
-                                                                                double.TryParse(m_array_label_wind_avg_max[label.Position].Content.ToString(), NumberStyles.Any, Globals.GetTheInstance().nfi, out double result_max))
+                                                                                m_array_wind_max_break_in_range[label.Position] = result_var <= result_max;
+
+                                                                                if (!m_array_wind_max_break_in_range[label.Position])
                                                                                 {
-                                                                                    m_array_wind_max_break_in_range[label.Position] = result_var <= result_max;
+                                                                                    Manage_logs.SaveLogValue($"SE HA SUPERADO LA WIND MAX VEL PERMITIDA PARA LA MEDIA ->  {(WIND_AVG_POSITION)label.Position} / " +
+                                                                                        $"VELOCIDAD MEDIA REG -> { m_array_wind_avg_values[label.Position] } / " +
+                                                                                        $"VELOCIDAD MAX PERMITIDA -> {m_array_label_wind_avg_max[label.Position].Content.ToString()}");
 
-                                                                                    if (!m_array_wind_max_break_in_range[label.Position])
-                                                                                    {
-                                                                                        Manage_logs.SaveLogValue($"SE HA SUPERADO LA WIND MAX VEL PERMITIDA PARA LA MEDIA ->  {(WIND_AVG_POSITION)label.Position} / " +
-                                                                                            $"VELOCIDAD MEDIA REG -> { m_array_wind_avg_values[label.Position] } / " +
-                                                                                            $"VELOCIDAD MAX PERMITIDA -> {m_array_label_wind_avg_max[label.Position].Content.ToString()}");
-
-                                                                                        m_array_border_wind_avg_value[label.Position].BorderBrush = Brushes.Red;
-                                                                                        m_array_label_wind_avg_value[label.Position].Foreground = Brushes.Red;
+                                                                                    m_array_border_wind_avg_value[label.Position].BorderBrush = Brushes.Red;
+                                                                                    m_array_label_wind_avg_value[label.Position].Foreground = Brushes.Red;
 
 
-                                                                                        if (label.Position == (int)WIND_AVG_POSITION.SBPT_3SEC)
-                                                                                            m_array_date_trigger_start_3sec[(int)WIND_DATE_TRIGGER_3SEC.SBPT_3SEC] = DateTime.Now;
+                                                                                    if (label.Position == (int)WIND_AVG_POSITION.SBPT_3SEC)
+                                                                                        m_array_date_trigger_start_3sec[(int)WIND_DATE_TRIGGER_3SEC.SBPT_3SEC] = DateTime.Now;
 
-                                                                                        if (label.Position == (int)WIND_AVG_POSITION.SAMCA_3SEC)
-                                                                                            m_array_date_trigger_start_3sec[(int)WIND_DATE_TRIGGER_3SEC.SAMCA_3SEC] = DateTime.Now;
-                                                                                    }
+                                                                                    if (label.Position == (int)WIND_AVG_POSITION.SAMCA_3SEC)
+                                                                                        m_array_date_trigger_start_3sec[(int)WIND_DATE_TRIGGER_3SEC.SAMCA_3SEC] = DateTime.Now;
                                                                                 }
                                                                             }
                                                                         }
                                                                     }
-                                                                });
-                                                            }
-                                                        });
+                                                                }
+                                                            });
+                                                        }
+                                                    });
 
 
                                                     //CHECK TRIGGER DELAY or LOW HISTERESIS
-                                                    if (manage_thread.ManageTCP.Is_connected())
+                                                    if (manage_thread.ManageModbus.Is_connected())
                                                     {
                                                         m_array_wind_max_break_in_range.Select((value, index) => new { Value = value, Position = index }).ToList()
                                                         .ForEach(wind_break_in_range =>
                                                         {
-                                                        //Se habia superado valor máximo -> analizar vuelta a la normalidad
-                                                        if (!wind_break_in_range.Value)
+                                                            //Se habia superado valor máximo -> analizar vuelta a la normalidad
+                                                            if (!wind_break_in_range.Value)
                                                             {
                                                                 string s_add_info = string.Empty;
                                                                 switch ((WIND_AVG_POSITION)wind_break_in_range.Position)
@@ -2237,28 +2207,26 @@ namespace SBP_TRACKER
                     if (slave_entry != null)
                     {
                         Manage_thread manage_thread = Globals.GetTheInstance().List_manage_thread.First(manage_thread => manage_thread.TCP_modbus_slave_entry.Name == slave_entry.Name);
-                        if (manage_thread.ManageTCP.Is_connected())
+                        if (manage_thread.ManageModbus.Is_connected())
                         {
-                            Tuple<READ_STATE, int[]> tuple_read = null;
+                            Tuple<READ_STATE, ushort[]> tuple_read = null;
                             if (slave_entry.Modbus_function == MODBUS_FUNCION.READ_HOLDING_REG)
-                                tuple_read = manage_thread.Read_holding_registers_int32();
+                                tuple_read = manage_thread.Read_holding_registers();
                             else
-                                tuple_read = manage_thread.Read_input_registers_int32();
+                                tuple_read = manage_thread.Read_input_registers();
 
                             if (tuple_read.Item1 == READ_STATE.OK)
                             {
                                 if (tuple_read.Item2.Length != 0)
                                 {
-
                                     #region CHECK TCU CONSTANT
 
                                     bool read_ok_constant = true;
-                                    TCUCodifiedStatusEntry codified_status = Globals.GetTheInstance().List_tcu_codified_status.FirstOrDefault(codified_status => (LINK_TO_GRAPHIC_TCU)codified_status.Link_to_graphic == LINK_TO_GRAPHIC_TCU.READ_OK_CONSTANT);
+                                    TCUCodifiedStatusEntry? codified_status = Globals.GetTheInstance().List_tcu_codified_status.FirstOrDefault(codified_status => (LINK_TO_GRAPHIC_TCU)codified_status.Link_to_graphic == LINK_TO_GRAPHIC_TCU.READ_OK_CONSTANT);
                                     if (codified_status != null)
                                     {
                                         Tuple<string, string> tuple_check_read_ok = Functions.Read_from_array(tuple_read.Item2, codified_status.DirModbus, codified_status.TypeVar, codified_status.Factor);
-                                        read_ok_constant = int.Parse(tuple_check_read_ok.Item1) == codified_status.DirModbus;
-                                        if (!read_ok_constant)
+                                        if (int.Parse(tuple_check_read_ok.Item1) != codified_status.DirModbus)
                                             Manage_logs.SaveDepurValue($"ERROR EN VERIFICACION DE CONSTANTE PARA CHEQUEO DE LECTURA CORRECTA / CONSTANTE {codified_status.DirModbus} / LECTURA {int.Parse(tuple_check_read_ok.Item1)} ");
                                     }
 
@@ -2278,7 +2246,7 @@ namespace SBP_TRACKER
 
                                                 if (!string.IsNullOrEmpty(codified_status.Send_to_samca_pos))
                                                     if (int.Parse(codified_status.Send_to_samca_pos) != Constants.index_no_selected)
-                                                        if (UInt16.TryParse(tuple_values.Item1, out UInt16 received_value))
+                                                        if (ushort.TryParse(tuple_values.Item1, out ushort received_value))
                                                             m_array_write_samca_values[int.Parse(codified_status.Send_to_samca_pos)] = received_value;
 
                                                 #endregion
@@ -2330,7 +2298,6 @@ namespace SBP_TRACKER
                                                     codified_status.Value = $"({string.Format("0x{0:X2}", int.Parse(codified_status.Value))}) {codif_value}";
                                                 }
 
-
                                                 //TCU POS EL
                                                 else if ((LINK_TO_GRAPHIC_TCU)codified_status.Link_to_graphic == LINK_TO_GRAPHIC_TCU.TRACKER_POS_EL)
                                                 {
@@ -2381,7 +2348,7 @@ namespace SBP_TRACKER
                 }
                 catch (Exception ex)
                 {
-                    Manage_logs.SaveErrorValue($"{GetType().Name} ->  {nameof(Read_tcu_modbus)} -> {ex.Message}");
+                    Manage_logs.SaveErrorValue($"{GetType().Name} -> {nameof(Read_tcu_modbus)} -> {ex.Message}");
                 }
                 b_flag_read_tcu = false;
             }
@@ -2394,7 +2361,7 @@ namespace SBP_TRACKER
 
         private void Timer_write_tcu_command_modbus_Tick(object sender, EventArgs e)
         {
-            if (m_list_read_write_state[(int)READ_WRITE_STATE.read_write_tcu_modbus])
+            if (m_list_read_write_state[(int)READ_WRITE_STATE.read_write_tcu_modbus] && Globals.GetTheInstance().Enable_write_tcu == BIT_STATE.ON)
                 Write_tcu_command_modbus();
         }
 
@@ -2405,48 +2372,33 @@ namespace SBP_TRACKER
             {
                 try
                 {
-                    List<int> list_write_values = new();
+                    List<ushort> list_write_values = new();
 
-                    bool queue_command = false;
-                    string s_log = "SENDING ";
+                    bool queue_command = m_queue_commands.Count != 0;
+                    string s_log_command = m_queue_commands.Count != 0 ? "QUEUE COMMAND TO TCU - " : "WATCHDOG COMMAND TO TCU - ";
+
                     if (m_queue_commands.Count != 0)
-                    {
-                        queue_command = true;
-                        s_log += "QUEUE ";
-                        list_write_values = m_queue_commands.Dequeue(); 
-                    }
-
+                        list_write_values = m_queue_commands.Dequeue();
+                    
                     else
                     {
-                        queue_command = false;
-                        s_log += "WATCHDOG ";
                         list_write_values.Add(Constants.CMD_SCS_METEO_STATION_VALUES);
 
                         Dispatcher.Invoke(() =>
                         {
-                            m_list_link_to_send_tcu.ForEach(link =>
+                            m_list_link_to_send_tcu.ForEach(link_to_send_tcu =>
                             {
-                                int send_to_tcu_value =
-                                    link.Link_to_send_tcu == LINK_TO_SEND_TCU.TRACKER_WD || link.Link_to_send_tcu == LINK_TO_SEND_TCU.METEO_WD || link.Link_to_send_tcu == LINK_TO_SEND_TCU.SAFETY_SUPERVISOR ? link.Value :
-                                    (int)(link.Value * 100); //Multiplicarlo por 100 para los decimales
+                                ushort send_to_tcu_value =
+                                    link_to_send_tcu.Link_to_send_tcu == LINK_TO_SEND_TCU.TRACKER_WD || link_to_send_tcu.Link_to_send_tcu == LINK_TO_SEND_TCU.METEO_WD || link_to_send_tcu.Link_to_send_tcu == LINK_TO_SEND_TCU.SAFETY_SUPERVISOR ? (ushort)link_to_send_tcu.Value :
+                                    (ushort)(link_to_send_tcu.Value * 100); //Multiplicarlo por 100 para los decimales
 
                                 list_write_values.Add(send_to_tcu_value);
                             });
                         });
                     }
 
-                    if (Globals.GetTheInstance().Depur_enable == BIT_STATE.ON)
-                    {
-                        string s_data = string.Empty;
-                        list_write_values.ForEach(value => s_data += $"{value} ");
-
-                        s_log += $"COMMAND TO TCU : {s_data}";
-                        Manage_logs.SaveCommandValue(s_log);
-
-                        string s_log_depur = $"WRITE TO TCU: {s_data}";
-                        Manage_logs.SaveDepurValue(s_log_depur);
-                    }
-
+                    list_write_values.ForEach(value => s_log_command += $"{value} ");
+                    Manage_logs.SaveCommandValue(s_log_command);
 
                     Manage_thread manage_thread = Globals.GetTheInstance().List_manage_thread.First(manage_thread => manage_thread.TCP_modbus_slave_entry.Name.Equals(slave_entry.Name));
                     bool write_ok = manage_thread.Write_multiple_registers(Globals.GetTheInstance().Modbus_dir_tcu_command, list_write_values.ToArray());
@@ -2474,37 +2426,29 @@ namespace SBP_TRACKER
         {
 
             TCPModbusSlaveEntry? slave_entry = Globals.GetTheInstance().List_slave_entry.FirstOrDefault(slave_entry => slave_entry.Slave_type == SLAVE_TYPE.TCU);
-            if (slave_entry != null)
+            if (slave_entry != null && Globals.GetTheInstance().Enable_write_tcu == BIT_STATE.ON)
             {
                 try
                 {
                     //Mostrar valor de las variables de lectura
                     if (m_list_read_write_state[(int)READ_WRITE_STATE.read_write_tcu_modbus])
                     {
-                        int year = DateTime.Now.Year;
-                        int month = DateTime.Now.Month;
-                        int day = DateTime.Now.Day;
-                        int hour = DateTime.Now.Hour;
-                        int minute = DateTime.Now.Minute;
-                        int second = DateTime.Now.Second;
-                        int millisecond = DateTime.Now.Millisecond;
+                        ushort year = (ushort)DateTime.Now.Year;
+                        ushort month = (ushort)DateTime.Now.Month;
+                        ushort day = (ushort)DateTime.Now.Day;
+                        ushort hour = (ushort)DateTime.Now.Hour;
+                        ushort minute = (ushort)DateTime.Now.Minute;
+                        ushort second = (ushort)DateTime.Now.Second;
+                        ushort millisecond = (ushort)DateTime.Now.Millisecond;
 
-                        List<int> list_values = new() { year, month, day, hour, minute, second, millisecond };
-
-                        if (Globals.GetTheInstance().Depur_enable == BIT_STATE.ON)
-                        {
-                            string s_data = string.Empty;
-                            list_values.ForEach(value => s_data += $"{value} ");
-
-                            string s_log_command = $"SENDING DATETIME COMMAND TO TCU : {s_data}" ;
-                            Manage_logs.SaveCommandValue(s_log_command);
-
-                            string s_log_depur = $"WRITE TO TCU: {s_data}";
-                            Manage_logs.SaveDepurValue(s_log_depur);
-                        }
+                        List<ushort> list_values = new() { year, month, day, hour, minute, second, millisecond };
 
                         Manage_thread manage_thread = Globals.GetTheInstance().List_manage_thread.First(manage_thread => manage_thread.TCP_modbus_slave_entry.Name == slave_entry.Name);
                         manage_thread.Write_multiple_registers(Globals.GetTheInstance().Modbus_dir_tcu_datetime, list_values.ToArray());
+
+                        string s_log_command = $"DATETIME COMMAND TO TCU -";
+                        list_values.ForEach(value => s_log_command += $"{value} ");
+                        Manage_logs.SaveCommandValue(s_log_command);
                     }
                 }
                 catch (Exception ex)
@@ -2522,23 +2466,20 @@ namespace SBP_TRACKER
         private void Timer_write_samca_modbus_Tick(object sender, EventArgs e)
         {
             TCPModbusSlaveEntry? slave_entry = Globals.GetTheInstance().List_slave_entry.FirstOrDefault(slave_entry => slave_entry.Slave_type == SLAVE_TYPE.SAMCA);
-            if (m_list_read_write_state[(int)READ_WRITE_STATE.read_write_samca_modbus] && slave_entry != null)
+            if (slave_entry != null && m_list_read_write_state[(int)READ_WRITE_STATE.read_write_samca_modbus] && Globals.GetTheInstance().Enable_write_samca == BIT_STATE.ON)
             {
                 try
                 {
                     //Los Watchdog se cogen del array send to TCU
-                    m_array_write_samca_values[(int)WD_SEND_TO_SAMCA_POS.SBPT_METEO] = m_list_link_to_send_tcu.First(x => x.Link_to_send_tcu == LINK_TO_SEND_TCU.METEO_WD).Value;
-                    m_array_write_samca_values[(int)WD_SEND_TO_SAMCA_POS.SBP_TRACKER] = m_list_link_to_send_tcu.First(x => x.Link_to_send_tcu == LINK_TO_SEND_TCU.TRACKER_WD).Value;
-
-                    if (Globals.GetTheInstance().Depur_enable == BIT_STATE.ON)
-                    {
-                        string s_log = "WRITE TO SAMCA: ";
-                        m_array_write_samca_values.ToList().ForEach(value => s_log += $"{value} ");
-                        Manage_logs.SaveDepurValue(s_log);
-                    }
+                    m_array_write_samca_values[(int)WD_SEND_TO_SAMCA_POS.SBPT_METEO] = (ushort)m_list_link_to_send_tcu.First(x => x.Link_to_send_tcu == LINK_TO_SEND_TCU.METEO_WD).Value;
+                    m_array_write_samca_values[(int)WD_SEND_TO_SAMCA_POS.SBP_TRACKER] = (ushort)m_list_link_to_send_tcu.First(x => x.Link_to_send_tcu == LINK_TO_SEND_TCU.TRACKER_WD).Value;
 
                     Manage_thread manage_thread = Globals.GetTheInstance().List_manage_thread.First(manage_thread => manage_thread.TCP_modbus_slave_entry.Name == slave_entry.Name);
                     manage_thread.Write_multiple_registers(Globals.GetTheInstance().Modbus_dir_write_samca, m_array_write_samca_values);
+
+                    string s_log_command = $"COMMAND TO SAMCA - ";
+                    m_array_write_samca_values.ToList().ForEach(value => s_log_command += $"{value} ");
+                    Manage_logs.SaveCommandValue(s_log_command);
                 }
                 catch (Exception ex)
                 {
@@ -2558,7 +2499,7 @@ namespace SBP_TRACKER
             {
                 //Var entry
                 Globals.GetTheInstance().List_manage_thread
-                    .Where(manage_thread => manage_thread.ManageTCP.Is_connected())
+                    .Where(manage_thread => manage_thread.ManageModbus.Is_connected())
                     .Select(manage_thread => manage_thread.TCP_modbus_slave_entry).ToList()
                     .ForEach(slave_entry => slave_entry.List_var_entry
                         .ForEach(var_entry =>
@@ -2676,11 +2617,11 @@ namespace SBP_TRACKER
                     #region SLAVE COMMUNICATION
 
                     safety_supervisor_value =
-                        Globals.GetTheInstance().List_slave_entry.Exists(slave_entry => !slave_entry.Connected && slave_entry.Field_safety_enable) ?
+                        Globals.GetTheInstance().List_slave_entry.Exists(slave_entry => !slave_entry.Connected && slave_entry.Enable_communication) ?
                         Functions.SetBitTo0(safety_supervisor_value, (int)FIELD_SAFETY_VALUE_BIT.SLAVE_COMM_OK) :
                         Functions.SetBitTo1(safety_supervisor_value, (int)FIELD_SAFETY_VALUE_BIT.SLAVE_COMM_OK);
 
-                    m_array_border_field_safety[(int)FIELD_SAFETY_CHECK.SBPT_SLAVES_COMM_OK].Background = Globals.GetTheInstance().List_slave_entry.Exists(slave_entry => !slave_entry.Connected && slave_entry.Field_safety_enable) ? Brushes.White : Brushes.DarkBlue;
+                    m_array_border_field_safety[(int)FIELD_SAFETY_CHECK.SBPT_SLAVES_COMM_OK].Background = Globals.GetTheInstance().List_slave_entry.Exists(slave_entry => !slave_entry.Connected && slave_entry.Enable_communication) ? Brushes.White : Brushes.DarkBlue;
 
                     #endregion
 
@@ -2749,8 +2690,8 @@ namespace SBP_TRACKER
                     {
                         Globals.GetTheInstance().List_tcu_codified_status.ForEach(codified_status =>
                         {
-                        if (!string.IsNullOrEmpty(codified_status.Value))
-                        {
+                            if (!string.IsNullOrEmpty(codified_status.Value))
+                            {
                                 if ((LINK_TO_GRAPHIC_TCU)codified_status.Link_to_graphic != LINK_TO_GRAPHIC_TCU.NONE)
                                 {
                                     try
@@ -2823,10 +2764,10 @@ namespace SBP_TRACKER
                                                 }
                                             }
                                         }
-                                        
+
                                         else if ((LINK_TO_GRAPHIC_TCU)codified_status.Link_to_graphic == LINK_TO_GRAPHIC_TCU.LOCK_UNLOCK)
                                         {
-                                            m_l1_state = 
+                                            m_l1_state =
                                                 Functions.IsBitSetTo1(int.Parse(codified_status.Value), (int)LOCK_UNLOCK_BITS.RUN_LOCK_LD1) ? LOCK_UNLOCK_STATE.LOCK :
                                                 Functions.IsBitSetTo1(int.Parse(codified_status.Value), (int)LOCK_UNLOCK_BITS.RUN_UNLOCK_LD1) ? LOCK_UNLOCK_STATE.UNLOCK :
                                                 m_l1_state;
@@ -2836,10 +2777,9 @@ namespace SBP_TRACKER
                                                 Functions.IsBitSetTo1(int.Parse(codified_status.Value), (int)LOCK_UNLOCK_BITS.RUN_UNLOCK_LD2) ? LOCK_UNLOCK_STATE.UNLOCK :
                                                 m_l2_state;
 
-                                            if (Globals.GetTheInstance().Depur_enable == BIT_STATE.ON) 
-                                                Manage_logs.SaveDepurValue($"LOCK1 STATE - {m_l1_state} / LOCK2 STATE {m_l2_state}");
+                                            Manage_logs.SaveDepurValue($"LOCK1 STATE - {m_l1_state} / LOCK2 STATE {m_l2_state}");
                                         }
-                                        
+
                                         //A nivel de valor
                                         else
                                         {
@@ -2870,8 +2810,7 @@ namespace SBP_TRACKER
                                                     Label current_label = m_keyValuePair_codified_status_value.First(key_value => key_value.Key == (LINK_TO_GRAPHIC_TCU)codified_status.Link_to_graphic).Value;
                                                     current_label.Content = $"{codified_status.Value} {codified_status.Unit}";
 
-                                                    if (Globals.GetTheInstance().Depur_enable == BIT_STATE.ON)
-                                                        Manage_logs.SaveDepurValue($"LINK TO GRAPHIC TCU - {(LINK_TO_GRAPHIC_TCU)codified_status.Link_to_graphic} / VALUE - {codified_status.Value} / LABEL - {current_label.Name} / LOCK1 STATE - {m_l1_state} / LOCK2 - STATE {m_l2_state}");
+                                                    Manage_logs.SaveDepurValue($"LINK TO GRAPHIC TCU - {(LINK_TO_GRAPHIC_TCU)codified_status.Link_to_graphic} / VALUE - {codified_status.Value} / LABEL - {current_label.Name} / LOCK1 STATE - {m_l1_state} / LOCK2 - STATE {m_l2_state}");
                                                 }
                                             }
 
@@ -2882,7 +2821,7 @@ namespace SBP_TRACKER
                                                 if (current_label != null)
                                                     current_label.Content = $"{codified_status.Value} {codified_status.Unit}";
 
-                                                //Tracker current POS -> Show in field safety analisis window
+                                                //Field safety analisis window -> Tracker current POS
                                                 if ((LINK_TO_GRAPHIC_TCU)codified_status.Link_to_graphic == LINK_TO_GRAPHIC_TCU.TRACKER_POS_EL)
                                                 {
                                                     FieldSafetyAnalisisWindow? safety_analisis_window = Application.Current.Windows.OfType<FieldSafetyAnalisisWindow>().FirstOrDefault();
@@ -2968,12 +2907,11 @@ namespace SBP_TRACKER
             {
                 try
                 {
-                    string s_dir = AppDomain.CurrentDomain.BaseDirectory + Constants.Record_dir + @"\" + String.Format("{0:0000}", DateTime.Now.Year) + String.Format("{0:00}", DateTime.Now.Month);
+                    string s_dir = $"{AppDomain.CurrentDomain.BaseDirectory}{Constants.Record_dir}\\{string.Format("{0:0000}", DateTime.Now.Year)}{string.Format("{0:00}", DateTime.Now.Month)}";
                     if (!Directory.Exists(s_dir))
                         Directory.CreateDirectory(s_dir);
 
-
-                    s_file = s_dir + @"\" + s_file + DateTime.Now.Year.ToString("0000") + DateTime.Now.Month.ToString("00") + DateTime.Now.Day.ToString("00") + ".csv";
+                    s_file = $"{s_dir}\\{s_file}{DateTime.Now.Year:0000}{DateTime.Now.Month:00}{DateTime.Now.Day:00}.csv";
                     if (!File.Exists(s_file))
                     {
                         using FileStream fs = File.Create(s_file);
@@ -3063,12 +3001,11 @@ namespace SBP_TRACKER
             {
                 try
                 {
-                    string s_dir = AppDomain.CurrentDomain.BaseDirectory + Constants.Record_dir + @"\" + String.Format("{0:0000}", DateTime.Now.Year) + String.Format("{0:00}", DateTime.Now.Month);
+                    string s_dir = $"{AppDomain.CurrentDomain.BaseDirectory}{Constants.Record_dir}\\{string.Format("{0:0000}", DateTime.Now.Year)}{string.Format("{0:00}", DateTime.Now.Month)}";
                     if (!Directory.Exists(s_dir))
                         Directory.CreateDirectory(s_dir);
 
-
-                    s_file = s_dir + @"\" + s_file + DateTime.Now.Year.ToString("0000") + DateTime.Now.Month.ToString("00") + DateTime.Now.Day.ToString("00") + ".csv";
+                    s_file = $"{s_dir}\\{s_file}{DateTime.Now.Year:0000}{DateTime.Now.Month:00}{DateTime.Now.Day:00}.csv";
                     if (!File.Exists(s_file))
                     {
                         using FileStream fs = File.Create(s_file);
@@ -3077,10 +3014,10 @@ namespace SBP_TRACKER
                         string s_head = $"UTCDATE{Globals.GetTheInstance().SField_sep}";
                         s_head += $"DDATE{Globals.GetTheInstance().SField_sep}";
 
-                        Globals.GetTheInstance().List_tcu_codified_status.ToList().ForEach(encode_state =>
+                        Globals.GetTheInstance().List_tcu_codified_status.ToList().ForEach(codified_status =>
                         {
-                            if (encode_state.TCU_record)
-                                s_head += $"{encode_state.Name}[{encode_state.Unit}]{ Globals.GetTheInstance().SField_sep}";
+                            if (codified_status.TCU_record)
+                                s_head += $"{codified_status.Name}[{codified_status.Unit}]{Globals.GetTheInstance().SField_sep}";
                         });
 
                         s_head = s_head.Remove(s_head.Length - 1);
@@ -3095,10 +3032,10 @@ namespace SBP_TRACKER
                     string s_line = $"{DateTime.UtcNow.ToString(Globals.GetTheInstance().Date_format, new CultureInfo(Globals.GetTheInstance().Format_provider))}{Globals.GetTheInstance().SField_sep}";
                     s_line += $"{DateTime.UtcNow.ToOADate().ToString(Globals.GetTheInstance().nfi)}{Globals.GetTheInstance().SField_sep}";
 
-                    Globals.GetTheInstance().List_tcu_codified_status.ForEach(encode_state =>
+                    Globals.GetTheInstance().List_tcu_codified_status.ForEach(codified_status =>
                     {
-                        if (encode_state.TCU_record)
-                            s_line += $"{encode_state.Value}{ Globals.GetTheInstance().SField_sep}";
+                        if (codified_status.TCU_record)
+                            s_line += $"{codified_status.Value}{Globals.GetTheInstance().SField_sep}";
                     });
 
                     s_line = s_line.Remove(s_line.Length - 1);
@@ -3111,6 +3048,9 @@ namespace SBP_TRACKER
                     Manage_logs.SaveErrorValue($"{GetType().Name} -> {nameof(Record_tcu)} -> {ex.Message}");
                 }
             }
+
+            else
+                Manage_logs.SaveDepurValue($"RECORD TCU DISABLED - RW TCU STATE : { m_list_read_write_state[(int)READ_WRITE_STATE.read_write_tcu_modbus]} - RW FIRST TCU STATE : {m_list_read_write_state[(int)READ_WRITE_STATE.first_read_tcu_finish]}");
         }
 
 
@@ -3126,12 +3066,11 @@ namespace SBP_TRACKER
             {
                 try
                 {
-                    string s_dir = AppDomain.CurrentDomain.BaseDirectory + Constants.Record_dir + @"\" + String.Format("{0:0000}", DateTime.Now.Year) + String.Format("{0:00}", DateTime.Now.Month);
+                    string s_dir = $"{AppDomain.CurrentDomain.BaseDirectory}{Constants.Record_dir}\\{string.Format("{0:0000}", DateTime.Now.Year)}{string.Format("{0:00}", DateTime.Now.Month)}"; 
                     if (!Directory.Exists(s_dir))
                         Directory.CreateDirectory(s_dir);
 
-
-                    s_file = s_dir + @"\" + s_file + DateTime.Now.Year.ToString("0000") + DateTime.Now.Month.ToString("00") + DateTime.Now.Day.ToString("00") + ".csv";
+                    s_file = $"{s_dir}\\{s_file}{DateTime.Now.Year:0000}{DateTime.Now.Month:00}{DateTime.Now.Day:00}.csv";
                     if (!File.Exists(s_file))
                     {
                         using FileStream fs = File.Create(s_file);
@@ -3197,16 +3136,16 @@ namespace SBP_TRACKER
 
         private void Send_mail_instant_start()
         {
-            Tuple<bool, double>  tuple_send_mail = Functions.Redefine_send_mail_instant();
+            Tuple<bool, double> tuple_send_mail = Functions.Redefine_send_mail_instant();
             if (tuple_send_mail.Item1)
             {
                 m_mail_state = MAIL_STATE.COMPRESS;
                 m_timer_send_mail.Interval = tuple_send_mail.Item2;
                 m_timer_send_mail.Start();
             }
-            else 
+            else
                 MessageBox.Show("Error redefining send mail instant", "Error", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
-            
+
         }
 
         #endregion
@@ -3217,7 +3156,7 @@ namespace SBP_TRACKER
         {
             if (Globals.GetTheInstance().Mail_data_on == BIT_STATE.ON)
             {
-                List<string> list_record_file = new() { Constants.Record_scs1, Constants.Record_scs2, Constants.Record_samca };
+                List<string> list_record_file = new() { Constants.Record_scs1, Constants.Record_scs2, Constants.Record_samca, Constants.Record_tcu };
 
                 switch (m_mail_state)
                 {
@@ -3359,7 +3298,8 @@ namespace SBP_TRACKER
 
         #region Timer setting
 
-        private void Stop_timers() {
+        private void Stop_timers()
+        {
 
             if (m_list_read_write_state.Any(state => state == true))
                 Checkbox_start.IsChecked = false;
@@ -3398,7 +3338,8 @@ namespace SBP_TRACKER
             m_timer_record_tcu.Start();
         }
 
-        private void Redefine_timer_interval() {
+        private void Redefine_timer_interval()
+        {
             m_timer_reconnect_slave.Interval = Globals.GetTheInstance().Modbus_reconnect_interval;
 
             m_timer_read_scs_normal_modbus.Interval = Globals.GetTheInstance().Modbus_read_scs_normal_interval;
@@ -3478,6 +3419,11 @@ namespace SBP_TRACKER
 
                     case SETTING_OPTION.MAIL:
                         {
+                            Process? process = Process.GetProcesses().ToList().FirstOrDefault(process => process.ProcessName == "python" && process.MainModule.FileName == Globals.GetTheInstance().Python_path);
+                            if (process != null)
+                                process.Kill();
+
+
                             SettingMailWindow settingMailWindow = new()
                             {
                                 Left = this.Left,
@@ -3489,10 +3435,11 @@ namespace SBP_TRACKER
                             if (Globals.GetTheInstance().Mail_instant != "__:__")
                                 Send_mail_instant_start();
 
+                            Functions.Cloud_upload_start(Globals.GetTheInstance().Cloud_check_interval, 1);
+
                             break;
                         }
                 }
-
 
                 Start_timer();
 
@@ -3509,6 +3456,10 @@ namespace SBP_TRACKER
 
         private void Button_exit_Click(object sender, RoutedEventArgs e)
         {
+            Process? process = Process.GetProcesses().ToList().FirstOrDefault(process => process.ProcessName == "python" && process.MainModule.FileName == Globals.GetTheInstance().Python_path);
+            if (process != null)
+                process.Kill();
+
             Application.Current.Shutdown();
         }
 

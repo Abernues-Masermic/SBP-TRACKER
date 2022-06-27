@@ -125,6 +125,9 @@
                                     <Label Content=""  Style="{StaticResource Label_setting}" Width="30"/>
                                 </WrapPanel>
 
+                                <CheckBox x:Name="Check_enable_write_tcu" Content="ENABLE WRITE TCU" Style="{StaticResource Checkbox_setting}" Margin="5,20,5,5" VerticalContentAlignment="Center" />
+                                <CheckBox x:Name="Check_enable_write_samca" Content="ENABLE WRITE SAMCA" Style="{StaticResource Checkbox_setting}" Margin="5" VerticalContentAlignment="Center" />
+
                             </WrapPanel>
                         </Border>
 

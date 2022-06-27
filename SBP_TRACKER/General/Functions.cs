@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -23,7 +24,7 @@ namespace SBP_TRACKER
 
         #region Read from array
 
-        public static Tuple<string, string> Read_from_array(int[] read_values, int dir_mb, TypeCode var_type, double factor )
+        public static Tuple<string, string> Read_from_array(ushort[] read_values, int dir_mb, TypeCode var_type, double factor )
         {
             string s_value_received = string.Empty;
             double factor_data = 0;
@@ -106,7 +107,7 @@ namespace SBP_TRACKER
 
         #region Read from array and convert value
 
-        public static Tuple<string, string> Read_from_array_convert_scale_offset(int[] read_values, int dir_mb, string var_name, TypeCode var_type, double value_min, double scale_min, double scale_factor, double offset)
+        public static Tuple<string, string> Read_from_array_convert_scale_offset(ushort[] read_values, int dir_mb, TypeCode var_type, double value_min, double scale_min, double scale_factor, double offset)
         {
             string s_value_received = string.Empty;
 
@@ -360,6 +361,52 @@ namespace SBP_TRACKER
         #endregion
 
 
+        #region Python cloud script start
+
+        public static void Cloud_upload_start(int check_interval, int days_substract)
+        {
+            bool process_exist = false;
+            Process? process = Process.GetProcesses().ToList().FirstOrDefault(process => process.ProcessName == "python");
+            if (process != null && Globals.GetTheInstance().Python_path != string.Empty)
+                process_exist = process.MainModule.FileName == Globals.GetTheInstance().Python_path;
+
+            string script_path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Globals.GetTheInstance().Cloud_script);
+
+
+            if (process_exist)
+                Manage_logs.SaveLogValue("Upload data to cloud script is already started");
+
+            else if (!File.Exists(script_path))
+                Manage_logs.SaveLogValue($"Cannot locate data to cloud script - {File.Exists(script_path)}");
+
+            else if (Globals.GetTheInstance().Python_path == string.Empty)
+                Manage_logs.SaveLogValue("Define Python.exe path");
+
+            else if (!File.Exists(Globals.GetTheInstance().Python_path))
+                Manage_logs.SaveLogValue("Python.exe path doesnt exist");
+
+            else if (Globals.GetTheInstance().Load_cloud_on == BIT_STATE.OFF)
+                Manage_logs.SaveLogValue("LOAD TO CLOUD IS DISABLE");
+
+            else
+            {
+                ProcessStartInfo start = new()
+                {
+                    FileName = "python.exe",
+                    Arguments = string.Format("{0} {1} {2}", "\"" + script_path + "\"", check_interval, days_substract),
+                    UseShellExecute = true
+                };
+                Process.Start(start);
+
+                Manage_logs.SaveLogValue("Upload data to cloud script started");
+            }
+
+
+        }
+
+        #endregion
+
+
         #region TypeCode MIN MAX VALUE
 
         public static Tuple<decimal, decimal> TypeCode_min_max(TypeCode typecode)
@@ -435,5 +482,6 @@ namespace SBP_TRACKER
         }
 
         #endregion
+
     }
 }

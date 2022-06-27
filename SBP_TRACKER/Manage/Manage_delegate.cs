@@ -12,7 +12,7 @@ namespace SBP_TRACKER
 
         public event TCP_handler TCP_handler_event;
 
-        public void Manage_tcp_to_main(string slave, TCP_ACTION tcp_action, List<int> list_data)
+        public void Manage_tcp_to_main(string slave, TCP_ACTION tcp_action, List<ushort> list_data)
         {
             TCP_handler_args myArgs = new(slave, tcp_action, list_data);
             TCP_handler_event(this, myArgs);
@@ -22,7 +22,7 @@ namespace SBP_TRACKER
 
     public class TCP_handler_args : EventArgs
     {
-        public TCP_handler_args(string slave_name, TCP_ACTION tcp_action, List<int> list_data)
+        public TCP_handler_args(string slave_name, TCP_ACTION tcp_action, List<ushort> list_data)
         {
             Slave_name = slave_name;
             TCP_action = tcp_action;
@@ -33,7 +33,7 @@ namespace SBP_TRACKER
 
         public TCP_ACTION TCP_action { get; set; }
 
-        public List<int> List_data { get; set; }
+        public List<ushort> List_data { get; set; }
     }
 
 

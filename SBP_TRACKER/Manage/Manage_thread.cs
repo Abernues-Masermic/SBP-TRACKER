@@ -13,7 +13,7 @@ namespace SBP_TRACKER
 
         public TCPModbusSlaveEntry TCP_modbus_slave_entry { get; set; }
 
-        public Manage_tcp ManageTCP { get; set; }
+        public Manage_modbus ManageModbus { get; set; }
 
         public bool Check_start_conn { get; set; }
 
@@ -22,8 +22,8 @@ namespace SBP_TRACKER
         private bool m_write_flag { get; set; }
 
 
-        public Manage_thread() { 
-            ManageTCP = new Manage_tcp();
+        public Manage_thread() {
+            ManageModbus = new Manage_modbus();
         }
 
 
@@ -44,14 +44,14 @@ namespace SBP_TRACKER
 
             m_read_flag = false;
             m_write_flag = false;
-            ManageTCP.Connect(TCP_modbus_slave_entry, m_recovery_mode);
+            ManageModbus.Connect(TCP_modbus_slave_entry, m_recovery_mode);
         }
 
                 
 
         public void Stop_tcp_com_thread()
         {
-            ManageTCP.Disconnect();
+            ManageModbus.Disconnect();
 
             if (!TCP_modbus_slave_entry.Reconnect)
                 Manage_logs.SaveCommunicationValue($"STOP SLAVE -> {TCP_modbus_slave_entry.Name}");
@@ -59,55 +59,48 @@ namespace SBP_TRACKER
 
 
 
-        public Tuple<READ_STATE, int[]> Read_holding_registers_int32()
+        public Tuple<READ_STATE, ushort[]> Read_holding_registers()
         {
-            Tuple<READ_STATE, int[]> result = new(READ_STATE.ERROR, Array.Empty<int>());
+            Tuple<READ_STATE, ushort[]> result = new(READ_STATE.ERROR, Array.Empty<ushort>());
             if (!m_read_flag)
             {
                 m_read_flag = true;
-                result = ManageTCP.Read_holding_registers_int32(TCP_modbus_slave_entry.Dir_ini, TCP_modbus_slave_entry.Read_reg);
+                result = ManageModbus.Read_holding_registers(TCP_modbus_slave_entry.Dir_ini, TCP_modbus_slave_entry.Read_reg);
                 m_read_flag = false;
             }
-            else if (Globals.GetTheInstance().Depur_enable == BIT_STATE.ON)
-            {
+            else
                 Manage_logs.SaveDepurValue($"READ HOLDING REGISTER FLAG ERROR : { TCP_modbus_slave_entry.Name }");
-            }
-
 
             return result;
         }
 
-        public Tuple<READ_STATE, int[]> Read_input_registers_int32()
+        public Tuple<READ_STATE, ushort[]> Read_input_registers()
         {
-            Tuple<READ_STATE, int[]> result = new(READ_STATE.ERROR, Array.Empty<int>());
+            Tuple<READ_STATE, ushort[]> result = new(READ_STATE.ERROR, Array.Empty<ushort>());
             if (!m_read_flag)
             {
                 m_read_flag = true;
-                result = ManageTCP.Read_input_registers_int32(TCP_modbus_slave_entry.Dir_ini, TCP_modbus_slave_entry.Read_reg);
+                result = ManageModbus.Read_input_registers_int32(TCP_modbus_slave_entry.Dir_ini, TCP_modbus_slave_entry.Read_reg);
                 m_read_flag = false;
             }
-            else if (Globals.GetTheInstance().Depur_enable == BIT_STATE.ON)
-            {
+            else
                 Manage_logs.SaveDepurValue($"READ INPUT REGISTER FLAG ERROR : { TCP_modbus_slave_entry.Name }");
-            }
             
             return result;
         }
 
 
-        public bool Write_multiple_registers(int start_address, int[] values)
+        public bool Write_multiple_registers(ushort start_address, ushort[] values)
         {
             bool write_ok = false;
             if (!m_write_flag)
             {
                 m_write_flag = true;
-                write_ok = ManageTCP.Write_multiple_registers(start_address, values);
+                write_ok = ManageModbus.Write_multiple_registers(start_address, values);
                 m_write_flag = false;
             }
-            else if (Globals.GetTheInstance().Depur_enable == BIT_STATE.ON)
-            {
+            else
                 Manage_logs.SaveDepurValue($"WRITE MULTIPLE REGISTER FLAG ERROR : { TCP_modbus_slave_entry.Name }");
-            }
 
             return write_ok;
         }

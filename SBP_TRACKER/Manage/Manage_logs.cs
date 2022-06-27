@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SBP_TRACKER
 {
     public static class Manage_logs
     {
-        private static readonly Object SyncObj = new Object();
+        private static readonly object SyncObj = new();
 
         public static void SaveLogValue(string valor)
         {
@@ -32,14 +28,17 @@ namespace SBP_TRACKER
         {
             try
             {
-                String path = AppDomain.CurrentDomain.BaseDirectory;
-                path += @"\" + Constants.Log_dir + @"\LogCommand.txt";
-
-                lock (SyncObj)
+                if (Globals.GetTheInstance().Depur_enable == BIT_STATE.ON)
                 {
-                    using StreamWriter writer = new(path, true);
-                    writer.WriteLine(DateTime.Now + "\t" + valor);
-                    writer.Close();
+                    string path = AppDomain.CurrentDomain.BaseDirectory;
+                    path += @"\" + Constants.Log_dir + @"\LogCommand.txt";
+
+                    lock (SyncObj)
+                    {
+                        using StreamWriter writer = new(path, true);
+                        writer.WriteLine(DateTime.Now + "\t" + valor);
+                        writer.Close();
+                    }
                 }
             }
             catch { }
@@ -84,14 +83,17 @@ namespace SBP_TRACKER
         {
             try
             {
-                string path = AppDomain.CurrentDomain.BaseDirectory;
-                path += @"\" + Constants.Log_dir + @"\LogDepur.txt";
-
-                lock (SyncObj)
+                if (Globals.GetTheInstance().Depur_enable == BIT_STATE.ON)
                 {
-                    using StreamWriter writer = new(path, true);
-                    writer.WriteLine(DateTime.Now + "\t" + valor);
-                    writer.Close();
+                    string path = AppDomain.CurrentDomain.BaseDirectory;
+                    path += @"\" + Constants.Log_dir + @"\LogDepur.txt";
+
+                    lock (SyncObj)
+                    {
+                        using StreamWriter writer = new(path, true);
+                        writer.WriteLine(DateTime.Now + "\t" + valor);
+                        writer.Close();
+                    }
                 }
             }
             catch { }
@@ -102,14 +104,17 @@ namespace SBP_TRACKER
         {
             try
             {
-                String path = AppDomain.CurrentDomain.BaseDirectory;
-                path += @"\" + Constants.Log_dir + @"\LogWebApi.txt";
-
-                lock (SyncObj)
+                if (Globals.GetTheInstance().Depur_enable == BIT_STATE.ON)
                 {
-                    using StreamWriter writer = new(path, true);
-                    writer.WriteLine(DateTime.Now + "\t" + valor);
-                    writer.Close();
+                    string path = AppDomain.CurrentDomain.BaseDirectory;
+                    path += @"\" + Constants.Log_dir + @"\LogWebApi.txt";
+
+                    lock (SyncObj)
+                    {
+                        using StreamWriter writer = new(path, true);
+                        writer.WriteLine(DateTime.Now + "\t" + valor);
+                        writer.Close();
+                    }
                 }
             }
             catch { }

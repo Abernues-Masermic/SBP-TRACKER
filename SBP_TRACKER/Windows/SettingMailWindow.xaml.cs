@@ -7,9 +7,7 @@ using System.Net.Mail;
 using System.Windows;
 using System.Windows.Input;
 using Ionic.Zip;
-
-
-
+using System.Diagnostics;
 
 namespace SBP_TRACKER
 {
@@ -42,12 +40,18 @@ namespace SBP_TRACKER
                 Textbox_pass.Password = Globals.GetTheInstance().Mail_pass;
                 Textbox_smtp.Text = Globals.GetTheInstance().Mail_smtp_client;
 
+                Check_load_cloud_enable.IsChecked = Globals.GetTheInstance().Load_cloud_on == BIT_STATE.ON ? true : false;
+                DecimalUpDown_checking_cloud.Value = Globals.GetTheInstance().Cloud_check_interval;
+                Textbox_python_path.Text = Globals.GetTheInstance().Python_path;
+                Textbox_cloud_script_name.Text = Globals.GetTheInstance().Cloud_script;
+                DatePickerCloud.SelectedDate = DateTime.Now;
+
                 ListboxTo.Items.Clear();
                 Globals.GetTheInstance().List_mail_to.ForEach(mailto => ListboxTo.Items.Add(mailto));
             }
             catch (Exception ex)
             {
-                Manage_logs.SaveErrorValue($"{GetType().Name}  -> {nameof(SettingMailWindow)} -> {ex.Message}");
+                Manage_logs.SaveErrorValue($"{GetType().Name} -> {nameof(SettingMailWindow)} -> {ex.Message}");
             }
         }
 
@@ -132,11 +136,15 @@ namespace SBP_TRACKER
             Globals.GetTheInstance().Mail_pass = Textbox_pass.Password;
             Globals.GetTheInstance().Mail_smtp_client = Textbox_smtp.Text;
 
+            Globals.GetTheInstance().Load_cloud_on = Check_load_cloud_enable.IsChecked == true ? BIT_STATE.ON : BIT_STATE.OFF;
+            Globals.GetTheInstance().Cloud_check_interval = (int)DecimalUpDown_checking_cloud.Value;
+            Globals.GetTheInstance().Python_path = Textbox_python_path.Text;
+            Globals.GetTheInstance().Cloud_script = Textbox_cloud_script_name.Text;
+
             Globals.GetTheInstance().List_mail_to.Clear();
             foreach (var item in ListboxTo.Items)
-            {
                 Globals.GetTheInstance().List_mail_to.Add(item.ToString());
-            }
+            
 
             bool save_setting = Manage_file.Save_app_setting();
             bool save_mail = Manage_file.Save_email_to();
@@ -214,7 +222,7 @@ namespace SBP_TRACKER
                 try
                 {
                     string s_zip_file = Path.GetFileNameWithoutExtension(Textbox_zip.Text) + Constants.Compress_extension;
-                    string path_zip_file = Constants.Compress_dir + @"\" + s_zip_file;
+                    string path_zip_file = $"{Constants.Compress_dir}\\{s_zip_file}";
 
                     if (File.Exists(path_zip_file))
                         File.Delete(path_zip_file);
@@ -230,7 +238,7 @@ namespace SBP_TRACKER
                 }
                 catch (Exception ex)
                 {
-                    Manage_logs.SaveErrorValue(GetType().Name + " ->  " + nameof(Button_send_mail_Click) + " -> " + ex.Message.ToString());
+                    Manage_logs.SaveErrorValue($"{ GetType().Name} -> {nameof(Button_zip_Click)} -> {ex.Message}");
                     MessageBox.Show("Error compressing file", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
                 }
 
@@ -273,7 +281,7 @@ namespace SBP_TRACKER
                 }
                 catch (Exception ex)
                 {
-                    Manage_logs.SaveErrorValue(GetType().Name + " ->  " + nameof(Button_send_mail_Click) + " -> " + ex.Message.ToString());
+                    Manage_logs.SaveErrorValue($"{ GetType().Name} -> {nameof(Button_send_mail_Click)} -> {ex.Message}");
                     MessageBox.Show("Error sending file", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
                 }
 
@@ -284,12 +292,68 @@ namespace SBP_TRACKER
 
 
 
+        #region Python path
+
+        private void Button_python_path_click(object sender, RoutedEventArgs e)
+        {
+            string s_initial_dir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            if (File.Exists(Textbox_python_path.Text))
+                s_initial_dir = Path.GetDirectoryName(Textbox_python_path.Text);
+
+            var fileDialog = new OpenFileDialog
+            {
+                InitialDirectory = s_initial_dir,
+                Filter = "exe files (*.exe)|*.exe|All files (*.*)|*.*"
+            };
+
+            if (fileDialog.ShowDialog() == true)
+                Textbox_python_path.Text = fileDialog.FileName;
+
+            Activate();
+
+        }
+
+        #endregion
+
+        #region Upload to cloud
+        private void Button_upload_cloud_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (DateTime.Compare(DateTime.Now, (DateTime)DatePickerCloud.SelectedDate) < 0)
+                    MessageBox.Show("Seleccione una fecha anterior al día actual", "INFO", MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+
+                else 
+                    Functions.Cloud_upload_start(0, DateTime.Now.Subtract((DateTime)DatePickerCloud.SelectedDate).Days);
+            }
+            catch { }
+        }
+
+        #endregion
+
+        #region Close python app
+
+        private void Button_close_python_app_Click(object sender, RoutedEventArgs e)
+        {
+            Process? process = Process.GetProcesses().ToList().FirstOrDefault(process => process.ProcessName == "python" && process.MainModule.FileName == Globals.GetTheInstance().Python_path);
+            if (process != null)
+            {
+                process.Kill();
+                MessageBox.Show("Se ha eliminado el proceso de gestión hacia el Cloud", "INFO", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+            }
+        }
+
+        #endregion
+
+
         #region Button exit
 
         private void Button_exit_Click(object sender, RoutedEventArgs e)
         {
             Close();
         }
+
+
 
         #endregion
 

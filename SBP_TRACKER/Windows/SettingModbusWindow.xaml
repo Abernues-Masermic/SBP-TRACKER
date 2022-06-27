@@ -87,6 +87,17 @@
                                                     </GridViewColumn>
 
 
+                                                    <GridViewColumn x:Name="Gridview_enable_slave" Width="100"  Header="ENABLE" HeaderContainerStyle="{StaticResource Gridview_header_style}">
+                                                        <GridViewColumn.CellTemplate>
+                                                            <DataTemplate>
+                                                                <Canvas  Margin="30,0,0,0" Height="15" Width="15" >
+                                                                    <Ellipse  Height="14" Width="14" Fill="{Binding Path=Enable_communication, Converter={StaticResource BooleanToColorConverterCheck }}" />
+                                                                </Canvas>
+                                                            </DataTemplate>
+                                                        </GridViewColumn.CellTemplate>
+                                                    </GridViewColumn>
+
+
                                                 </GridView>
                                             </ListView.View>
 
@@ -147,15 +158,17 @@
                                             </ComboBox>
                                         </WrapPanel>
 
-                                        
-                                        <WrapPanel Orientation="Horizontal">
 
-                                            <WrapPanel  Orientation="Horizontal" Margin="2,5,2,5">
-                                                <Label Content="FAST MODE"  Style="{StaticResource Label_setting}" Width="85"/>
-                                                <CheckBox x:Name="Checkbox_fast_mode" Style="{StaticResource Checkbox_setting}"/>
-                                            </WrapPanel>
-
+                                        <WrapPanel  Orientation="Horizontal" Margin="2,5,2,5">
+                                            <Label Content="FAST MODE"  Style="{StaticResource Label_setting}" Width="85"/>
+                                            <CheckBox x:Name="Checkbox_fast_mode" Style="{StaticResource Checkbox_setting}"/>
                                         </WrapPanel>
+
+                                        <WrapPanel  Orientation="Horizontal" Margin="2,5,2,5">
+                                            <Label Content="ENABLE"  Style="{StaticResource Label_setting}" Width="85"/>
+                                            <CheckBox x:Name="Checkbox_enable" Style="{StaticResource Checkbox_setting}"/>
+                                        </WrapPanel>
+
 
                                         <Border BorderBrush="Black" Background="Black" BorderThickness="2,2,3,3" CornerRadius="5" Height="33" HorizontalAlignment="Center">
                                             <WrapPanel Orientation="Horizontal"  Margin="10,0,10,0" VerticalAlignment="Center">
